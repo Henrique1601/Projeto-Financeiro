@@ -1,89 +1,70 @@
-// date
-// description
-// value
-// entrada
-// saida 
-// generater-table
+document.addEventListener('DOMContentLoaded', function() {
+  const deletar = document.getElementById('Deletar');
+  const salvar = document.getElementById('Salvar');
+  const fecharFaturamento = document.getElementById('FecharFaturamento');
+  const confirmar = document.getElementById('Confirmar');
 
-// Confirmar
-// Deletar
-// Salvar
-// Fechar faturamento
+function Confirmar(){
+  const data = document.getElementById('date').value;
+  const descricao = document.getElementById('description').value;
+  const valor = Number(document.getElementById('value').value);
+  const entradaSaida = document.getElementById('select').value;
+  // const saida = document.getElementById('saida').checked;
 
-
-const Data = document.getElementById('date');
-const descricao = document.getElementById('description');
-const valor = Number(document.getElementById('value').value);
-const entrada = document.getElementById('entrada');
-const saida = document.getElementById('saida');
-
-// Tabela
-const GerarTabela = document.getElementById('generater-table');
-
-// Btns
-const confirmar = document.getElementById('Confirmar');
-const deletar = document.getElementById('Deletar');
-const salvar = document.getElementById('Salvar');
-const fecharFaturamento = document.getElementById('Fechar faturamento');
-
-//Valores do faturamento tabela 2
-const ValoresFaturamento = document.getElement('resposta-table')
-
-function Confirmar() {
-    console.log('confirmarFaturamento');
-      // Validar dados
-       if (Data.value === '' || descricao.value === '' || valor.value === '') {
-        alert('Preencha todos os campos');
-        return;
-      // Validar entrada/saida
-      }else if(entrada.checked && saida.checked){
-        alert('Selecione apenas uma das opções entrada ou saída');
-        return;
-    }
-    addTableRow(Data.value, descricao.value, valor, entrada.checked, saida.checked);
+  //Validar Faturamento
+  if (data === '' || descricao === '' || valor === '') {
+    alert('Todos os campos são obrigatórios!');
+    return;
   }
-  // Adicionar dados na lista
-  function addTableRow(data, descricao, valor, entrada, saida) {
-    console.log('addTableRow');
+  alert('Dados confirmados');
+  const tabela = document.getElementById('generator-table').getElementsByTagName('tbody')[0]
+  const row = tabela.insertRow();
 
-    const newRow = GerarTabela.insertRow();
-    const cell1 = newRow.insertCell();
-    const cell2 = newRow.insertCell();
-    const cell3 = newRow.insertCell();
-    const cell4 = newRow.insertCell();
-    const cell5 = newRow.insertCell();
+  const cell1 = row.insertCell(0);
+  const cell2 = row.insertCell(1);
+  const cell3 = row.insertCell(2);
+  const cell4 = row.insertCell(3);
 
-    cell1.textContent = data;
-    cell2.textContent = descricao;
-    cell3.textContent = valor;
-    cell4.textContent = entrada ? 'Entrada' : 'Saída'; // Display a user-friendly value
-    cell5.textContent = saida ? 'Saída' : 'Entrada'; // Assuming only one can be true
-
-
-}
-    
-
-function Deletar(Deletar) {
-   console.log('deletarFaturamento');
-    // Remover um dado selecionado da lista
-
-    // Atualizar tabela
-
+  cell1.innerHTML = data
+  cell2.innerHTML = descricao
+  cell3.innerHTML = valor
+  cell4.innerHTML = entradaSaida
+ 
 }
 
-function Salvar(Salvar) {
-   console.log('salvarFaturamento');
-    // Salvar dados no local storage
-    // Atualizar tabela
+function Salvar(){
+
+}
+ 
+function Deletar(){
+  const tabela = document.getElementById('generator-table').getElementsByTagName('tbody')[0]
+  if (tabela.rows.length > 0){
+    tabela.deleteRow(tabela.rows.length - 1);
+  }
 }
 
-function FecharFaturamento(FecharFaturamento) {
-   console.log('fecharFaturamento');
-    // Fechar faturamento e voltar para a tela inicial  vai aparecer na segunda tabela
-    // Gerar tabela
+function FecharFaturamento(){
+ 
+//resposta-table
+
+  const tabelaResposta = document.getElementById('resposta-table').getElementsByTagName('tbody')[0]
+  const row = tabelaResposta.insertRow();
+
+  const valorResultado = document.getElementById('value').value; // pegar o valor da primeira tabela e nao do input
+  //const resutladovalor = document.getElementById
+
+  const cell1 = row.insertCell(0);
+  const cell2 = row.insertCell(1);
+  const cell3 = row.insertCell(2);
+  const cell4 = row.insertCell(3);
+
+  cell1.innerHTML = valorResultado
+  // cell2.innerHTML = valorResultado
+  // cell3.innerHTML = valorResultado
+  // cell4.innerHTML = valorResultado
+
+  alert('Faturamento fechado')
 }
-
-
 
 
 // Eventos
@@ -91,3 +72,4 @@ confirmar.addEventListener('click', Confirmar);
 deletar.addEventListener('click', Deletar);
 salvar.addEventListener('click', Salvar);
 fecharFaturamento.addEventListener('click', FecharFaturamento);
+})
