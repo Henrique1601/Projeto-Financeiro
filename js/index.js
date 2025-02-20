@@ -33,8 +33,42 @@ function Confirmar(){
 }
 
 function Salvar(){
+  const data = document.getElementById('date').value;
+  const descricao = document.getElementById('description').value;
+  const valor = Number(document.getElementById('value').value);
+  const entradaSaida = document.getElementById('select').value;
 
+  if (data === '' || descricao === '' || valor === '' || entradaSaida === '') {
+    alert('Preencha todos os campos antes de salvar!');
+    return;
+  }
+
+  // Enviar dados para o backend
+  fetch('http://localhost:3000/salvar', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ data, descricao, valor, entradaSaida }),
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Erro na resposta do servidor');
+      }
+      return response.text();
+    })
+    .then(result => {
+      alert(result); // "Dados salvos com sucesso!"
+    })
+    .catch(error => {
+      console.error('Erro ao salvar:', error);
+      alert('Erro ao salvar os dados. Verifique o console para detalhes.');
+    });
 }
+
+
+
+
  
 function Deletar(){
   const tabela = document.getElementById('generator-table').getElementsByTagName('tbody')[0]
@@ -46,23 +80,14 @@ function Deletar(){
 function FecharFaturamento(){
  
 //resposta-table
-
   const tabelaResposta = document.getElementById('resposta-table').getElementsByTagName('tbody')[0]
   const row = tabelaResposta.insertRow();
-
   const valorResultado = document.getElementById('value').value; // pegar o valor da primeira tabela e nao do input
+
   //const resutladovalor = document.getElementById
 
   const cell1 = row.insertCell(0);
-  const cell2 = row.insertCell(1);
-  const cell3 = row.insertCell(2);
-  const cell4 = row.insertCell(3);
-
   cell1.innerHTML = valorResultado
-  // cell2.innerHTML = valorResultado
-  // cell3.innerHTML = valorResultado
-  // cell4.innerHTML = valorResultado
-
   alert('Faturamento fechado')
 }
 

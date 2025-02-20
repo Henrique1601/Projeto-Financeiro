@@ -50,7 +50,7 @@
 
   height: 20vh;
   width: 50rem;
-  background: #555555;
+  background: #ffffff;
 }
 
 .buttons {
@@ -90,7 +90,7 @@
   border: 5px solid #333;
   height: 15vh;
   width: 50rem;
-  background: #555555;
+  background: #b7b7b7;
 }
 
 footer {
@@ -115,3 +115,20 @@ footer {
   margin-top: 10px;
 
 }
+
+/* Table */
+
+.resposta-table{
+  display: flex;
+  
+}
+
+
+.resposta-table tbody {
+  width: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
