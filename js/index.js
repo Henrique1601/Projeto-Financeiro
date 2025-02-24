@@ -30,14 +30,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const tabela = document.getElementById('generator-table').getElementsByTagName('tbody')[0];
     const row = tabela.insertRow();
-    fetch('http://localhost:3000/salvar', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ data, descricao, valor, entradaSaida })
-  })
-  .then(response => response.json())
-  .then(result => {
-    row.dataset.id = result.id; // ID retornado pelo back-end
+
+  fetch('http://localhost:3000/salvar', {
+       method: 'POST',
+       headers: { 'Content-Type': 'application/json' },
+       body: JSON.stringify({ data, descricao, valor, entradaSaida })
+   })
+ .then(response => {
+        console.log('Status da resposta:', response.status);
+        console.log('Resposta completa:', response);
+        if (!response.ok){
+          throw new Error(`Erro no servidor: ${response.status} - ${response.statusText}`);
+        } 
+        return response.json();// Tenta converter a resposta para JSON
+    })
+   .then(result => {
+      console.log('Resultado do back-end:', result);
+      if (result.error) {
+        throw new Error(result.error);
+    }
+      if(!result.id){
+        throw new Error('ID não retornado pelo servidor');
+      }
+     row.dataset.id = result.id; // ID retornado pelo back-end
     
     // Adicionar célula com checkbox como primeira coluna
     const cellCheck = row.insertCell(0);
@@ -46,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
     checkbox.className = 'select-row';
     cellCheck.appendChild(checkbox);
 
-// Demais células com os dados
+    // Demais células com os dados
     const cell1 = row.insertCell(0);
     const cell2 = row.insertCell(1);
     const cell3 = row.insertCell(2);
@@ -60,13 +75,19 @@ document.addEventListener('DOMContentLoaded', function() {
     // Tornar as células editáveis
     [cell1, cell2, cell3, cell4].forEach(cell => {
       cell.addEventListener('click', function(e) {
-        TornarEditavel(cell);
-         
+        TornarEditavel(cell,row.dataset.id);
       });
     });
     SaldoAtual.innerText = valor;
     alert('Dados confirmados');
   })
+    .catch(error => {
+      console.error('Erro ao confirmar:', error);// Veja o erro exato
+      alert('Erro ao salvar os dados no servidor.'+ error.message);
+     if(row.parentNode){
+      row.remove(); // Remove a linha se houver erro, para evitar dados inconsistentes
+     }
+    })
 }
 
 
@@ -206,10 +227,9 @@ document.addEventListener('DOMContentLoaded', function() {
 }
     // Deletar as linhas marcadas
     if (linhasParaDeletar.length > 0) {
-      linhasParaDeletar.forEach(linha => linha.remove());
-    } else {
       alert('Por favor, selecione pelo menos uma linha para deletar.');
-    }
+    } 
+    
 
     // Fazer requisição para o back-end
     Promise.all(linhasParaDeletar.map(linha => {

@@ -63,40 +63,46 @@ if (entradaSaida !== 'Entrada' && entradaSaida !== 'Saída') {
       console.error('Erro ao salvar no MySQL:', err);
       return res.status(500).send('Erro ao salvar no banco');
     }
-    res.status(200).send('Dados salvos com sucesso!');
+    // Retorna  Json com o ID inserido
+    res.status(200).json({ id: result.insertId})
   });
 });
 
+// Endpoint para deletar dados
 app.delete('/deletar', (req, res) => {
   const { id } = req.body; // Ou outros campos como data e descricao
-  const query = 'DELETE FROM sua_tabela WHERE id = ?';
+  const query = 'DELETE FROM faturamento WHERE id = ?';
   connection.query(query, [id], (error, results) => {
       if (error) {
-          res.status(500).send('Erro ao deletar no banco');
-          return;
+          console.error('Erro ao deletar no MySQL:', error);
+          return res.status(500).json('Erro ao deletar no banco');
       }
-      res.send('Registro deletado com sucesso');
-  });
+      if(results.affectedRows === 0) {
+        return res.status(404).json('Registro não encontrado');
+      }
+      res.status(200).json({ message: 'Registro deletado com sucesso' });
+      });
 });
 
+// Endpoint para editar dados
 app.put('/editar', (req, res) => {
   const { id, data, descricao, valor, entradaSaida } = req.body;
 
   if (!id) {
-      return res.status(400).send('ID é obrigatório para edição');
+      return res.status(400).json('ID é obrigatório para edição');
   }
 
-  const query = 'UPDATE sua_tabela SET data = ?, descricao = ?, valor = ?, entrada_saida = ? WHERE id = ?';
+  const query = 'UPDATE faturamento SET data = ?, descricao = ?, valor = ?, entrada_saida = ? WHERE id = ?';
   connection.query(query, [data, descricao, valor, entradaSaida, id], (error, results) => {
       if (error) {
           console.error('Erro ao atualizar no MySQL:', error);
-          return res.status(500).send('Erro ao atualizar no banco');
+          return res.status(500).json('Erro ao atualizar no banco');
       }
       if (results.affectedRows === 0) {
-          return res.status(404).send('Registro não encontrado');
+          return res.status(404).json('Registro não encontrado');
       }
-      res.send('Registro atualizado com sucesso');
-  });
+      res.status(200).json({ message: 'Registro atualizado com sucesso' });
+      });
 });
 
 // Inicia o servidor
