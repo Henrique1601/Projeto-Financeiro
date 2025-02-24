@@ -61,23 +61,23 @@ document.addEventListener('DOMContentLoaded', function() {
     checkbox.className = 'select-row';
     cellCheck.appendChild(checkbox);
 
-    // Demais células com os dados
-    const cell1 = row.insertCell(0);
-    const cell2 = row.insertCell(1);
-    const cell3 = row.insertCell(2);
-    const cell4 = row.insertCell(3);
+// Demais células com os dados (ajustando os índices)   
+    const cell1 = row.insertCell(1);// Data (índice 1)
+    const cell2 = row.insertCell(2);// Descrição (índice 2)
+    const cell3 = row.insertCell(3);// Entrada/Saída (índice 4)
+    const cell4 = row.insertCell(4);// Entrada/Saída (índice 4)
 
     cell1.innerHTML = data;
     cell2.innerHTML = descricao;
     cell3.innerHTML = valor;
     cell4.innerHTML = entradaSaida;
 
-    // Tornar as células editáveis
-    [cell1, cell2, cell3, cell4].forEach(cell => {
-      cell.addEventListener('click', function(e) {
-        TornarEditavel(cell,row.dataset.id);
-      });
-    });
+    //  Tornar as células editáveis
+    // [cell1, cell2, cell3, cell4].forEach(cell => {
+    //   cell.addEventListener('click', function(e) {
+    //     TornarEditavel(cell,row.dataset.id);
+    //   });
+    // });
     SaldoAtual.innerText = valor;
     alert('Dados confirmados');
   })
@@ -91,50 +91,128 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 
-  function TornarEditavel(cell,idLinha) {
-    const valorOriginal = cell.innerHTML;
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.value = valorOriginal;
-    input.style.width = '100%';
+function TornarEditavel(cell, idLinha, cellIndex) {
+  const valorOriginal = cell.innerHTML.trim();
+  let input;
 
-    cell.innerHTML = '';
-    cell.appendChild(input);
-    input.focus();
+  // Armazena o valor original como atributo para reverter, se necessário
+  cell.dataset.originalValue = valorOriginal;
 
-    input.addEventListener('blur', function() {
-      SalvarEdicao(cell, input.value, idLinha);
-    });
+  if (cellIndex === 4) { // Campo "Entrada/Saída" (última coluna)
+      // Cria um <select> para "Entrada/Saída"
+      input = document.createElement('select');
+      input.style.width = '100%';
+      const options = ['Entrada', 'Saída'];
+      options.forEach(option => {
+          const opt = document.createElement('option');
+          opt.value = option;
+          opt.text = option;
+          if (option === valorOriginal) opt.selected = true;
+          input.appendChild(opt);
+      });
+  } else {
+      // Para os outros campos (Data, Descrição, Valor), usa um <input>
+      input = document.createElement('input');
+      input.style.width = '100%';
 
-    input.addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        SalvarEdicao(cell, input.value,idLinha);
+      // Validações específicas para cada campo
+      if (cellIndex === 1) { // Data
+          input.type = 'date';
+          // Converte o valor para o formato correto para input date (YYYY-MM-DD)
+          input.value = valorOriginal; // Garante que o valor original seja preenchido corretamente
+      } else if (cellIndex === 3) { // Valor
+          input.type = 'number';
+          input.value = valorOriginal; // Garante que o valor original seja preenchido corretamente
+      } else { // Descrição (índice 2)
+          input.type = 'text';
+          input.value = valorOriginal; // Garante que o valor original seja preenchido corretamente
       }
-    });
   }
 
-  function SalvarEdicao(cell, novoValor, idLinha) {
-    // Validação do campo "valor" (se for a coluna de valor)
-    if (cell.cellIndex === 3) {// Ajustado para índice 3 porque adicionamos a coluna de checkbox
+  cell.innerHTML = '';
+  cell.appendChild(input);
+  input.focus();
+
+  console.log(`Campo editável criado para célula índice ${cellIndex} com valor: ${valorOriginal}`);
+
+  // Adiciona eventos para salvar apenas quando o usuário terminar de editar
+  input.addEventListener('blur', function() {
+      const novoValor = (input.type === 'select-one') ? input.value : input.value.trim();
+      if (novoValor !== valorOriginal) { // Só salva se houver alteração
+          SalvarEdicao(cell, novoValor, idLinha, cellIndex);
+      } else {
+          cell.innerHTML = valorOriginal; // Reverte se não houver alterações
+          console.log(`Nenhuma alteração detectada para célula índice ${cellIndex}`);
+      }
+  });
+
+  input.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+          const novoValor = (input.type === 'select-one') ? input.value : input.value.trim();
+          if (novoValor !== valorOriginal) { // Só salva se houver alteração
+              SalvarEdicao(cell, novoValor, idLinha, cellIndex);
+          } else {
+              cell.innerHTML = valorOriginal; // Reverte se não houver alterações
+              console.log(`Nenhuma alteração detectada para célula índice ${cellIndex}`);
+          }
+      }
+  });
+}
+
+function SalvarEdicao(cell, novoValor, idLinha, cellIndex) {
+  // Validação para Descrição (índice 2, se necessário evitar vazio)
+  if (cellIndex === 2 && !novoValor.trim()) { // Descrição
+      alert('A descrição não pode estar vazia');
+      cell.innerHTML = cell.dataset.originalValue || ''; // Reverte para o valor original
+      return;
+  }
+
+  // Validação do campo "valor" (se for a coluna de valor, índice 3)
+  if (cellIndex === 3) { // Coluna "Valor"
       if (isNaN(Number(novoValor))) {
-        alert('Por favor, insira um número válido para o valor');
-        return;
+          alert('Por favor, insira um número válido para o valor');
+          cell.innerHTML = cell.dataset.originalValue || ''; // Reverte para o valor original
+          return;
       }
       SaldoAtual.innerText = novoValor;
-    }
-    // Atualiza a célula no front-end
-    cell.innerHTML = novoValor;
+  }
 
-    // Pegar todos os dados da linha após a edição
-    const row = cell.parentElement;
-    const data = row.cells[1].innerHTML; // Ajuste os índices conforme sua tabela
-    const descricao = row.cells[2].innerHTML;
-    const valor = row.cells[3].innerHTML;
-    const entradaSaida = row.cells[4].innerHTML;
+  // Validação para Data (formato YYYY-MM-DD, índice 1)
+  if (cellIndex === 1) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(novoValor)) {
+          alert('Por favor, insira uma data válida no formato YYYY-MM-DD');
+          cell.innerHTML = cell.dataset.originalValue || ''; // Reverte para o valor original
+          return;
+      }
+  }
 
-    // Enviar requisição para o back-end
-    fetch('http://localhost:3000/editar', {
-      method: 'PUT', // Ou POST, dependendo da sua preferência
+  // Validação para Entrada/Saída (se for o índice 4, deve ser "Entrada" ou "Saída")
+  if (cellIndex === 4 && novoValor !== 'Entrada' && novoValor !== 'Saída') {
+      alert('Por favor, selecione "Entrada" ou "Saída"');
+      cell.innerHTML = cell.dataset.originalValue || ''; // Reverte para o valor original
+      return;
+  }
+
+  // Atualiza a célula no front-end
+  cell.innerHTML = novoValor;
+
+  // Pegar todos os dados da linha após a edição
+  const row = cell.parentElement;
+  const data = row.cells[1].innerHTML;
+  const descricao = row.cells[2].innerHTML;
+  const valor = row.cells[3].innerHTML;
+  const entradaSaida = row.cells[4].innerHTML;
+
+  // Verifica se houve alteração antes de enviar ao back-end
+  const valorOriginal = cell.dataset.originalValue;
+  if (novoValor === valorOriginal) {
+      console.log(`Nenhuma alteração detectada para célula índice ${cellIndex}, ignorando salvamento`);
+      return; // Não salva se o valor não mudou
+  }
+
+  // Enviar requisição para o back-end
+  fetch('http://localhost:3000/editar', {
+      method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: idLinha, data, descricao, valor, entradaSaida })
   })
@@ -142,16 +220,24 @@ document.addEventListener('DOMContentLoaded', function() {
       if (!response.ok) {
           throw new Error('Erro na resposta do servidor');
       }
-      return response.text();
+      return response.json(); // Usar JSON para corresponder ao back-end
   })
   .then(result => {
       console.log('Atualização bem-sucedida:', result);
+      if (result.error) {
+          alert('Erro ao salvar as alterações no servidor: ' + result.error);
+          cell.innerHTML = cell.dataset.originalValue || ''; // Reverte em caso de erro
+      } else {
+          alert('Alterações salvas com sucesso!');
+          cell.dataset.originalValue = novoValor; // Atualiza o valor original após sucesso
+      }
   })
   .catch(error => {
       console.error('Erro ao atualizar:', error);
       alert('Erro ao salvar as alterações no servidor.');
+      cell.innerHTML = cell.dataset.originalValue || ''; // Reverte em caso de erro
   });
-  }
+}
 
   function EditarLinhasSelecionadas() {
     const tabela = document.getElementById('generator-table').getElementsByTagName('tbody')[0];
@@ -160,19 +246,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     for (let i = 0; i < checkboxes.length; i++) {
       if (checkboxes[i].checked) {
-        linhasSelecionadas++;
-        const row = checkboxes[i].parentElement.parentElement; // Pega a linha
-        const cells = row.cells;
-        // Torna todas as células editáveis (exceto a do checkbox)
-        for (let j = 1; j < cells.length; j++) {
-          TornarEditavel(cells[j], row.dataset.id); //Passa o ID da linha
-        } 
+          linhasSelecionadas++;
+          const row = checkboxes[i].parentElement.parentElement; // Pega a linha
+          const cells = row.cells;
+          // Torna todas as células editáveis (exceto a do checkbox)
+          for (let j = 1; j < cells.length; j++) {
+            console.log(`Tornando editável célula ${j} na linha ${i}`);
+              TornarEditavel(cells[j], row.dataset.id, j); // Passa o índice da célula
+          }
       }
-    }
+  }
       if (linhasSelecionadas === 0) {
         alert('Por favor, selecione pelo menos uma linha para editar.');
+        return // Evita loops adicionais
       }
-    }
+      console.log('Linhas selecionadas para edição:', linhasSelecionadas);
+  }
 
 
 
