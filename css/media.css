@@ -1,0 +1,91 @@
+/* Media Queries para Responsividade */
+
+/* @media (max-width: 1200px) {
+  .main-container{
+    flex-direction: column; /* Empilha o aside e o container 
+    height: auto; /* Remove altura fixa 
+    align-items: center; /* Centraliza os itens 
+    gap: 15px; /* Reduz o espaço entre elementos 
+    width: 500px;
+  } 
+}
+  */
+
+
+/* Telas pequenas (móveis) - até 768px */
+@media (max-width: 768px) {
+  .main-container {
+    flex-direction: column; /* Empilha o aside e o container */
+    height: auto; /* Remove altura fixa */
+    align-items: center; /* Centraliza os itens */
+    gap: 15px; /* Reduz o espaço entre elementos */
+  }
+
+  .AsideMain {
+    width: 90vw; /* Ocupa quase toda a largura da tela */
+    height: auto; /* Altura automática */
+    margin-top: 15px; /* Reduz margem */
+    order: 0; /* Mantém o aside no topo ou ajuste conforme necessário */
+  }
+
+  .container {
+    width: 90vw; /* Ocupa quase toda a largura da tela */
+    height: auto; /* Altura automática */
+    margin-right: 0; /* Remove margem direita */
+    margin-top: 15px; /* Reduz margem */
+  }
+
+  .generator-main, .Container-down, .resposta-main {
+    width: 85vw; /* Reduz a largura dos elementos internos */
+    height: auto; /* Altura automática */
+  }
+
+  .buttons {
+    flex-direction: column; /* Empilha botões em telas pequenas */
+    gap: 10px; /* Reduz espaço entre botões */
+  }
+
+  .social-media {
+    gap: 15px; /* Reduz espaço entre ícones sociais */
+  }
+}
+
+/* Telas médias (tablets) - entre 769px e 1024px */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .main-container {
+    gap: 15px; /* Reduz o espaço entre aside e container */
+  }
+
+  .AsideMain {
+    width: 250px; /* Reduz a largura do aside */
+    height: 75vh; /* Ajusta altura */
+  }
+
+  .container {
+    width: 85vw; /* Reduz a largura do container */
+    height: 75vh; /* Ajusta altura */
+  }
+
+  .generator-main, .Container-down, .resposta-main {
+    width: 45rem; /* Ajusta largura dos elementos internos */
+  }
+}
+
+/* Telas grandes (desktops) - acima de 1024px */
+@media (min-width: 1025px) {
+  .main-container {
+    gap: 20px; /* Mantém o espaço padrão */
+  }
+
+  .AsideMain {
+    width: 300px; /* Mantém a largura padrão */
+    height: 80vh; /* Mantém a altura padrão */
+  }
+
+  .container {
+    width: 95vw; /* Mantém a largura padrão */
+    height: 80vh; /* Mantém a altura padrão */
+  }
+}
+
+

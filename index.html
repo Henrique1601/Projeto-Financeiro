@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Financeiro"> 
 
-  <title>Financeiro</title>
+  <title>Gestor de Despesas</title>
 
   <!-- Favicon -->
   <link rel="icon" href="./img/icons8-general-ledger-96.png" type="image/x-icon">
@@ -19,14 +19,82 @@
 </head>
 <body>
   <main class="main-container">
+
+    <section class="AsideMain">
+      <aside class="Aside1">
+       <button type="button">Imprimir</button>
+       <button type="button">Salvar PDF</button>
+      </aside>
+       <aside class="Aside2"> 
+       <button type="button">Exportar</button>
+       <button type="button">Importar</button> 
+      </aside> 
+     </section>
+  
+     
     <section class="container">
-      <h1>Financeiro</h1>
-      <p>Sistema de gerenciamento financeiro</p>
       
+      <header class="Header_main">
+      <h1>Despesas</h1>
+      <p>Sistema de gerenciamento de Despesas</p>
+    </header>
+
+    <nav class="Main_nav">
+      <ul>
+        <li><a href="#">lançamentos</a></li>
+        <!-- <li><a href="./index.html">Relatórios</a></li> -->
+        <!-- <li><a href="./faturamento.html">Importar</a></li> -->
+        <!-- <li><a href="./extrato.html">Exportar</a></li> -->
+      </ul>
+    </nav>
+
       <div class="container-main">
 
-      <div class="inputs-main">
+        <header class="NavBtns">
+          <button type="button" id="Lancar" >Lançar</button>
+          <button type="button" id="Editar">Editar</button>
+          <!-- <button type="button" id="Excluir">Excluir</button> -->
+        </header>
 
+   <!-- Conteúdo gerado dinamicamente -->
+      <div id="lancamentos">
+     
+        <section  class="Gerar_campo">
+        <div class="close-button" id="close-button">X</div>
+          <header id="Header_campo" class="Header_campo_gerado">
+          <ul>
+          <li><h3>Cadastro</h3></li>
+          </ul>
+        </header>
+          
+        <select name="Entrada_Saida" id="">
+          <option value="Receita">Receita</option>
+          <option value="Despesa">Despesa</option>
+        </select>
+        <input type="date" name="" id="">
+        <input type="number"> 
+
+        <select name="Categorias" id="" >
+          <option value="Categorias">Categorias</option>
+          <option value="Carro">Carro</option>
+          <option value="Alimentação">Alimentação</option>
+          <option value="Lazer">Lazer</option>
+          <option value="Educação">Educação</option>
+          <option value="Saúde">Saúde</option>
+          <option value="Transporte">Transporte</option>
+        </select>
+
+        <!-- <button type="button" id="fechar">Fechar</button> -->
+        <button type="button">Salva na Lista</button>
+        <button type="button">Limpar</button>
+        <input type="text" name="" id="">
+      </section>
+      </div>
+
+      <p><span id="Saldo_Atual"></span></p>
+      
+    
+      <div class="inputs-main">
       <label for="date">Data:</label>
       <input type="date" name="date" id="date">
 
@@ -46,13 +114,15 @@
     </div>
 
       <div class="generator-main">
-      <table id="generator-table">
+      <table class="Generator-table" id="generator-table">
+        <thead>
         <tr>
           <th>Data</th>
           <th>Descrição</th>
           <th>Valor</th>
           <th>Entrada/Saída</th>
         </tr>
+      </thead>
         <tbody>
           <!-- Conteúdo gerado dinamicamente -->
 
@@ -63,13 +133,14 @@
       <div class="buttons">
         <button type="button" id="Confirmar" class="Confirmar1">Confirmar</button>
         <button type="button" id="Deletar">Deletar</button>
-        <button type="button" id="Salvar">Salvar</button>
-        <button type="button" id="FecharFaturamento">Fechar faturamento</button>
-      </div>
-
+        <button type="button" id="Salvar">Salvar no Banco de Dados</button>
+        <a href="front-end/extrato.html"><button type="button" id="FecharFaturamento">Extrato</button>
+        </a>
+        </div>
+<button type="button">Selecionar Tudo</button>
     </div>
     </section>
-<!-- Ir para outra pagina -->
+<!-- Ir para outra pagina 
     <section class="Container-down">
     <section class="resposta">
       <h1>Faturamento</h1>
@@ -80,7 +151,7 @@
        <td>Valor</td>
       </tr>
       <tbody>
-        <!-- Conteúdo gerado dinamicamente -->
+         Conteúdo gerado dinamicamente 
       </tbody>
         </table>
         
@@ -88,19 +159,20 @@
       </section>
 
     </section>
-
-    <footer class="footer">
-    
-      <h2>Redes Sociais</h2>
-      <div class="social-media">
-        <a href="#"><img src="" alt="Facebook"></a>
-        <a href="#"><img src="" alt="Twitter"></a>
-        <a href="#"><img src="." alt="Instagram"></a>
-      </div>
-      <p>Todos os direitos reservados &copy; 2021</p>
-    </footer>
+  ---->
   </main>
-
+  
+  <footer class="footer">
+    
+    <h2>Redes Sociais</h2>
+    <div class="social-media">
+      <a href="#"><img src="" alt="Facebook"></a>
+      <a href="#"><img src="" alt="Twitter"></a>
+      <a href="#"><img src="." alt="Instagram"></a>
+    </div>
+    <p>Todos os direitos reservados &copy; 2021</p>
+  </footer>
+ 
 
 
   <script src="./js/index.js"></script>

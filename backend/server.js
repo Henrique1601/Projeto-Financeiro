@@ -67,7 +67,37 @@ if (entradaSaida !== 'Entrada' && entradaSaida !== 'Saída') {
   });
 });
 
+app.delete('/deletar', (req, res) => {
+  const { id } = req.body; // Ou outros campos como data e descricao
+  const query = 'DELETE FROM sua_tabela WHERE id = ?';
+  connection.query(query, [id], (error, results) => {
+      if (error) {
+          res.status(500).send('Erro ao deletar no banco');
+          return;
+      }
+      res.send('Registro deletado com sucesso');
+  });
+});
 
+app.put('/editar', (req, res) => {
+  const { id, data, descricao, valor, entradaSaida } = req.body;
+
+  if (!id) {
+      return res.status(400).send('ID é obrigatório para edição');
+  }
+
+  const query = 'UPDATE sua_tabela SET data = ?, descricao = ?, valor = ?, entrada_saida = ? WHERE id = ?';
+  connection.query(query, [data, descricao, valor, entradaSaida, id], (error, results) => {
+      if (error) {
+          console.error('Erro ao atualizar no MySQL:', error);
+          return res.status(500).send('Erro ao atualizar no banco');
+      }
+      if (results.affectedRows === 0) {
+          return res.status(404).send('Registro não encontrado');
+      }
+      res.send('Registro atualizado com sucesso');
+  });
+});
 
 // Inicia o servidor
 app.listen(3000, () => {
