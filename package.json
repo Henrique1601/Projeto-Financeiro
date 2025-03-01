@@ -18,6 +18,7 @@
   "homepage": "https://github.com/Henrique1601/Projeto-Financeiro#readme",
   "description": "",
   "dependencies": {
+    "@firebasegen/default-connector": "file:dataconnect-generated/js/default-connector",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "mysql": "^2.18.1"
