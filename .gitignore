@@ -1,3 +1,8 @@
-node_modules/
-.github/
-.vscode/
+/node-modules
+/mongodb
+/firebase
+/front-end
+/backend
+/package.json
+/package-lock.json
+/imgs

@@ -1,0 +1,308 @@
+.main-container {
+  display: flex;
+  flex-direction: row;  
+  justify-content: center;
+  align-items: flex-start;
+  height: 85vh;
+  gap: 20px;
+}
+
+/* Estilização do aside */
+.AsideMain{
+  border: 5px solid #000;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  order: 0;
+  width: 300px;
+  height: 80vh;
+  
+  background-color: #f2f2f2;
+  border-radius: 10px;
+
+  padding: 20px;
+  margin-top: 25px;
+}
+
+.Aside1{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+  
+}
+.Aside2{
+
+}
+/* Estilização do Container */
+
+.container {
+  display: flex;
+  flex-direction: column; 
+  justify-content: center;
+  align-items: center;
+
+  border: 5px solid #333;
+  border-radius: 10px;
+
+  height: 80vh;
+  width: 95vw;
+
+  margin-top: 25px; 
+  margin-right: 20px;
+}
+
+.container-main {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.Header_main{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  display: flex;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.Main_nav{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: column;
+}
+
+
+
+
+.inputs-main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom:20px ;
+}
+
+.generator-main {
+  display: flex;
+  justify-content:center;
+  align-items: start;
+  flex-direction: row;
+
+  
+  border: 5px solid #333;
+  border-radius: 10px;
+
+  height: 50vh;
+  width: 65rem;
+  background: #ffffff;
+}
+.Generator-table{
+  width: 100vw;
+  
+  border: 2px solid #333;
+}
+
+#generator-table th:first-child,
+#generator-table td:first-child {
+   width: 20px;/* Largura fixa para a coluna do checkbox */
+  text-align: center;
+}
+
+#generator-table .select-row {
+  cursor: pointer;
+}
+/* Destacar a linha quando o checkbox está marcado */
+#generator-table tbody tr:has(.select-row:checked) {
+  background-color: #ffcccc; /* Vermelho claro */
+}
+/* Efeito hover opcional */
+#generator-table tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+ #generator-table td input {
+    border: 1px solid #000000;
+    padding: 2px;
+    margin: -2px;
+}
+ /* Garante que a cor do :checked tenha precedência sobre o hover */
+#generator-table tbody tr:has(.select-row:checked):hover {
+  background-color: #ffcccc;
+}
+
+#generator-table tbody td.selecionada {
+  background-color: #ed3636; /* Cor de fundo para a linha selecionada */
+  cursor: pointer;
+}
+
+#generator-table tbody tr:hover {
+  background-color: #cccccc; /* Efeito hover para facilitar a interação */
+}
+
+.buttons {
+  display: flex;
+  justify-content:space-between;
+  align-items: center;
+  margin-top: 20px;
+  gap: 20px;
+}
+
+.Container-down {
+  display: flex;
+  border: 5px solid #333;
+  border-radius: 10px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  height: 25vh;
+  width: 50rem;
+
+}
+
+.resposta {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+}
+
+.resposta h1 {
+  margin-bottom: 1rem;
+}
+
+.resposta-main {
+  border: 5px solid #333;
+  height: 15vh;
+  width: 50rem;
+  background: #b7b7b7;
+}
+
+footer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer h2 {
+  margin-top: 10px;
+}
+
+.social-media {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 35px;
+  padding: 10px;
+  margin-top: 10px;
+
+}
+
+/* Table */
+
+.resposta-table{
+  display: flex;
+  
+}
+
+
+.resposta-table tbody {
+  width: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+#lancamentos{
+  display: none;
+  position: fixed; 
+   
+  padding: 30px ;
+  margin: 0px;
+  /* background-color: rgba(0, 0, 0, 0.5); Fundo semi-transparente */
+  background: white;
+  border: 5px solid black;
+  border-radius: 10px ;
+
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+}
+
+.Gerar_campo{
+  position: relative;
+  background-color: #fff;
+  border: 2px solid #000; /* Borda preta como na imagem */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 500px;
+  height: 350px;
+
+}
+.Header_campo_gerado{
+
+}
+.close-button{
+  cursor: pointer;
+  z-index: 2;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.close-button:hover {
+  color: #ff0000; /* Muda a cor ao passar o mouse */
+}
+
+
+
+/*
+.Gerar_campo::before{
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px; /* Área escura à direita 
+  height: 100%;
+  background-color: #000; /* Área escura 
+  z-index: 1;
+  
+}
+
+.Gerar_campo::after{
+  position: absolute;
+  right: 110px; //Ao lado da área escura 
+  background-color: #fff;  //Área branca 
+  content: '';
+  top: 50%;
+  right: 110px; //Ao lado da área escura 
+    width: 50px; //Área branca menor 
+    height: 50px;
+    border: 2px solid #000; // Borda preta 
+  z-index: 1;
+}
+*/
+
+
