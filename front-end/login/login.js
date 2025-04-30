@@ -1,7 +1,7 @@
-const FINANCEIRO_URL = '../../index.html'; // Definir como constante
+const FINANCEIRO_URL = '../index.html'; // Definir como constante
 
 // Definir a URL base diretamente
-const API_BASE_URL = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')
+const API_BASE_URL = window.location.hostname.includes('localhost') || window.location.hostname.includes('vercel')
     ? 'http://localhost:3000' // Porta do backend local
     : 'https://financeiro-backend.vercel.app'; // Substitua por sua URL do Vercel
 

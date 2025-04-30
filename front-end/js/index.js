@@ -46,7 +46,7 @@ function hideSpinner() {
 function logout() {
     localStorage.removeItem('token');
     token = null
-    window.location.href = './front-end/login/login.html';
+    window.location.href = './login/login.html';
 }
 
 // Função para verificar disponibilidade do servidor
@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Verificar autenticação
     if (!token) {
-        window.location.href = '../front-end/login/login.html';
+        window.location.href = './login/login.html';
     } else {
         displayUserProfile();
         loadFinanceiroData();

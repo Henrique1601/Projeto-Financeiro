@@ -65,7 +65,7 @@ async function refreshToken() {
 function logout() {
     localStorage.removeItem('token');
     token = null;
-    window.location.href = './front-end/login/login.html';
+    window.location.href = '../front-end/login/login.html';
 }
 
 // Função para formatar a data (alinhada com index.js)
@@ -550,12 +550,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Função para voltar à página index.html
     function voltar() {
-        window.location.href = '../../index.html';
+        window.location.href = '../index.html';
     }
 
     // Verificar autenticação
     if (!token) {
-        window.location.href = '../front-end/login/login.html';
+        window.location.href = '../login/login.html';
     } else {
         // Carregar extrato e preencher filtro de ano
         await carregarExtrato();
