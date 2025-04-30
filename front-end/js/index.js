@@ -1,5 +1,5 @@
 const API_BASE_URL = window.location.hostname.includes('vercel') 
-    ? 'https://seu-projeto.vercel.app' // Substitua por sua URL real do Vercel
+    ? '' // Substitua por sua URL real do Vercel
     : 'http://localhost:3000';
 
 

@@ -1,1 +1,4 @@
+node_modules/
 backup/
+./front-end/.env
+./front-end/login/.env

@@ -123,7 +123,7 @@ const validateFinanceiroInput = (data, descricao, valor, entradaSaida) => {
 };
 
 // Endpoint: Registrar usuário
-app.post('/api/register', async (req, res) => {
+app.post('/register', async (req, res) => {
   try {
     const { nome, sobrenome, email, senha } = req.body;
 
@@ -153,7 +153,7 @@ app.post('/api/register', async (req, res) => {
 });
 
 // Endpoint: Login
-app.post('/api/login', async (req, res) => {
+app.post('/login', async (req, res) => {
   try {
     const { email, senha } = req.body;
 
@@ -190,7 +190,7 @@ app.post('/api/login', async (req, res) => {
 });
 
 // Endpoint: Salvar registro financeiro
-app.post('/api/salvar', authenticateToken, async (req, res) => {
+app.post('/salvar', authenticateToken, async (req, res) => {
   try {
     let { data, descricao, valor, entradaSaida } = req.body;
     const user_id = req.user.id;
@@ -227,7 +227,7 @@ app.post('/api/salvar', authenticateToken, async (req, res) => {
 });
 
 // Endpoint: Listar registros
-app.get('/api/listar', authenticateToken, async (req, res) => {
+app.get('/listar', authenticateToken, async (req, res) => {
   try {
       const user_id = req.user.id;
       const rows = await allAsync(
@@ -242,7 +242,7 @@ app.get('/api/listar', authenticateToken, async (req, res) => {
 });
 
 // Endpoint: Deletar registro
-app.delete('/api/deletar', authenticateToken, async (req, res) => {
+app.delete('/deletar', authenticateToken, async (req, res) => {
   try {
     const { id } = req.body;
     const user_id = req.user.id;
@@ -269,7 +269,7 @@ app.delete('/api/deletar', authenticateToken, async (req, res) => {
 });
 
 // Endpoint: Editar registros
-app.put('/api/editar', authenticateToken, async (req, res) => {
+app.put('/editar', authenticateToken, async (req, res) => {
   try {
     const { updates } = req.body;
     const user_id = req.user.id;
@@ -346,7 +346,7 @@ app.put('/api/editar', authenticateToken, async (req, res) => {
 });
 
 // Endpoint: Renovar token
-app.post('/api/refresh-token', async (req, res) => {
+app.post('/refresh-token', async (req, res) => {
   try {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -374,7 +374,7 @@ app.post('/api/refresh-token', async (req, res) => {
 });
 
 // Endpoint: Importar registros
-app.post('/api/importar', authenticateToken, async (req, res) => {
+app.post('/importar', authenticateToken, async (req, res) => {
   try {
       const lancamentos = req.body.lancamentos;
       const user_id = req.user.id;
@@ -427,24 +427,9 @@ app.post('/api/importar', authenticateToken, async (req, res) => {
 });
 
 // Endpoint: Health check
-app.get('/api/health', (req, res) => {
+app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK' });
 });
 
-// Iniciar o servidor
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
-
-// Fechar conexão com o banco ao encerrar
-process.on('SIGINT', async () => {
-  try {
-    await pool.end();
-    console.log('Conexão com o banco fechada.');
-    process.exit(0);
-  } catch (err) {
-    console.error('Erro ao fechar o banco:', err.message);
-    process.exit(1);
-  }
-});
+// Exportar o app como uma função serverless para o Vercel
+module.exports = serverless(app);

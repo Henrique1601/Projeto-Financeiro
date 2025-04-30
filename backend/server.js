@@ -32,7 +32,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 // Conectar ao banco de dados PostgreSQL
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgres://user:password@localhost:5432/financeiro',
+  connectionString: process.env.DATABASE_URL || 'postgres://postgres:1234@localhost:5432/financeiro',
   ssl: isProduction ? { rejectUnauthorized: false } : false // Desativar SSL em ambiente local
 });
 
