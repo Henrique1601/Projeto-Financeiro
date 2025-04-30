@@ -12,7 +12,7 @@
     },
     {
       "src": "^/extrato",
-      "dest": "/extrato/extrato.html"
+      "dest": "/extrato.html"
     },
     {
       "src": "/([^/]+)",
