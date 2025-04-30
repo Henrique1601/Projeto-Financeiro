@@ -1,0 +1,113 @@
+.Main_container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  padding: 20px;
+}
+/* Container */
+.Container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  
+  border: 5px solid #000000;
+  border-radius: 10px ;
+
+  padding: 15px;
+  width: 450px;
+  height: 600px;
+  box-shadow: 0px 0px 15px 7px rgba(90, 90, 90, 0.59);
+}
+
+.Container  input{
+  height: 35px;
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 12px;
+
+  transition: 0.3s ease-in-out;
+  font-size: 18px;
+
+  border-radius: 5px;
+  border: 2px solid #000000;
+}
+
+.Container form input:focus{
+  border:4px solid #000000;
+  transition: 0.3s ease-in-out;
+  box-shadow: 0px 0px 10px #555555;
+  outline: none;
+}
+.Container button{
+  width: 100%;
+}
+.Container ul{
+  display: flex;
+  align-items: start;
+  justify-content: center;
+  flex-direction: row;
+  
+  margin-top: 30px;
+  gap: 15px;  
+  text-align: center;
+  font-size: 17px;
+
+}
+.Container li {
+  margin-bottom: 10px;
+  /* border: 1px solid #000000; */
+}
+.Header_container {
+  display: flex;
+  padding: 30px; 
+}
+
+.Header_container h1{
+  font-size: 30px;
+  font-weight: bold;
+
+}
+
+#login-form p{
+  text-align: center;
+  margin-top: 15px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+#register-form{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50vh; 
+  display: none;
+}
+#register-form p {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 20px;
+  font-weight: bold;
+}
+.header-register{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+
+
+.messageDiv{
+  background-color:hsl(327,90%,28%);
+  color:white;
+  padding:10px 20px;
+  margin:10px;
+  border-radius: 5px;
+  font-size:1rem;
+  opacity:0;
+  animation:fadeOut 7s forwards;
+
+}

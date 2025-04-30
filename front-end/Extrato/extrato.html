@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Extrato</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/Extrato.css">
+
+</head>
+<body>
+ <section class="Container-Main">
+  <button class="btn-voltar" id="voltar">Voltar</button>
+  <h1>Extrato do Financeiro</h1>
+    <section class="Container">
+<!-- Filtros -->
+<div class="filtros">
+  <label for="filtroData">Data:</label>
+  <input type="date" id="filtroData">
+
+  <label for="filtroMes">Mês:</label>
+  <select id="filtroMes">
+      <option value="">Todos</option>
+      <option value="01">Janeiro</option>
+      <option value="02">Fevereiro</option>
+      <option value="03">Março</option>
+      <option value="04">Abril</option>
+      <option value="05">Maio</option>
+      <option value="06">Junho</option>
+      <option value="07">Julho</option>
+      <option value="08">Agosto</option>
+      <option value="09">Setembro</option>
+      <option value="10">Outubro</option>
+      <option value="11">Novembro</option>
+      <option value="12">Dezembro</option>
+  </select>
+  <label for="filtroAno">Ano:</label>
+        <select id="filtroAno">
+            <option value="">Todos</option>
+            <!-- Anos serão preenchidos dinamicamente -->
+        </select>
+
+        <label for="filtroTipo">Tipo:</label>
+        <select id="filtroTipo">
+            <option value="">Todos</option>
+            <option value="Entrada">Entrada</option>
+            <option value="Saída">Saída</option>
+        </select>
+
+        <button id="aplicarFiltros">Filtrar</button>
+        <button id="limparFiltros">Limpar Filtros</button>
+        <button id="calcularFaturamento">Calcular o Faturamento </button>
+        <button> Gerar Relatório</button>
+        <button id="generate-charts">Gerar Gráficos</button>
+    </div>
+<!-- Exibição do faturamento -->
+<div id="faturamento-resultado" >
+
+</div>
+
+<!-- Adicionar um container para os gráficos -->
+<section class="charts-container" style="display: none; margin-top: 20px;">
+  <h2>Gráficos de Lançamentos</h2>
+  <select id="chartType">
+    <option value="bar">Barras</option>
+    <option value="pie">Pizza</option>
+    <option value="line">Linha</option>
+</select>
+  <button id="export-chart">Exportar Gráfico como Imagem</button>
+  <canvas id="chartsCanvas" width="450" height="250"></canvas>
+  <canvas id="pieChart" width="450" height="250" style="margin-top: 20px;"></canvas>
+</section>
+
+    <section class="table-container" style="margin-top: 20px; font-size: 1.2rem;">
+      <div class="extrato-main">
+        <table id="extrato-table">
+      <thead>
+          <tr>
+       <th>Data</th>
+       <th>Descrição</th>
+       <th>Valor</th>
+       <th>tipo</th>
+      </tr>
+    </thead>
+      <tbody><!-- Conteúdo gerado dinamicamente --></tbody>
+        </table>
+      
+      </div>
+    </section>
+  </section>
+
+  <!-- Adicione isso dentro do <body>, preferencialmente no final -->
+<div id="spinner" class="spinner-overlay" role="alert" aria-live="assertive" >
+  <div class="spinner" aria-hidden="true"></div>
+  <p>Processando...</p>
+</div>
+
+</section>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="./extrato.js"></script>
+</body>
+</html>
