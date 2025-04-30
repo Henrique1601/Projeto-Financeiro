@@ -3,7 +3,7 @@ let token = localStorage.getItem('token');
 
 // Determinar a URL da API com base no ambiente (compatível com index.js)
 const API_BASE_URL = window.location.hostname.includes('vercel')
-    ? '' // Substitua por sua URL real do Vercel
+    ? 'https://financeiro-backend.vercel.app' // Substitua por sua URL real do Vercel
     : 'http://localhost:3000';
 
 // Lista completa de lançamentos (para filtragem)

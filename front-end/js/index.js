@@ -1,5 +1,5 @@
 const API_BASE_URL = window.location.hostname.includes('vercel') 
-    ? '' // Substitua por sua URL real do Vercel
+    ? 'https://financeiro-backend.vercel.app' // Substitua por sua URL real do Vercel
     : 'http://localhost:3000';
 
 
