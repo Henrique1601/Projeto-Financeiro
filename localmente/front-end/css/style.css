@@ -1,0 +1,364 @@
+/* Estilização geral */
+.main-container { 
+  display: flex;
+  flex-direction: row;  
+  justify-content: center;
+  align-items: flex-start; /* flex-start */
+  height: 100%; /* Altura total da tela */
+}
+
+/* Estilização do aside */
+.AsideMain {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; 
+  padding: 20px;
+  margin-top: 25px;
+  /* border: 5px solid #000; */
+  background-color: #D2DBE9;
+  margin-right: 50px;
+  box-shadow: 8px 8px 8px rgba(0, 0, 0, 0.5);
+  border-radius: 30px;
+  width: 20rem; /* Largura fixa do aside */
+  height: 90vh; /* Altura fixa do aside */
+}
+
+
+/* Estilização do Container */
+.container {
+  display: flex;
+  flex-direction: column; 
+  justify-content: center; 
+  width: 100%;
+  max-width: 1200px;
+  height:93vh ;
+  border: 5px solid #333;
+  border-radius: 20px;
+  margin-top: 5px;
+  
+}
+
+/* Estilização do perfil */
+.Main-profile {
+  display: flex;
+  justify-content: space-between;   /* Alinha os itens à direita */
+  align-items:center;
+  padding-right: 15px;
+  /* border: 1px solid #000; */
+  margin-top: 4.5rem;
+  height: 190px;  
+}
+
+.user-profile {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: left;
+  border: 2px solid #000;
+  border-radius: 10px;
+  font-size: 16px;
+  padding: 20px; /* Adiciona um pouco de espaço interno */
+}
+
+
+#SaldoAtual{
+  font-weight: bold;
+  font-size: 18px;
+}
+/* Fim do Perfil */
+
+.container-main {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  height: auto;
+  width: 100%;
+  /* border: 5px solid #333; */
+   /* position: relative; Necessário para referência do botão com posição absoluta  */
+}
+
+/* Header */
+.Header {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  align-items: center;
+  font-size: 20px;
+  /* border: 1px solid #000;  */
+  width: 100%;
+
+}
+
+.Header_main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Garante alinhamento à direita */
+  text-align: start; 
+  justify-content: flex-start;
+  /* border: 1px solid #000; */
+  padding-left:  15px ;/*  Ajuste de espaçamento interno */
+  /* margin-top: 10px; Aumente esse valor se quiser descer mais */
+  /* top: 10px; */
+  /* left: -690px; */
+}
+
+/* Btns de editar e lançar */
+.btns-nav{
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  /* border: 1px solid #000; */
+  
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.NavBtns{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 25px;
+  margin-right:70px;
+}
+/* Fim do código do Btns de editar e lançar */
+
+
+/*=.Main_nav {
+  display: flex;       Atualmente inutil
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}*/
+
+.inputs-main {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 10px;
+  /* border: 1px solid #000;   */
+  width: 63.5rem;
+  height: fit-content;
+  margin-left: -7.5rem; 
+}
+
+.generator-main {
+  height: 660px;
+  width: 95%;
+  margin-bottom: 50px;
+  /* border: 5px solid #333;  */
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 12px 0 12px rgba(0, 0, 0, 0.3),  /* Sombra na direita */
+  -12px 0 12px rgba(0, 0, 0, 0.1), /* Sombra na esquerda */
+  0 12px 12px rgba(0, 0, 0, 0.3),  /* Sombra embaixo */
+  0 -12px 12px rgba(0, 0, 0, 0.3); /* Sombra em cima */
+  overflow-y: auto;
+  margin-top: 20px;
+  
+  /* position: relative;
+  top: -10px;  /* px  negativo vai para a esquerda, positivo a direita
+  left: -120px;  px positivo move para baixo, negativo sobe*/
+}
+
+
+
+/* Tabela Generator */
+.Generator-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+/* Garantir que o cabeçalho da tabela não role junto com o corpo */
+ .Generator-table thead  {
+  position: sticky;
+  top: 0;
+  background-color: #f2f2f2; /* Cor de fundo para o cabeçalho */
+  z-index: 1; /* Garantir que o cabeçalho fique acima do corpo ao rolar */
+} 
+/* Estilizar as células para melhor visualização */
+.Generator-table th, .Generator-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 2.5px solid #ddd;
+  font-size: 17px;
+}
+#generator-table .select-row {
+  cursor: pointer;
+}
+
+#generator-table tbody tr:has(.select-row:checked) {
+  background-color: #f95858;
+}
+
+#generator-table tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+#generator-table td input {
+  border: 1px solid #000;
+  padding: 2px;
+  margin: -2px;
+}
+
+#generator-table tbody tr:has(.select-row:checked):hover {
+  background-color: #faa9a9;
+}
+
+#generator-table tbody td.selecionada {
+  background-color: #f25555;
+  cursor: pointer;
+}
+
+.buttons { 
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.Container-down {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 25vh;
+  width: 50rem;
+  margin-top: 20px;
+  border: 5px solid #333;
+  border-radius: 10px;
+}
+
+
+.social-media {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 35px;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+/* Janela flutuante */
+#lancamentos {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  padding: 30px;
+  background: white;
+  border: 5px solid black;
+  border-radius: 10px;
+}
+
+*.Gerar_campo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 500px;
+  height: 350px;
+  background-color: #fff;
+  border: 2px solid #000;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  font-size: 24px;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.close-button:hover {
+  color: #ff0000;
+}
+
+#SelecionarTodos {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#SelecionarTodos:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Overlay para cobrir a tela */
+.spinner-overlay {
+  display: none; /* Inicialmente escondido */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Fundo semi-transparente */
+  z-index: 1000; /* Garante que fique acima de outros elementos */
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  color: white;
+}
+
+/* Estilo do spinner */
+.spinner {
+  width: 100px;
+  height: 100px;
+  border: 16px solid #f3f3f3; /* Cor clara */
+  border-top:16px solid #000EF4; /* Cor destacada */
+  border-radius: 50%;
+  animation: spin 1s linear infinite; /* Animação de rotação */
+}
+
+/* Animação de rotação */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Texto "Processando..." */
+.spinner-overlay p {
+  margin-top: 10px;
+  font-size: 16px;
+}
+/*
+.Gerar_campo::before{
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px; /* Área escura à direita 
+  height: 100%;
+  background-color: #000; /* Área escura 
+  z-index: 1;
+  
+}
+
+.Gerar_campo::after{
+  position: absolute;
+  right: 110px; //Ao lado da área escura 
+  background-color: #fff;  //Área branca 
+  content: '';
+  top: 50%;
+  right: 110px; //Ao lado da área escura 
+    width: 50px; //Área branca menor 
+    height: 50px;
+    border: 2px solid #000; // Borda preta 
+  z-index: 1;
+}
+*/
+
+

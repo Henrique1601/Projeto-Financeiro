@@ -1,0 +1,152 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+*{
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #D7DFEC;
+  height: 100%;
+}
+
+input, select {
+  padding: 10px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  transition: 0.3s;
+}
+
+input:focus, select:focus {
+  border-color: #333;
+  outline: none;
+}
+
+button {
+  transition: 0.3s ease-in-out; 
+  background: #444;
+  color: white;
+  border: none;
+  padding: 10px 20px;  
+  border-radius: 5px;
+  cursor: pointer;
+
+  text-align: center;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: bold;
+  
+}
+
+button:hover{
+  transition: 0.3s ease-in-out;
+  background:#333 ;
+  box-shadow: 0px 0px 10px #555555;
+}
+
+#editarLinhasBtn{
+
+}
+/* Aside */
+
+section aside{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: right;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.Aside1{
+  margin-top: 15px;
+}
+.Aside2{
+  margin-bottom: 15px;
+}
+/* Fim do Aside  */
+
+a{
+  text-decoration: none;
+  color: #000000;
+}
+
+ul li {
+  list-style-type: none;
+}
+th, td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+/* Cabeçalho da Tabela */
+th {
+  background-color: #f2f2f2;
+  color: rgb(0, 0, 0);
+  font-weight: bold;
+  padding: 10px;
+  text-align: left;
+  font-size: 18px;
+}
+/* Linhas da Tabela */
+td {
+  border-bottom: 1px solid #ddd;
+  padding: 12px;
+  font-size: 16px;
+}
+
+/* Zebra Effect na tabela */
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+/* Destacar linha ao passar o mouse */
+tr:hover {
+  background-color: #444444;
+  transition: background-color 0.3s ease-in-out;
+}
+
+ .Generator-table td.positive-value  {
+  color: #28a745;
+  background: #e7f9ed;
+  padding: 5px 10px;
+  border-radius: 5px;
+
+} 
+ .Generator-table td.negative-value {
+  color: #dc3545;
+  font-weight: bold;
+  background: #fde2e2;
+  padding: 5px 10px;
+  border-radius: 5px;
+} 
+/* Estilização do footer */
+footer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer h2 {
+  margin-top: 10px;
+}
+
+.generator-main::-webkit-scrollbar{
+  width: 10px;
+}
+.generator-main::-webkit-scrollbar-track {
+  background: #fffdfd;
+  border-radius: 10px;
+}
+
+.generator-main::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.generator-main::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

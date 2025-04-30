@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+
+<!-- Adicionar o CSS do Toastify -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+
+  <link rel="stylesheet" href="../css/Login.css">
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/media.css">
+
+</head>
+<body>
+  <main class="Main_container">
+    <section class="Container">
+      <h1 class="messageDiv"></h1>
+      <header class="Header_container">
+      <h1>Login</h1>
+    </header>
+    <!-- action="../index.html" -->
+    <div id="login-form" >
+        <!-- <label for="FNome">Primeiro nome:</label>
+        <input type="text" id="FNome" placeholder="Seu nome">
+        <label for="SNome">Sobrenome:</label>
+        <input type="text" id="SNome" placeholder="Seu sobrenome"> -->
+        <label for="email">Email:</label>
+        <input type="email" id="Email" name="email" placeholder="Seu email ou usuário" required>
+        <label for="senha">Senha</label>
+        <input type="password" id="Senha" name="senha" placeholder="Sua senha" required>
+        <button class="btn" onclick="login()" id="Login">Login</button>
+      <ul>
+       <li>
+        <p>Esqueceu a senha?
+        <button class="" id="" onclick="">Esqueci a senha</button></p>
+      </li>
+      <li>
+        <p>Não tem conta? 
+        <button onclick="showRegisterForm()">Registrar</button></p>
+      </li> 
+      </ul>  
+    </div>
+    <a href=""></a>
+      <!-- Formulário de registro -->
+    <div id="register-form">
+      <div class="header-register">
+      <h2>Cadastrar</h2>
+    </div>
+      <label for="register-FNome">Primeiro nome:</label>
+      <input type="text" id="register-FNome" placeholder="Seu nome" required>
+      <label for="register-SNome">Sobrenome:</label>
+      <input type="text" id="register-SNome" placeholder="Seu sobrenome" required>
+      <label for="register-Email">Email:</label>
+      <input type="email" id="register-Email" placeholder="Seu email" required>
+      <label for="register-Senha">Senha:</label>
+      <input type="password" id="register-Senha" placeholder="Sua senha" required>
+      <button onclick="register()">Registrar</button>
+      <p>Já tem conta? Faça login aqui
+        <button id="Btn-Login" onclick="showLoginForm()">Login</button>
+      </p>
+  </div>
+    </section>
+  </main>
+  <!-- <script type="module" src="../../backend/firebaseauth.js"></script> -->
+   <!-- Adicionar Toastify ao projeto -->
+   <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script src="./login.js"></script>
+  <script src="../../backend/server.js"></script>
+  <script src="../../backend/api/index.js"></script>
+</body>
+</html>

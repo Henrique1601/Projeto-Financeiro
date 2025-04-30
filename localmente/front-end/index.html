@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- META -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Financeiro"> 
+
+  <title>Gestor de Despesas</title>
+  
+  <!-- Adicionar o CSS do Toastify -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+
+  <!-- Favicon -->
+  <link rel="icon" href="./imgs/img/icons8-general-ledger-96.png" type="image/x-icon">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="./css/global.css">
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/media.css">
+
+
+</head>
+<body>
+  <main class="main-container">
+
+    <section class="AsideMain">
+      <aside class="Aside1">
+       <button type="button" id="print-table">Imprimir</button>
+       <button id="export-excel">Salvar como Excel</button>
+       <button id="export-pdf">Salvar como PDF</button>
+      </aside>
+       <aside class="Aside2"> 
+       <button type="button" id="export-table">Exportar Tabela Json</button>
+       <button type="button" id="import-table">Importar Tabela Json</button> 
+       <button type="button"id="export-csv">Exportar Tabela CSV</button>
+       <button type="button" id="import-csv">Importar Tabela CSV</button>
+      <!-- <input type="file" id="file-input" accept=".csv, .xlsx, .xls ,.json" style="display: none;"> -->
+      </aside> 
+     </section>
+  
+     
+    <section class="container">
+
+      <div class="Header">
+      <header class="Header_main">
+      <h1>Despesas</h1>
+      <p>Sistema de gerenciamento de Despesas</p>
+    </header>
+    
+    <!-- Perfil do usuário logado -->
+<section class="Main-profile">
+  <div id="user-profile" class="user-profile">
+    <h2>Perfil do Usuário</h2>
+    <p class="Nome">Nome: <span id="user-name"></span></p>
+    <p>Email: <span id="user-email"></span></p>
+    <p><span id="SaldoAtual"></span></p>
+    <button onclick="logout()">Sair</button>
+  </div>
+  
+  </section>
+</div>
+
+   
+
+
+<nav class="Main_nav">
+  <ul>
+    <!-- <li><a href="#">lançamentos</a></li> -->
+    <!-- <li><a href="./index.html">Relatórios</a></li> -->
+    <!-- <li><a href="./faturamento.html">Importar</a></li> -->
+  </ul>
+</nav>
+
+<div class="btns-nav">
+  <header class="NavBtns">
+    <button type="button" id="Lancar" >Lançar</button>
+    <button type="button" id="Editar" >Editar</button>
+    <!-- <button type="button" id="Excluir">Excluir</button> -->
+  </header>
+</div>
+
+<div class="container-main">
+       
+
+
+   <!-- Conteúdo gerado dinamicamente -->
+      <div id="lancamentos">   
+        <section  class="Gerar_campo">
+        <div class="close-button" id="close-button">X</div>
+          <header id="Header_campo" class="Header_campo_gerado">
+          <ul>
+          <li><h3>Cadastro</h3></li>
+          </ul>
+        </header>
+          
+        <select name="Entrada_Saida" id="">
+          <option value="Receita">Receita</option>
+          <option value="Despesa">Despesa</option>
+        </select>
+        <input type="date" name="" id="">
+        <input type="number"> 
+
+        <select name="Categorias" id="" >
+          <option value="Categorias">Categorias</option>
+          <option value="Carro">Carro</option>
+          <option value="Alimentação">Alimentação</option>
+          <option value="Lazer">Lazer</option>
+          <option value="Educação">Educação</option>
+          <option value="Saúde">Saúde</option>
+          <option value="Transporte">Transporte</option>
+        </select>
+
+        <!-- <button type="button" id="fechar">Fechar</button> -->
+        <button type="button">Salva na Lista</button>
+        <button type="button">Limpar</button>
+        <input type="text" name="" id="">
+      </section>
+      </div>
+
+    
+      <div class="inputs-main">
+      <label for="date">Data:</label>
+      <input type="date" name="date" id="date">
+
+      <label for="description">Descrição</label>
+      <input type="text" name="description" id="description" placeholder="Descrição">
+      
+      <label for=value">Valor</label>
+      <input type="number" name="value" id="value" placeholder="Valor">
+      
+      <label for="">Entrada/saída</label>
+            
+      <select  id="select">
+        <option value="Entrada" id="entrada">Entrada</option>
+        <option value="Saída" id="saida">Saída</option>'
+      </select>
+    </div>
+
+      <div class="generator-main">
+      <table class="Generator-table" id="generator-table">
+        <thead>
+        <tr>
+          <th>Selecionar</th>
+          <th>Data</th>
+          <th>Descrição</th>
+          <th>Valor</th>
+          <th>Entrada/Saída</th>
+        </tr>
+      </thead>
+        <tbody>
+          <!-- Conteúdo gerado dinamicamente -->
+
+        </tbody>
+      </table>    
+      </div>
+
+      <div class="buttons">
+        <button type="button" id="Confirmar" class="Confirmar1">Confirmar</button>
+        <button type="button" id="Deletar">Deletar</button>
+        <!-- <button type="button" id="Salvar">Salvar no Banco de Dados</button> -->
+        <button id="SelecionarTodos" type="button" >Selecionar Tudo</button>
+        <button id="editarLinhasBtn" style="display: none;">Salvar Edicao</button> 
+        <a href="../front-end/Extrato/extrato.html"><button type="button" id="FecharFaturamento">Extrato</button>
+        </a>
+      </div>
+
+    </div>
+    <!-- Adicione isso dentro do <body>, preferencialmente no final -->
+<div id="spinner" class="spinner-overlay" role="alert" aria-live="assertive" >
+  <div class="spinner" aria-hidden="true"></div>
+  <p>Processando...</p>
+</div>
+    </section>
+  </main>
+  
+  <!-- <footer class="footer">
+    
+    <h2>Redes Sociais</h2>
+    <div class="social-media">
+      <a href="#"><img src="" alt="Facebook"></a>
+      <a href="#"><img src="" alt="Twitter"></a>
+      <a href="#"><img src="." alt="Instagram"></a>
+    </div>
+    <p>Todos os direitos reservados &copy; 2021</p>
+  </footer> -->
+ 
+  <!-- Adicionar Toastify ao projeto -->
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  
+  <script  src="../backend/api/index.js"></script>
+  <script src="../backend/server.js"></script>
+  <script src="./js/index.js" defer>
+  console.log('index.js carregado');
+  </script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+  
+
+  <!-- Para PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Para Excel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+
+</body>
+</html>

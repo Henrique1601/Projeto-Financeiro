@@ -13,19 +13,7 @@ const app = express();
 app.use(express.json());
 app.use(helmet());
 app.use(cors({
-  origin: (origin, callback) => {
-    // Permitir requisições locais e do frontend no Vercel
-    const allowedOrigins = [
-      'http://localhost:3000', // Frontend local
-      'https://projeto-financeiro-frontend.vercel.app', // Frontend no Vercel
-    ];
-
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: false
@@ -45,23 +33,8 @@ const isProduction = process.env.NODE_ENV === 'production';
 // Conectar ao banco de dados PostgreSQL
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || 'postgres://postgres:1234@localhost:5432/financeiro',
-  ssl: isProduction ? { rejectUnauthorized: false } : false,
-  connectionTimeoutMillis: 5000,
-  idleTimeoutMillis: 30000,
-  max: 10
+  ssl: isProduction ? { rejectUnauthorized: false } : false // Desativar SSL em ambiente local
 });
-
-// Depurar conexão
-pool.on('connect', () => {
-  console.log('Conectado ao banco de dados com sucesso.');
-});
-
-pool.on('error', (err, client) => {
-  console.error('Erro na conexão com o banco:', err.message);
-});
-
-// Estado da inicialização do banco
-let isDatabaseInitialized = false;
 
 // Inicializar tabelas
 const initDatabase = async () => {
@@ -87,25 +60,11 @@ const initDatabase = async () => {
       )
     `);
     console.log('Tabelas criadas ou já existem.');
-    isDatabaseInitialized = true;
   } catch (err) {
     console.error('Erro ao inicializar banco:', err.message);
   }
 };
-
-// Middleware para verificar se o banco está inicializado
-const ensureDatabaseInitialized = async (req, res, next) => {
-  if (isDatabaseInitialized) {
-    return next();
-  }
-
-  try {
-    await initDatabase();
-    next();
-  } catch (err) {
-    res.status(503).json({ error: 'Serviço indisponível: banco de dados não inicializado.' });
-  }
-};
+initDatabase();
 
 // Funções utilitárias para queries
 const getAsync = async (sql, params) => {
@@ -163,7 +122,7 @@ const validateFinanceiroInput = (data, descricao, valor, entradaSaida) => {
 };
 
 // Endpoint: Registrar usuário
-app.post('/api/register', ensureDatabaseInitialized, async (req, res) => {
+app.post('/api/register', async (req, res) => {
   try {
     const { nome, sobrenome, email, senha } = req.body;
 
@@ -193,7 +152,7 @@ app.post('/api/register', ensureDatabaseInitialized, async (req, res) => {
 });
 
 // Endpoint: Login
-app.post('/api/login', ensureDatabaseInitialized, async (req, res) => {
+app.post('/api/login', async (req, res) => {
   try {
     const { email, senha } = req.body;
 
@@ -230,7 +189,7 @@ app.post('/api/login', ensureDatabaseInitialized, async (req, res) => {
 });
 
 // Endpoint: Salvar registro financeiro
-app.post('/api/salvar', authenticateToken, ensureDatabaseInitialized, async (req, res) => {
+app.post('/api/salvar', authenticateToken, async (req, res) => {
   try {
     let { data, descricao, valor, entradaSaida } = req.body;
     const user_id = req.user.id;
@@ -267,7 +226,7 @@ app.post('/api/salvar', authenticateToken, ensureDatabaseInitialized, async (req
 });
 
 // Endpoint: Listar registros
-app.get('/api/listar', authenticateToken, ensureDatabaseInitialized, async (req, res) => {
+app.get('/api/listar', authenticateToken, async (req, res) => {
   try {
       const user_id = req.user.id;
       const rows = await allAsync(
@@ -282,7 +241,7 @@ app.get('/api/listar', authenticateToken, ensureDatabaseInitialized, async (req,
 });
 
 // Endpoint: Deletar registro
-app.delete('/api/deletar', authenticateToken, ensureDatabaseInitialized, async (req, res) => {
+app.delete('/api/deletar', authenticateToken, async (req, res) => {
   try {
     const { id } = req.body;
     const user_id = req.user.id;
@@ -309,7 +268,7 @@ app.delete('/api/deletar', authenticateToken, ensureDatabaseInitialized, async (
 });
 
 // Endpoint: Editar registros
-app.put('/api/editar', authenticateToken, ensureDatabaseInitialized, async (req, res) => {
+app.put('/api/editar', authenticateToken, async (req, res) => {
   try {
     const { updates } = req.body;
     const user_id = req.user.id;
@@ -386,7 +345,7 @@ app.put('/api/editar', authenticateToken, ensureDatabaseInitialized, async (req,
 });
 
 // Endpoint: Renovar token
-app.post('/api/refresh-token', ensureDatabaseInitialized, async (req, res) => {
+app.post('/api/refresh-token', async (req, res) => {
   try {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -414,7 +373,7 @@ app.post('/api/refresh-token', ensureDatabaseInitialized, async (req, res) => {
 });
 
 // Endpoint: Importar registros
-app.post('/api/importar', authenticateToken, ensureDatabaseInitialized, async (req, res) => {
+app.post('/api/importar', authenticateToken, async (req, res) => {
   try {
       const lancamentos = req.body.lancamentos;
       const user_id = req.user.id;
@@ -471,12 +430,7 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'OK' });
 });
 
-// Iniciar a inicialização do banco em segundo plano
-initDatabase().catch(err => {
-  console.error('Erro assíncrono na inicialização do banco:', err.message);
-});
-
-// Iniciar o servidor imediatamente
+// Iniciar o servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);

@@ -13,19 +13,7 @@ const app = express();
 app.use(express.json());
 app.use(helmet());
 app.use(cors({
-  origin: (origin, callback) => {
-    // Permitir requisições locais e do frontend no Vercel
-    const allowedOrigins = [
-      'http://localhost:3000', // Frontend local
-      'https://projeto-financeiro-frontend.vercel.app', // Frontend no Vercel
-    ];
-
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: 'https://projeto-financeiro-frontend.vercel.app',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: false
