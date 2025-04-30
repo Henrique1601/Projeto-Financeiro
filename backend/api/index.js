@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-
+let isDatabaseInitialized = false;
 const app = express();
 
 // Configurar middlewares
@@ -34,10 +34,21 @@ const isProduction = process.env.NODE_ENV === 'production';
 // Conectar ao banco de dados PostgreSQL
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || 'postgresql://financeiro-db_owner:npg_DNoWf48ugFSn@ep-gentle-fog-a4z8hre9-pooler.us-east-1.aws.neon.tech/financeiro-db?sslmode=require',
-  ssl: isProduction ? { rejectUnauthorized: false } : false // Desativar SSL em ambiente local
+  ssl: isProduction ? { rejectUnauthorized: false } : false, // Desativar SSL em ambiente local
+  connectionTimeoutMillis: 5000, // Timeout de 5 segundos para conexão
+  idleTimeoutMillis: 30000, // Fechar conexões ociosas após 30 segundos
+  max: 10 // Máximo de 10 conexões simultâneas
 });
 
-// Inicializar tabelas
+// Testar a conexão ao iniciar
+pool.on('connect', () => {
+  console.log('Conectado ao banco de dados com sucesso.');
+});
+
+pool.on('error', (err, client) => {
+  console.error('Erro na conexão com o banco:', err.message);
+});
+
 const initDatabase = async () => {
   try {
     await pool.query(`
@@ -61,11 +72,26 @@ const initDatabase = async () => {
       )
     `);
     console.log('Tabelas criadas ou já existem.');
+    isDatabaseInitialized = true;
   } catch (err) {
     console.error('Erro ao inicializar banco:', err.message);
   }
 };
-initDatabase();
+
+// Middleware para verificar se o banco está inicializado
+const ensureDatabaseInitialized = async (req, res, next) => {
+  if (isDatabaseInitialized) {
+    return next();
+}
+
+// Aguardar a inicialização se ainda não estiver pronta
+try {
+  await initDatabase();
+  next();
+} catch (err) {
+  res.status(503).json({ error: 'Serviço indisponível: banco de dados não inicializado.' });
+}
+};
 
 // Funções utilitárias para queries
 const getAsync = async (sql, params) => {
@@ -81,6 +107,19 @@ const runAsync = async (sql, params) => {
 const allAsync = async (sql, params) => {
   const { rows } = await pool.query(sql, params);
   return rows;
+};
+
+const startServer = async () => {
+  try {
+    await initDatabase(); // Aguardar a inicialização do banco
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+      console.log(`Servidor rodando na porta ${PORT}`);
+    });
+  } catch (err) {
+    console.error('Falha ao iniciar o servidor:', err.message);
+    process.exit(1);
+  }
 };
 
 // Chave secreta para JWT
@@ -429,6 +468,17 @@ app.post('/importar', authenticateToken, async (req, res) => {
 // Endpoint: Health check
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK' });
+});
+
+// Iniciar a inicialização do banco em segundo plano
+initDatabase().catch(err => {
+  console.error('Erro assíncrono na inicialização do banco:', err.message);
+});
+
+// Iniciar o servidor imediatamente
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
 
 // Exportar o app como uma função serverless para o Vercel
