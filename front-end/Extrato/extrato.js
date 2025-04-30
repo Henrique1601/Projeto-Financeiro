@@ -13,7 +13,7 @@ let lancamentosCompletos = [];
 let lancamentosFiltrados = [];
 
 // Função auxiliar para fetch com retentativas (copiada do index.js)
-async function fetchWithRetry(url, options, retries = 3, delay = 1000, timeout = 10000) {
+async function fetchWithRetry(url, options, retries = 3, delay = 1000, timeout = 15000) {
     for (let i = 0; i < retries; i++) {
         try {
             const controller = new AbortController();
