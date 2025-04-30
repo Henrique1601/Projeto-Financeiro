@@ -14,7 +14,7 @@ const app = express();
 app.use(express.json());
 app.use(helmet());
 app.use(cors({
-  origin: 'https://projeto-financeiro-frontend.vercel.app',
+  origin: 'https://projeto-financeiro-frontend.vercel.app',//
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: false
@@ -33,7 +33,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 // Conectar ao banco de dados PostgreSQL
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgres://postgres:1234@localhost:5432/financeiro',
+  connectionString: process.env.DATABASE_URL || 'postgresql://financeiro-db_owner:npg_DNoWf48ugFSn@ep-gentle-fog-a4z8hre9-pooler.us-east-1.aws.neon.tech/financeiro-db?sslmode=require',
   ssl: isProduction ? { rejectUnauthorized: false } : false // Desativar SSL em ambiente local
 });
 
