@@ -13,7 +13,7 @@ const app = express();
 app.use(express.json());
 app.use(helmet());
 app.use(cors({
-  origin: '*',
+  origin: 'https://projeto-financeiro-frontend.vercel.app',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: false
