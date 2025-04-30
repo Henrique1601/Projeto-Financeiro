@@ -5,14 +5,28 @@
       "use": "@vercel/static"
     },
     {
-      "src": "backend/api/index.js",
+      "src": "api/index.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "backend/api/(.*)",
-      "dest": "backend/api/index.js"
+      "src": "/api/(.*)",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/(.*)\\.html",
+      "dest": "/front-end/$1.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "src": "/(.*)/",
+      "dest": "/front-end/$1",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
     },
     {
       "src": "/(.*)",
@@ -21,7 +35,5 @@
         "Cache-Control": "no-cache"
       }
     }
-  ],
-  "cleanUrls": true,
-  "trailingSlash": false
+  ]
 }
