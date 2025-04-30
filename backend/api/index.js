@@ -1,20 +1,19 @@
 require('dotenv').config();
 const express = require('express');
-const serverless = require('serverless-http'); // Necessário para adaptar Express ao Vercel
 const { Pool } = require('pg');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-let isDatabaseInitialized = false;
+
 const app = express();
 
 // Configurar middlewares
 app.use(express.json());
 app.use(helmet());
 app.use(cors({
-  origin: 'https://projeto-financeiro-frontend.vercel.app',//
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: false
@@ -33,14 +32,14 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 // Conectar ao banco de dados PostgreSQL
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://financeiro-db_owner:npg_DNoWf48ugFSn@ep-gentle-fog-a4z8hre9-pooler.us-east-1.aws.neon.tech/financeiro-db?sslmode=require',
-  ssl: isProduction ? { rejectUnauthorized: false } : false, // Desativar SSL em ambiente local
-  connectionTimeoutMillis: 5000, // Timeout de 5 segundos para conexão
-  idleTimeoutMillis: 30000, // Fechar conexões ociosas após 30 segundos
-  max: 10 // Máximo de 10 conexões simultâneas
+  connectionString: process.env.DATABASE_URL || 'postgres://postgres:1234@localhost:5432/financeiro',
+  ssl: isProduction ? { rejectUnauthorized: false } : false,
+  connectionTimeoutMillis: 5000,
+  idleTimeoutMillis: 30000,
+  max: 10
 });
 
-// Testar a conexão ao iniciar
+// Depurar conexão
 pool.on('connect', () => {
   console.log('Conectado ao banco de dados com sucesso.');
 });
@@ -49,6 +48,10 @@ pool.on('error', (err, client) => {
   console.error('Erro na conexão com o banco:', err.message);
 });
 
+// Estado da inicialização do banco
+let isDatabaseInitialized = false;
+
+// Inicializar tabelas
 const initDatabase = async () => {
   try {
     await pool.query(`
@@ -82,15 +85,14 @@ const initDatabase = async () => {
 const ensureDatabaseInitialized = async (req, res, next) => {
   if (isDatabaseInitialized) {
     return next();
-}
+  }
 
-// Aguardar a inicialização se ainda não estiver pronta
-try {
-  await initDatabase();
-  next();
-} catch (err) {
-  res.status(503).json({ error: 'Serviço indisponível: banco de dados não inicializado.' });
-}
+  try {
+    await initDatabase();
+    next();
+  } catch (err) {
+    res.status(503).json({ error: 'Serviço indisponível: banco de dados não inicializado.' });
+  }
 };
 
 // Funções utilitárias para queries
@@ -107,19 +109,6 @@ const runAsync = async (sql, params) => {
 const allAsync = async (sql, params) => {
   const { rows } = await pool.query(sql, params);
   return rows;
-};
-
-const startServer = async () => {
-  try {
-    await initDatabase(); // Aguardar a inicialização do banco
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => {
-      console.log(`Servidor rodando na porta ${PORT}`);
-    });
-  } catch (err) {
-    console.error('Falha ao iniciar o servidor:', err.message);
-    process.exit(1);
-  }
 };
 
 // Chave secreta para JWT
@@ -162,7 +151,7 @@ const validateFinanceiroInput = (data, descricao, valor, entradaSaida) => {
 };
 
 // Endpoint: Registrar usuário
-app.post('/register', async (req, res) => {
+app.post('/api/register', ensureDatabaseInitialized, async (req, res) => {
   try {
     const { nome, sobrenome, email, senha } = req.body;
 
@@ -192,7 +181,7 @@ app.post('/register', async (req, res) => {
 });
 
 // Endpoint: Login
-app.post('/login', async (req, res) => {
+app.post('/api/login', ensureDatabaseInitialized, async (req, res) => {
   try {
     const { email, senha } = req.body;
 
@@ -229,7 +218,7 @@ app.post('/login', async (req, res) => {
 });
 
 // Endpoint: Salvar registro financeiro
-app.post('/salvar', authenticateToken, async (req, res) => {
+app.post('/api/salvar', authenticateToken, ensureDatabaseInitialized, async (req, res) => {
   try {
     let { data, descricao, valor, entradaSaida } = req.body;
     const user_id = req.user.id;
@@ -266,7 +255,7 @@ app.post('/salvar', authenticateToken, async (req, res) => {
 });
 
 // Endpoint: Listar registros
-app.get('/listar', authenticateToken, async (req, res) => {
+app.get('/api/listar', authenticateToken, ensureDatabaseInitialized, async (req, res) => {
   try {
       const user_id = req.user.id;
       const rows = await allAsync(
@@ -281,7 +270,7 @@ app.get('/listar', authenticateToken, async (req, res) => {
 });
 
 // Endpoint: Deletar registro
-app.delete('/deletar', authenticateToken, async (req, res) => {
+app.delete('/api/deletar', authenticateToken, ensureDatabaseInitialized, async (req, res) => {
   try {
     const { id } = req.body;
     const user_id = req.user.id;
@@ -308,7 +297,7 @@ app.delete('/deletar', authenticateToken, async (req, res) => {
 });
 
 // Endpoint: Editar registros
-app.put('/editar', authenticateToken, async (req, res) => {
+app.put('/api/editar', authenticateToken, ensureDatabaseInitialized, async (req, res) => {
   try {
     const { updates } = req.body;
     const user_id = req.user.id;
@@ -385,7 +374,7 @@ app.put('/editar', authenticateToken, async (req, res) => {
 });
 
 // Endpoint: Renovar token
-app.post('/refresh-token', async (req, res) => {
+app.post('/api/refresh-token', ensureDatabaseInitialized, async (req, res) => {
   try {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -413,7 +402,7 @@ app.post('/refresh-token', async (req, res) => {
 });
 
 // Endpoint: Importar registros
-app.post('/importar', authenticateToken, async (req, res) => {
+app.post('/api/importar', authenticateToken, ensureDatabaseInitialized, async (req, res) => {
   try {
       const lancamentos = req.body.lancamentos;
       const user_id = req.user.id;
@@ -466,7 +455,7 @@ app.post('/importar', authenticateToken, async (req, res) => {
 });
 
 // Endpoint: Health check
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'OK' });
 });
 
@@ -481,5 +470,14 @@ app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
 
-// Exportar o app como uma função serverless para o Vercel
-module.exports = serverless(app);
+// Fechar conexão com o banco ao encerrar
+process.on('SIGINT', async () => {
+  try {
+    await pool.end();
+    console.log('Conexão com o banco fechada.');
+    process.exit(0);
+  } catch (err) {
+    console.error('Erro ao fechar o banco:', err.message);
+    process.exit(1);
+  }
+});
