@@ -32,7 +32,7 @@
   width: 100%;
   max-width: 1200px;
   height:93vh ;
-  border: 5px solid #333;
+  border: 5px solid #000000;
   border-radius: 20px;
   margin-top: 5px;
   
@@ -133,14 +133,15 @@
 
 .inputs-main {
   display: flex;
-  justify-content: flex-start;
   align-items: center;
   margin-bottom: 10px;
   gap: 10px;
+  margin-left: auto;
+  margin-right: auto;
   /* border: 1px solid #000;   */
-  width: 63.5rem;
-  height: fit-content;
-  margin-left: -7.5rem; 
+  max-width: 1500px; /* Optional: caps the width for larger screens */
+  width: 90%;
+   flex-wrap: wrap; 
 }
 
 .generator-main {

@@ -1,3 +1,4 @@
 node_modules/
 financeiro.db/
-/.env
+api/
+lib/

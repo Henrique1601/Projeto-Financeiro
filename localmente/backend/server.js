@@ -6,7 +6,6 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-
 const app = express();
 
 // Configurar middlewares
@@ -32,7 +31,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 // Conectar ao banco de dados PostgreSQL
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgres://postgres:1234@localhost:5432/financeiro',
+  connectionString: process.env.DATABASE_URL || 'postgres://postgres:1234@localhost:5050/financeiro',
   ssl: isProduction ? { rejectUnauthorized: false } : false // Desativar SSL em ambiente local
 });
 
@@ -61,10 +60,10 @@ const initDatabase = async () => {
     `);
     console.log('Tabelas criadas ou já existem.');
   } catch (err) {
-    console.error('Erro ao inicializar banco:', err.message);
+    console.error('Erro ao inicializar banco:', err.stack);
   }
 };
-initDatabase();
+initDatabase(); // Inicializar tabelas no banco de dados
 
 // Funções utilitárias para queries
 const getAsync = async (sql, params) => {

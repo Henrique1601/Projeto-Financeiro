@@ -1,95 +1,478 @@
 /* Media Queries para Responsividade */
 
-/* @media (max-width: 1200px) {
-  .main-container{
-    flex-direction: column; /* Empilha o aside e o container 
-    height: auto; /* Remove altura fixa 
-    align-items: center; /* Centraliza os itens 
-    gap: 15px; /* Reduz o espaço entre elementos 
-    width: 500px;
-  } 
+/* Para tornar o layout responsivo utilizando media queries, precisamos ajustar os elementos do CSS para se adaptarem a diferentes tamanhos de tela, como dispositivos móveis e tablets. Abaixo, proponho media queries que modificam o layout para telas menores, mantendo a funcionalidade e a estética. As alterações focam em ajustar a disposição dos elementos, tamanhos, margens e outros estilos para telas menores. */
+
+/* Media Query para telas menores que 1024px (tablets e dispositivos intermediários) */
+
+/* Media Query para telas de até 1440px */
+@media screen and (max-width: 1479px){
+  .inputs-main{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 98%;
+  margin-left: 0; /* Remove o deslocamento à esquerda */
+  margin-right: 0; /* Remove o deslocamento à direita */
+  flex-direction: row;
+
 }
-  */
 
+}
 
-/* Telas pequenas (móveis) - até 768px */
-/* @media (max-width: 768px) {
+@media screen and (max-width: 1440px) {
   .main-container {
-    flex-direction: column; /* Empilha o aside e o container 
-    height: auto; /* Remove altura fixa
-    align-items: center; /* Centraliza os itens 
-    gap: 15px; /* Reduz o espaço entre elementos 
+    padding: 0 10px;
   }
 
   .AsideMain {
-    width: 90vw; /* Ocupa quase toda a largura da tela 
-    height: auto; /* Altura automática 
-    margin-top: 15px; /* Reduz margem 
-    order: 0; /* Mantém o aside no topo ou ajuste conforme necessário 
+    width: 16rem;
+    height: 80vh;
+    padding: 10px;
+    margin-right: 20px;
+    margin-top: 15px;
+    border-radius: 20px;
   }
 
   .container {
-    width: 90vw; /* Ocupa quase toda a largura da tela 
-    height: auto; /* Altura automática 
-    margin-right: 0; /* Remove margem direita 
-    margin-top: 15px; /* Reduz margem 
+    max-width: 900px;
+    height: 85vh;
+    border: 3px solid #333;
+    border-radius: 12px;
   }
 
-  .generator-main, .Container-down, .resposta-main {
-    width: 85vw; /* Reduz a largura dos elementos internos 
-    height: auto; /* Altura automática 
+  .Main-profile {
+    margin-top: 3rem;
+    height: 140px;
+    padding-right: 8px;
   }
 
-  .buttons {
-    flex-direction: column; /* Empilha botões em telas pequenas 
-    gap: 10px; /* Reduz espaço entre botões 
+  .user-profile {
+    font-size: 13px;
+    padding: 12px;
+    border-radius: 6px;
+  }
+
+  #SaldoAtual {
+    font-size: 15px;
+  }
+
+  .Header {
+    font-size: 16px;
+  }
+
+  .Header_main {
+    padding-left: 8px;
+  }
+
+  .NavBtns {
+    padding: 10px;
+    gap: 15px;
+    margin-right: 40px;
+  }
+
+  .inputs-main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    
+    height: auto;
+    width: fit-content; 
+    margin-left: 0; /* Remove o deslocamento à esquerda */
+    margin-right: 0; /* Remove o deslocamento à direita */
+    flex-direction: row; 
+    
+  }
+
+  .generator-main {
+    height: 550px;
+    width: 98%;
+    margin-bottom: 30px;
+    border-radius: 6px;
+    box-shadow: 8px 0 8px rgba(0, 0, 0, 0.2), -8px 0 8px rgba(0, 0, 0, 0.1),
+                0 8px 8px rgba(0, 0, 0, 0.2), 0 -8px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .Generator-table th, .Generator-table td {
+    padding: 6px;
+    font-size: 14px;
+    border-bottom: 1.5px solid #ddd;
+  }
+
+  .Container-down {
+    width: 40rem;
+    height: 18vh;
+    border: 3px solid #333;
+    border-radius: 6px;
+    margin-top: 10px;
   }
 
   .social-media {
-    gap: 15px; /* Reduz espaço entre ícones sociais 
+    gap: 25px;
+    padding: 6px;
   }
-} */
 
-/* Telas médias (tablets) - entre 769px e 1024px */
-/* @media (min-width: 769px) and (max-width: 1024px) {
+  .Gerar_campo {
+    width: 400px;
+    height: 280px;
+  }
+
+  #lancamentos {
+    padding: 20px;
+    border: 3px solid black;
+    border-radius: 6px;
+  }
+
+  .close-button {
+    width: 22px;
+    height: 22px;
+    font-size: 18px;
+  }
+
+  #SelecionarTodos {
+    padding: 6px 12px;
+    border-radius: 3px;
+  }
+
+  .spinner {
+    width: 70px;
+    height: 70px;
+    border: 10px solid #f3f3f3;
+    border-top: 10px solid #000EF4;
+  }
+
+  .spinner-overlay p {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 1024px) {
   .main-container {
-    gap: 15px; /* Reduz o espaço entre aside e container 
+    flex-direction: column; /* Empilha o aside e o container verticalmente */
+    align-items: center;
+    height: auto; /* Altura automática para se ajustar ao conteúdo */
+  }
+  .Header_main{
+    flex-direction: column; /* Empilha os itens do header */
+    align-items: center; /* Centraliza os itens */
+    display: flex;
+    justify-content: center; /* Centraliza o conteúdo */
+    width: 100%; /* Largura total */
   }
 
   .AsideMain {
-    width: 250px; /* Reduz a largura do aside 
-    height: 75vh; /* Ajusta altura 
+    width: 90%; /* Ocupa quase toda a largura disponível */
+    height: auto; /* Altura ajustada ao conteúdo */
+    margin-right: 0;
+    margin-bottom: 20px; /* Espaço abaixo do aside */
+    padding: 15px;
   }
 
   .container {
-    width: 85vw; /* Reduz a largura do container 
-    height: 75vh; /* Ajusta altura 
+    width: 90%; /* Reduz a largura para caber na tela */
+    max-width: none; /* Remove a largura máxima */
+    height: auto; /* Altura ajustada ao conteúdo */
+    margin-top: 10px;
   }
 
-  .generator-main, .Container-down, .resposta-main {
-    width: 45rem; /* Ajusta largura dos elementos internos 
-  }
-} */
-/* 
-/* Telas grandes (desktops) - acima de 1024px 
-@media (min-width: 1025px) {
-  .main-container {
-    gap: 20px; /* Mantém o espaço padrão 
+  .Main-profile {
+    flex-direction: column; /* Empilha os itens do perfil */
+    height: auto;
+    margin-top: 2rem;
+    padding: 10px;
+    justify-content: center; /* Centraliza o conteúdo */
+    align-items: center; /* Centraliza o conteúdo */
+    display: flex;
+    width: 100%; /* Largura total */
   }
 
+  .user-profile {
+    display: flex;
+    flex-direction: column; /* Empilha os itens do perfil */
+    justify-content: center;
+    align-items: center; /* Centraliza o conteúdo */
+    width: 100%;
+    font-size: 14px; /* Reduz o tamanho da fonte */
+  }
+
+  .btns-nav{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column; /* Empilha os botões de navegação */
+    gap: 10px; /* Reduz o espaço entre os botões */
+    margin-right: 0; /* Remove margem à direita */
+  }
+  .inputs-main {
+    width: 100%; /* Ajusta a largura para ocupar o espaço disponível */
+    margin-left: 0; /* Remove o deslocamento à esquerda */
+    flex-direction: column; /*Empilha os inputs*/
+    gap: 5px;
+  }
+
+  .generator-main {
+    width: 100%; /* Ocupa toda a largura */
+    height: 500px; /* Reduz a altura para caber melhor */
+    margin-bottom: 20px;
+  }
+
+  .Container-down {
+    width: 90%; /* Ajusta a largura */
+    height: auto; /* Altura ajustada ao conteúdo */
+  }
+
+  .NavBtns {
+    margin-right: 0; /* Remove margem à direita */
+    gap: 15px; /* Reduz o espaço entre os botões */
+  }
+
+  .Header {
+    flex-direction: column; /* Empilha o header */
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  .Header_main {
+    padding-left: 0; /* Remove o padding à esquerda */
+  }
+  
+  .generator-main{
+   width: 95%;  
+  }
+
+  .Generator-table th, .Generator-table td {
+    font-size: 14px; /* Reduz o tamanho da fonte na tabela */
+    padding: 8px; /* Reduz o padding */
+  }
+
+  #lancamentos {
+    width: 80%; /* Reduz a largura da janela flutuante */
+    padding: 20px;
+  }
+
+  *.Gerar_campo {
+    width: 100%; /* Ajusta a largura para caber na tela */
+    height: auto; /* Altura ajustada ao conteúdo */
+  }
+}
+
+/* Media Query para telas menores que 768px (celulares) */
+@media (max-width: 768px) {
   .AsideMain {
-    width: 300px; /* Mantém a largura padrão 
-    height: 80vh; /* Mantém a altura padrão 
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 15px; /* Reduz o raio da borda */
+    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.3); /* Sombra mais suave */
   }
 
   .container {
-    width: 95vw; /* Mantém a largura padrão 
-    height: 80vh; /* Mantém a altura padrão 
+    border-width: 3px; /* Reduz a espessura da borda */
+    border-radius: 10px;
+    margin-top: 0;
   }
-} */
+
+  .Main-profile {
+    flex-direction: column; /* Empilha os itens do perfil */
+    align-items: center; /* Centraliza os itens */
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+    height: auto;
+    padding: 5px;
+  }
+
+  .user-profile {
+    display: flex;
+    flex-direction: column; /* Empilha os itens do perfil */
+    justify-content: center;
+    align-items: center; /* Centraliza os itens */
+    padding: 10px;
+    font-size: 12px; /* Reduz ainda mais a fonte */
+    border-width: 1px; /* Borda mais fina */
+  }
+
+  #SaldoAtual {
+    font-size: 16px; /* Ajusta o tamanho da fonte */
+  }
+  .btns-nav{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column; /* Empilha os botões de navegação */
+    gap: 10px; /* Reduz o espaço entre os botões */
+    margin-right: 0; /* Remove margem à direita */
+  }
+
+  .inputs-main {
+    display: flex;
+    gap: 8px;
+    width: 100%; /* Ajusta a largura para caber na tela */
+    margin-left: 0; /* Remove o deslocamento à esquerda */
+    flex-direction: column; /* Empilha os inputs */
+    align-items: center; /* Centraliza os inputs */
+
+  }
+
+  .generator-main {
+    height: 400px; /* Altura ainda menor para telas pequenas */
+    margin-top: 10px;
+    box-shadow: 6px 0 6px rgba(0, 0, 0, 0.2), /* Sombra reduzida */
+                -6px 0 6px rgba(0, 0, 0, 0.1),
+                0 6px 6px rgba(0, 0, 0, 0.2),
+                0 -6px 6px rgba(0, 0, 0, 0.2);
+  }
+
+  .Generator-table th, .Generator-table td {
+    font-size: 12px; /* Fonte menor para tabelas */
+    padding: 5px;
+  }
+
+  .buttons {
+    flex-direction: column; /* Empilha os botões */
+    gap: 10px;
+  }
+
+  .Container-down {
+    width: 95%;
+    border-width: 3px;
+    margin-top: 10px;
+  }
+
+  .social-media {
+    gap: 20px; /* Reduz o espaço entre ícones */
+    padding: 5px;
+  }
+
+  #lancamentos {
+    width: 90%;
+    padding: 15px;
+  }
+
+  *.Gerar_campo {
+    padding: 10px;
+  }
+
+  .close-button {
+    width: 25px;
+    height: 25px;
+    font-size: 20px;
+  }
+
+  #SelecionarTodos {
+    padding: 8px 15px;
+    font-size: 14px;
+  }
+
+  .spinner {
+    width: 80px;
+    height: 80px;
+    border-width: 12px;
+  }
+
+  .spinner-overlay p {
+    font-size: 14px;
+  }
+}
+
+/* Media Query para telas muito pequenas, menores que 480px (celulares menores) */
+@media (max-width: 480px) {
+  .AsideMain {
+    width: 95%;
+    padding: 8px;
+  }
+
+  .container {
+    width: 95%;
+    border-width: 2px;
+  }
+
+  .Main-profile {
+    padding: 0;
+  }
+
+  .user-profile {
+    padding: 8px;
+    font-size: 10px;
+  }
+
+  #SaldoAtual {
+    font-size: 14px;
+  }
+
+  .generator-main {
+    height: 300px; /* Altura mínima para tabelas */
+  }
+
+  .Generator-table th, .Generator-table td {
+    font-size: 10px;
+    padding: 4px;
+  }
+
+  .NavBtns {
+    flex-direction: column; /* Empilha os botões de navegação */
+    gap: 10px;
+    margin-right: 0;
+  }
+
+  .inputs-main {
+    margin-left: 0;
+  }
+
+  .Container-down {
+    width: 98%;
+    height: auto;
+    padding: 5px;
+  }
+
+  #lancamentos {
+    width: 95%;
+    padding: 10px;
+  }
+
+  *.Gerar_campo {
+    width: 100%;
+    padding: 5px;
+  }
+
+  .spinner {
+    width: 60px;
+    height: 60px;
+    border-width: 10px;
+  }
+
+  .spinner-overlay p {
+    font-size: 12px;
+  }
+}
 
 
-/* Responsividade para telas menores */
+/* ### Explicação das Alterações
+
+1. *Telas até 1024px (Tablets):*
+   - O layout principal (main-container) passa de flex-direction: row para column, empilhando o aside e o container.
+   - O AsideMain e o container ocupam quase toda a largura da tela, com altura ajustada automaticamente.
+   - A tabela (generator-main) e outros elementos têm tamanhos reduzidos para caber na tela.
+   - Elementos como .Main-profile e .inputs-main mudam para layouts verticais para melhor adaptação.
+
+2. *Telas até 768px (Celulares):*
+   - Reduz ainda mais os tamanhos de fontes, paddings e margens para economizar espaço.
+   - Sombras e bordas são suavizadas para não sobrecarregar a interface em telas menores.
+   - A tabela tem fontes menores e menos espaçamento para manter a legibilidade.
+   - Botões e elementos de navegação são empilhados para facilitar a interação.
+
+3. *Telas até 480px (Celulares menores):*
+   - Maximiza o uso do espaço, com larguras próximas de 100% para todos os contêineres.
+   - Fontes e elementos são ainda menores para caber em telas pequenas.
+   - Botões de navegação (NavBtns) são empilhados verticalmente para evitar sobreposição.
+
+### Observações
+- *Testes:* Recomendo testar o layout em diferentes dispositivos e navegadores para garantir que os elementos se comportem como esperado.
+- *Ajustes Específicos:* Se houver elementos específicos que precisem de ajustes adicionais (como imagens ou botões), me avise para refinar o código.
+- *Performance:* As sombras e bordas foram mantidas, mas em telas menores, reduzi a intensidade para melhorar a performance.
+
+Se precisar de mais ajustes ou de media queries para tamanhos específicos, é só informar! */
+
+/* /* Responsividade para telas menores 
 @media (max-width: 768px) {
   table {
     font-size: 12px;
@@ -107,4 +490,4 @@
   #faturamento-resultado {
     width:90%;
   }
-}
+} */
