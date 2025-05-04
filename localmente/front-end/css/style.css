@@ -2,9 +2,15 @@
 .main-container { 
   display: flex;
   flex-direction: row;  
+  /* flex-wrap: wrap; Permite que os elementos quebrem linha em telas menores */
+  min-height: 100vh; /* Altura mínima para ocupar a tela */
+  /* padding: 10px; Margem interna para evitar colagem nas bordas */
+  box-sizing: border-box;
+  padding: 0px; /* Remove o padding padrão */
   justify-content: center;
   align-items: flex-start; /* flex-start */
-  height: 100%; /* Altura total da tela */
+  /* height: 100%; Altura total da tela */
+  width: 100vw; /* Garante que ocupe exatamente a largura da viewport */
 }
 
 /* Estilização do aside */
@@ -16,11 +22,17 @@
   margin-top: 25px;
   /* border: 5px solid #000; */
   background-color: #D2DBE9;
-  margin-right: 50px;
+  margin-right: 20px; /* Reduzido para evitar excesso de espaço */
   box-shadow: 8px 8px 8px rgba(0, 0, 0, 0.5);
   border-radius: 30px;
-  width: 20rem; /* Largura fixa do aside */
-  height: 90vh; /* Altura fixa do aside */
+  width: 100%; /* Largura fluida */
+  max-width: 20rem; /* Limite máximo */
+  min-width: 200px; /* Evita que fique muito estreito */
+  height: auto; /* Altura ajustável */
+  min-height: 50vh; /* Altura mínima para consistência */
+  box-sizing: border-box; /* Garante que padding não aumente a largura */
+  /* width: 20rem; Largura fixa do aside */
+  /* height: 90vh; Altura fixa do aside */
 }
 
 
@@ -31,7 +43,12 @@
   justify-content: center; 
   width: 100%;
   max-width: 1200px;
-  height:93vh ;
+  min-width: 300px; /* Evita colapso em telas pequenas */
+  height: auto; /* Altura ajustável */
+  /* min-height: 105vh; */
+  box-sizing: border-box;
+
+  /* height:93vh ; */
   border: 5px solid #000000;
   border-radius: 20px;
   margin-top: 5px;
@@ -41,12 +58,17 @@
 /* Estilização do perfil */
 .Main-profile {
   display: flex;
+  flex-direction: column;
   justify-content: space-between;   /* Alinha os itens à direita */
   align-items:center;
-  padding-right: 15px;
+  padding: 15px 15px;
+  margin-bottom: 20px;
   /* border: 1px solid #000; */
-  margin-top: 4.5rem;
-  height: 190px;  
+  /* margin-top: 4.5rem; */
+  height: auto; /* Altura ajustável */
+  min-height: 120px;
+  /* width: 100%; */
+  box-sizing: border-box; /* Garante que o padding não aumente a largura total */
 }
 
 .user-profile {
@@ -54,10 +76,14 @@
   flex-direction: column;
   justify-content: center;
   align-items: left;
+  box-sizing: border-box;
   border: 2px solid #000;
   border-radius: 10px;
   font-size: 16px;
-  padding: 20px; /* Adiciona um pouco de espaço interno */
+  padding: 15px;
+  width: 100%;
+  max-width: 300px; /* Limita a largura para evitar esticamento */
+
 }
 
 
@@ -118,7 +144,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 25px;
+  gap: 15px;
   margin-right:70px;
 }
 /* Fim do código do Btns de editar e lançar */
@@ -137,6 +163,7 @@
   margin-bottom: 10px;
   gap: 10px;
   margin-left: auto;
+  flex-wrap: wrap; /* Permite quebra de linha */
   margin-right: auto;
   /* border: 1px solid #000;   */
   max-width: 1500px; /* Optional: caps the width for larger screens */
@@ -146,8 +173,9 @@
 
 .generator-main {
   height: 660px;
-  width: 95%;
+  width: 100%;
   margin-bottom: 50px;
+  min-height: 400px; /* Altura mínima */
   /* border: 5px solid #333;  */
   border-radius: 10px;
   background-color: #fff;
@@ -157,7 +185,7 @@
   0 -12px 12px rgba(0, 0, 0, 0.3); /* Sombra em cima */
   overflow-y: auto;
   margin-top: 20px;
-  
+  box-sizing: border-box; /* Garante que o padding não aumente a largura total */
   /* position: relative;
   top: -10px;  /* px  negativo vai para a esquerda, positivo a direita
   left: -120px;  px positivo move para baixo, negativo sobe*/
@@ -169,6 +197,7 @@
 .Generator-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: auto; /* Permite que a tabela se ajuste ao contêiner */
 }
 /* Garantir que o cabeçalho da tabela não role junto com o corpo */
  .Generator-table thead  {
@@ -183,6 +212,8 @@
   text-align: left;
   border-bottom: 2.5px solid #ddd;
   font-size: 17px;
+  white-space: nowrap; /* Evita quebra de linha em células */
+  text-overflow: ellipsis; /* Adiciona reticências se o conteúdo for muito longo */
 }
 #generator-table .select-row {
   cursor: pointer;
@@ -215,7 +246,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 20px;
+  gap: 15px;
 }
 
 .Container-down {
@@ -224,10 +255,13 @@
   justify-content: center;
   align-items: center;
   height: 25vh;
-  width: 50rem;
+  width: 100%; /* Alterado de 50rem para 100% */
+  max-width: 50rem; /* Mantém um limite máximo */
+  /* width: 50rem; */
   margin-top: 20px;
   border: 5px solid #333;
   border-radius: 10px;
+  box-sizing: border-box;
 }
 
 
@@ -287,10 +321,8 @@
 #SelecionarTodos {
   background-color: #4CAF50;
   color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+  height: 40px;
+
 }
 
 #SelecionarTodos:disabled {

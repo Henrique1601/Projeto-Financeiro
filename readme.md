@@ -81,5 +81,5 @@ ou
 
 ## Licença
 
-[MIT](https://choosealicense.com/licenses/mit/)
+[MIT](LICENSE)
 

@@ -124,7 +124,7 @@ tr:hover {
 
 /* Estilo para inputs */
 input, select {
-  padding: 10px;
+  padding: 5px;
   border: 2px solid #ccc;
   border-radius: 5px;
   font-size: 14px;

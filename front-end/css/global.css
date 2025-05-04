@@ -11,6 +11,15 @@ body {
   background-color: #D7DFEC;
   height: 100%;
 }
+.inputs-main input,select{
+  width: 140px;
+  height: 30px;
+  font-size: 14px;
+  padding: 5px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  transition: 0.3s;
+}
 
 input, select {
   padding: 10px;
@@ -36,7 +45,7 @@ button {
 
   text-align: center;
   text-decoration: none;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: bold;
   
 }
