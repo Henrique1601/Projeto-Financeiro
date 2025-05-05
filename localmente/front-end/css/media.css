@@ -194,7 +194,7 @@
   }
   
   .inputs-main input,select{
-    width: 120px;
+    width: 110px;
   }
   .generator-main {
     height: 430px;
@@ -217,7 +217,18 @@
     gap: 15px;
     margin-right: 0; /* Remove margem à direita */
     margin-top: 10px; /* Espaço acima dos botões */
+    width: 100%; /* Largura total */
   }
+  .buttons button{
+     width: 110px;
+    height: 40px; /* Altura dos botões */ 
+    /* height: 30px; Altura dos botões */
+    font-size: 13px; /* Tamanho da fonte dos botões */
+    text-align: center;
+    padding: 5px;
+    /* padding: / 13px; Padding dos botões */
+  }
+
 }
 
 @media (max-width: 1024px) {
@@ -288,9 +299,21 @@
     flex-direction: row; /*Empilha os inputs*/
     gap: 5px;
   }
+  .inputs-main input,select{
+    width: 100px; /* Largura reduzida para caber melhor */
+    height: 30px; /* Altura reduzida */
+    font-size: 14px; /* Fonte menor */
+    padding: 5px; /* Padding reduzido */
+  }
 
   .buttons{
     margin-bottom: 10px;
+    width: 95%; /* Largura total */
+    display: flex;
+    justify-content: center; /* Centraliza os botões */
+    align-items: center;
+    /* max-width: 450px; */
+
   }
   .generator-main {
     width: 100%; /* Ocupa toda a largura */
@@ -412,9 +435,15 @@
 
   .buttons {
     flex-direction: row; /* Empilha os botões */
-    gap: 10px;
+    gap: 5px;
   }
-
+  .buttons button{
+    width: 80px; /* Largura reduzida dos botões */
+    height: 40px; /* Altura reduzida dos botões */
+    font-size: 11px; /* Fonte menor dos botões */
+    padding:5px; /* Padding reduzido dos botões */
+    text-align: center;
+  }
   .Container-down {
     width: 95%;
     border-width: 3px;
@@ -461,9 +490,8 @@
 @media (max-width: 480px) {
   .AsideMain {
     width: 95%;
-    padding: 8px;
+    padding: 8px; 
   }
-
   .container {
     width: 95%;
     border-width: 2px;
@@ -492,13 +520,60 @@
   }
 
   .NavBtns {
-    flex-direction: column; /* Empilha os botões de navegação */
+    flex-direction: row; /* Empilha os botões de navegação */
     gap: 10px;
     margin-right: 0;
+  }
+  .NavBtns button{
+    width: 80px; /* Largura reduzida dos botões */
+    height: 30px; /* Altura reduzida dos botões */
+    font-size: 11px; /* Fonte menor dos botões */
+    padding: 5px; /* Padding reduzido dos botões */
+  
   }
 
   .inputs-main {
     margin-left: 0;
+    flex-direction: column; /* Empilha os inputs */
+    gap: 5px; /* Espaçamento reduzido entre os inputs */
+    /* width: 100%; Largura total */
+    align-items: center; /* Centraliza os inputs */
+    justify-content: center; /* Centraliza os inputs */
+  }
+  .inputs-main input,select{
+    width: 90%; /* Largura reduzida para caber melhor */
+    height: 30px; /* Altura reduzida */
+    font-size: 10px; /* Fonte menor */
+    padding: 5px; /* Padding reduzido */
+  }
+.buttons {
+    display: flex;
+    justify-content: center; /* Centraliza os botões */
+    align-items: center;
+
+    flex-direction: column; /* Empilha os botões */
+    gap: 5px;
+    width: 100%; /* Largura total */
+  }
+  .buttons button{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 95%; /* Largura total dos botões */
+    height: 35px; /* Altura reduzida dos botões */
+    font-size: 10px; /* Fonte menor dos botões */
+    padding: 5px; /* Padding reduzido dos botões */
+  }
+  .buttons a{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%; /* Largura total dos links */
+    height: 35px; /* Altura reduzida dos links */
+    font-size: 10px; /* Fonte menor dos links */
+    padding: 5px; /* Padding reduzido dos links */
   }
 
   .Container-down {

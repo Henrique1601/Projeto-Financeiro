@@ -248,7 +248,29 @@
   align-items: center;
   gap: 15px;
 }
+.save-btn {
+  background-color: #4CAF50; /* Verde */
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  display: none; /* Inicialmente escondido */
+}
+.save-btn:hover {
+  background-color: #45a049;
+}
+.cancel-btn {
+  background-color: #f44336;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  display: none; /* Inicialmente oculto */
+}
 
+.cancel-btn:hover {
+  background-color: #d32f2f;
+}
 .Container-down {
   display: flex;
   flex-direction: column;

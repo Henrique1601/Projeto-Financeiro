@@ -268,7 +268,7 @@ async function salvarRegistro() {
 }
 
     // Função para exibir o perfil do usuário
-    function displayUserProfile() {
+function displayUserProfile() {
         try {
             const decodedToken = jwt_decode(token);
             userName.textContent = `${decodedToken.nome} ${decodedToken.sobrenome}`;
@@ -284,10 +284,10 @@ async function salvarRegistro() {
             }).showToast();
             logout();
         }
-    }
+}
 
     // Função para confirmar e salvar um novo lançamento
-    async function Confirmar() {
+async function Confirmar() {
         const dataInput = document.getElementById('date').value;
         const data = converterParaFormatoBackend(dataInput);
         const descricao = document.getElementById('description').value;
@@ -411,10 +411,10 @@ async function salvarRegistro() {
         } finally {
             hideSpinner();
         }
-    }
+}
 
     // Função para tornar uma célula editável
-    function TornarEditavel(cell, idLinha, cellIndex) {
+function TornarEditavel(cell, idLinha, cellIndex) {
         const valorOriginal = cell.dataset.originalValue || cell.innerHTML.trim().replace('R$ ', '').replace(',', '.');
         let input;
 
@@ -466,10 +466,10 @@ async function salvarRegistro() {
         input.focus();
 
         console.log(`Campo editável criado para célula índice ${cellIndex} com valor: ${valorOriginal}`);
-    }
+}
 
     // Função para editar linhas selecionadas
-    function EditarLinhasSelecionadas() {
+function EditarLinhasSelecionadas() {
         const tabela = document.getElementById('generator-table').getElementsByTagName('tbody')[0];
         if (!tabela) {
             console.error('Tabela não encontrada com ID "generator-table" ou não possui tbody');
@@ -482,7 +482,7 @@ async function salvarRegistro() {
             }).showToast();
             return;
         }
-
+    
         const checkboxes = tabela.getElementsByClassName('select-row');
         if (!checkboxes || checkboxes.length === 0) {
             console.error('Nenhum checkbox encontrado na tabela');
@@ -495,16 +495,16 @@ async function salvarRegistro() {
             }).showToast();
             return;
         }
-
+    
         let linhasSelecionadas = 0;
-
+    
         for (let i = 0; i < checkboxes.length; i++) {
             if (checkboxes[i].checked) {
                 linhasSelecionadas++;
                 const row = checkboxes[i].parentElement.parentElement;
                 const cells = row.cells;
                 console.log(`Linha ${i} selecionada, células disponíveis: ${cells.length}`);
-
+    
                 const dataCell = cells[1];
                 const dataOriginal = dataCell.innerHTML;
                 dataCell.dataset.originalValue = dataOriginal;
@@ -513,7 +513,7 @@ async function salvarRegistro() {
                 dataInput.value = converterParaFormatoBackend(dataOriginal);
                 dataCell.innerHTML = '';
                 dataCell.appendChild(dataInput);
-
+    
                 const descCell = cells[2];
                 const descOriginal = descCell.innerHTML;
                 descCell.dataset.originalValue = descOriginal;
@@ -522,7 +522,7 @@ async function salvarRegistro() {
                 descInput.value = descOriginal;
                 descCell.innerHTML = '';
                 descCell.appendChild(descInput);
-
+    
                 const valorCell = cells[3];
                 const valorOriginal = valorCell.dataset.originalValue || valorCell.innerHTML.replace('R$ ', '').replace(',', '.');
                 valorCell.dataset.originalValue = valorOriginal;
@@ -531,7 +531,7 @@ async function salvarRegistro() {
                 valorInput.value = Math.abs(valorOriginal);
                 valorCell.innerHTML = '';
                 valorCell.appendChild(valorInput);
-
+    
                 const tipoCell = cells[4];
                 const tipoOriginal = tipoCell.innerHTML;
                 tipoCell.dataset.originalValue = tipoOriginal;
@@ -549,7 +549,7 @@ async function salvarRegistro() {
                 tipoCell.appendChild(tipoSelect);
             }
         }
-
+    
         if (linhasSelecionadas === 0) {
             Toastify({
                 text: 'Erro: Selecione pelo menos uma linha para editar.',
@@ -560,23 +560,32 @@ async function salvarRegistro() {
             }).showToast();
             return;
         }
-
+    
         console.log('Linhas selecionadas para edição:', linhasSelecionadas);
-
-        let saveButton = document.querySelector('button#saveEditsBtn');
-        if (!saveButton) {
-            saveButton = document.createElement('button');
-            saveButton.id = 'saveEditsBtn';
-            saveButton.textContent = 'Salvar Edições';
-            saveButton.onclick = SalvarEdicoes;
-            document.body.appendChild(saveButton);
-        } else {
-            console.log('Botão "Salvar Edições" já existe, não será recriado.');
+    
+        const saveButton = document.querySelector('button#saveEditsBtn');
+        const cancelButton = document.querySelector('button#cancelEditsBtn');
+        if (!saveButton || !cancelButton) {
+            console.error('Botão "Salvar Edições" ou "Cancelar Edição" não encontrado no DOM.');
+            Toastify({
+                text: 'Erro: Botão de salvar ou cancelar não encontrado.',
+                duration: 3000,
+                gravity: 'top',
+                position: 'right',
+                backgroundColor: 'red',
+            }).showToast();
+            return;
         }
+    
+        // Mostrar ambos os botões
+        saveButton.style.display = 'inline-block';
+        cancelButton.style.display = 'inline-block';
+        saveButton.onclick = SalvarEdicoes;
+        cancelButton.onclick = CancelarEdicoes;
     }
 
     // Função para salvar edições
-    async function SalvarEdicoes() {
+async function SalvarEdicoes() {
         try {
             console.log('Iniciando SalvarEdicoes...');
             
@@ -592,7 +601,7 @@ async function salvarRegistro() {
                 }).showToast();
                 return;
             }
-
+    
             const checkboxes = tabela.getElementsByClassName('select-row');
             if (!checkboxes || checkboxes.length === 0) {
                 console.error('Nenhum checkbox encontrado na tabela');
@@ -605,9 +614,9 @@ async function salvarRegistro() {
                 }).showToast();
                 return;
             }
-
+    
             const updates = [];
-
+    
             for (let i = 0; i < checkboxes.length; i++) {
                 if (checkboxes[i].checked) {
                     const row = checkboxes[i].parentElement.parentElement;
@@ -618,14 +627,14 @@ async function salvarRegistro() {
                         continue;
                     }
                     const edit = { id: id };
-
+    
                     for (let j = 1; j < cells.length; j++) {
                         const cell = cells[j];
                         const input = cell.querySelector('input') || cell.querySelector('select');
                         if (input) {
                             const novoValor = (input.type === 'select-one') ? input.value : input.value.trim();
                             let valorOriginal = cell.dataset.originalValue;
-
+    
                             if (novoValor === '') {
                                 console.log(`Campo vazio detectado na célula ${j} da linha ${i + 1}`);
                                 Toastify({
@@ -637,7 +646,7 @@ async function salvarRegistro() {
                                 }).showToast();
                                 return;
                             }
-
+    
                             if (j === 1) {
                                 const valorOriginalBackend = converterParaFormatoBackend(valorOriginal);
                                 console.log(`Linha ${i}, Data - novoValor: ${novoValor}, valorOriginal: ${valorOriginal}, valorOriginalBackend: ${valorOriginalBackend}`);
@@ -710,7 +719,7 @@ async function salvarRegistro() {
                     }
                 }
             }
-
+    
             if (updates.length === 0) {
                 console.log('Nenhuma alteração detectada para salvar.');
                 Toastify({
@@ -722,9 +731,9 @@ async function salvarRegistro() {
                 }).showToast();
                 return;
             }
-
+    
             console.log('Edições a serem enviadas:', updates);
-
+    
             let token = localStorage.getItem('token');
             let response = await fetchWithRetry(`${API_BASE_URL}/api/editar`, {
                 method: 'PUT',
@@ -734,7 +743,7 @@ async function salvarRegistro() {
                 },
                 body: JSON.stringify({ updates })
             });
-
+    
             if (response.status === 401 || response.status === 403) {
                 console.log('Token inválido ou expirado, tentando renovar...');
                 token = await refreshToken();
@@ -747,22 +756,22 @@ async function salvarRegistro() {
                     body: JSON.stringify({ updates })
                 });
             }
-
+    
             if (!response.ok) {
                 const err = await response.json();
                 throw new Error(`Erro no servidor: ${response.status} - ${err.error || response.statusText}`);
             }
-
+    
             const result = await response.json();
             console.log('Resultado do back-end:', result);
-
+    
             console.log('Atualizando a tabela com as edições...');
             for (let i = 0; i < checkboxes.length; i++) {
                 if (checkboxes[i].checked) {
                     const row = checkboxes[i].parentElement.parentElement;
                     const cells = row.cells;
                     const edit = updates.find(e => e.id === row.dataset.id);
-
+    
                     if (edit.data) {
                         cells[1].innerHTML = formatarData(edit.data);
                         cells[1].dataset.originalValue = formatarData(edit.data);
@@ -779,9 +788,10 @@ async function salvarRegistro() {
                         cells[4].innerHTML = edit.entradaSaida;
                         cells[4].dataset.originalValue = edit.entradaSaida;
                     }
+                    checkboxes[i].checked = false; // Desmarcar checkbox
                 }
             }
-
+    
             Toastify({
                 text: result.message || 'Edições salvas com sucesso!',
                 duration: 3000,
@@ -789,11 +799,15 @@ async function salvarRegistro() {
                 position: 'right',
                 backgroundColor: 'green',
             }).showToast();
-
+    
             await loadFinanceiroData();
             atualizarSaldo();
+            // Ocultar ambos os botões após salvar
             const saveButton = document.querySelector('#saveEditsBtn');
-            if (saveButton) saveButton.remove();
+            const cancelButton = document.querySelector('#cancelEditsBtn');
+            if (saveButton) saveButton.style.display = 'none';
+            if (cancelButton) cancelButton.style.display = 'none';
+            atualizarEstadoBotaoSelecionarTodos();
         } catch (error) {
             console.error('Erro ao salvar edições:', error);
             Toastify({
@@ -804,10 +818,82 @@ async function salvarRegistro() {
                 backgroundColor: 'red',
             }).showToast();
         }
+}
+
+function CancelarEdicoes() {
+    const tabela = document.getElementById('generator-table').getElementsByTagName('tbody')[0];
+    if (!tabela) {
+        console.error('Tabela não encontrada com ID "generator-table" ou não possui tbody');
+        Toastify({
+            text: 'Erro: Tabela não encontrada.',
+            duration: 3000,
+            gravity: 'top',
+            position: 'right',
+            backgroundColor: 'red',
+        }).showToast();
+        return;
     }
 
+    const checkboxes = tabela.getElementsByClassName('select-row');
+    if (!checkboxes || checkboxes.length === 0) {
+        console.error('Nenhum checkbox encontrado na tabela');
+        Toastify({
+            text: 'Erro: Nenhuma linha disponível para cancelar.',
+            duration: 3000,
+            gravity: 'top',
+            position: 'right',
+            backgroundColor: 'red',
+        }).showToast();
+        return;
+    }
+
+    for (let i = 0; i < checkboxes.length; i++) {
+        if (checkboxes[i].checked) {
+            const row = checkboxes[i].parentElement.parentElement;
+            const cells = row.cells;
+
+            // Restaurar valores originais
+            for (let j = 1; j < cells.length; j++) {
+                const cell = cells[j];
+                const valorOriginal = cell.dataset.originalValue;
+                if (valorOriginal !== undefined) {
+                    if (j === 1) {
+                        cell.innerHTML = formatarData(valorOriginal); // Data
+                    } else if (j === 3) {
+                        cell.innerHTML = formatarValor(valorOriginal); // Valor
+                        cell.classList.remove('positive-value', 'negative-value');
+                        if (Number(valorOriginal) < 0) {
+                            cell.classList.add('negative-value');
+                        } else {
+                            cell.classList.add('positive-value');
+                        }
+                    } else {
+                        cell.innerHTML = valorOriginal; // Descrição ou Entrada/Saída
+                    }
+                }
+            }
+            checkboxes[i].checked = false; // Desmarcar checkbox
+        }
+    }
+
+    // Ocultar ambos os botões
+    const saveButton = document.querySelector('#saveEditsBtn');
+    const cancelButton = document.querySelector('#cancelEditsBtn');
+    if (saveButton) saveButton.style.display = 'none';
+    if (cancelButton) cancelButton.style.display = 'none';
+
+    Toastify({
+        text: 'Edição cancelada.',
+        duration: 3000,
+        gravity: 'top',
+        position: 'right',
+        backgroundColor: 'orange',
+    }).showToast();
+
+    atualizarEstadoBotaoSelecionarTodos();
+}
     // Função para deletar linhas
-    async function Deletar() {
+async function Deletar() {
         console.log('Início da função Deletar...');
 
         const serverAvailable = await checkServerAvailability();
@@ -1004,10 +1090,10 @@ async function salvarRegistro() {
         } finally {
             hideSpinner();
         }
-    }
+}
 
     // Função para fechar faturamento
-    function FecharFaturamento() {
+function FecharFaturamento() {
         const tabelaResposta = document.getElementById('resposta-table')?.getElementsByTagName('tbody')[0];
         if (tabelaResposta) {
             const row = tabelaResposta.insertRow();
@@ -1023,7 +1109,7 @@ async function salvarRegistro() {
         } else {
             console.warn('Tabela de resposta não encontrada');
         }
-    }
+}
 
 // Função auxiliar para formatar a data
 function formatarData(dataISO) {
@@ -1107,7 +1193,7 @@ function formatarData(dataISO) {
     }
 
     // Função para selecionar/desmarcar todas as linhas
-    function selecionarTodos() {
+function selecionarTodos() {
         const tabela = document.getElementById('generator-table').getElementsByTagName('tbody')[0];
         const checkboxes = tabela ? tabela.getElementsByClassName('select-row') : [];
         const selecionarTodosBtn = document.getElementById('SelecionarTodos');
@@ -1125,10 +1211,10 @@ function formatarData(dataISO) {
         });
 
         atualizarEstadoBotaoSelecionarTodos();
-    }
+}
 
     // Função para exportar tabela para CSV
-    function exportTableCsv() {
+function exportTableCsv() {
         showSpinner('Exportando tabela para CSV...');
         try {
             const tabela = document.getElementById('generator-table');
@@ -1198,7 +1284,7 @@ function formatarData(dataISO) {
         } finally {
             hideSpinner();
         }
-    }
+}
 
 
 
