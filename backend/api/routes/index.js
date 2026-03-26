@@ -1,5 +1,5 @@
 const { authenticate } = require('../middleware/auth');
-const { ensureDbInit } = require('../config/database');
+const { ensureDbInit, pool } = require('../config/database');
 const authCtrl = require('../controllers/authController');
 const financeiroCtrl = require('../controllers/financeiroController');
 const express = require('express');
@@ -15,6 +15,13 @@ router.delete('/deletar', authenticate, ensureDbInit, financeiroCtrl.deletar);
 router.put('/editar', authenticate, ensureDbInit, financeiroCtrl.editar);
 router.post('/importar', authenticate, ensureDbInit, financeiroCtrl.importar);
 
-router.get('/health', (req, res) => res.status(200).json({ status: 'OK' }));
+router.get('/health', async (req, res) => {
+  try {
+    await pool.query('SELECT 1');
+    res.status(200).json({ status: 'OK', database: 'connected' });
+  } catch (err) {
+    res.status(200).json({ status: 'OK', database: 'error', error: err.message });
+  }
+});
 
 module.exports = router;

@@ -2,12 +2,19 @@ const { Pool } = require('pg');
 
 const isProduction = process.env.NODE_ENV === 'production';
 
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('DATABASE_URL configured:', !!process.env.DATABASE_URL);
+
+if (!process.env.DATABASE_URL) {
+  console.error('DATABASE_URL não está configurada!');
+}
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgres://postgres:1234@localhost:5432/financeiro',
+  connectionString: process.env.DATABASE_URL,
   ssl: isProduction ? { rejectUnauthorized: false } : false,
-  connectionTimeoutMillis: 5000,
+  connectionTimeoutMillis: 15000,
   idleTimeoutMillis: 30000,
-  max: 10
+  max: 5
 });
 
 pool.on('connect', () => console.log('Conectado ao banco de dados.'));
@@ -19,6 +26,8 @@ const initDatabase = async () => {
   if (isInitialized) return;
   
   try {
+    console.log('Inicializando banco de dados...');
+    
     await pool.query(`
       CREATE TABLE IF NOT EXISTS usuarios (
         id SERIAL PRIMARY KEY,
@@ -28,6 +37,8 @@ const initDatabase = async () => {
         senha TEXT NOT NULL
       )
     `);
+    console.log('Tabela usuarios OK');
+    
     await pool.query(`
       CREATE TABLE IF NOT EXISTS financeiro (
         id SERIAL PRIMARY KEY,
@@ -37,16 +48,27 @@ const initDatabase = async () => {
         valor NUMERIC NOT NULL,
         entradaSaida TEXT NOT NULL,
         categoria TEXT DEFAULT 'Outros',
+        metodoPagamento TEXT DEFAULT 'Dinheiro',
+        observacoes TEXT DEFAULT '',
         FOREIGN KEY (user_id) REFERENCES usuarios(id) ON DELETE CASCADE
       )
     `);
+    console.log('Tabela financeiro OK');
+    
     await pool.query(`
       ALTER TABLE financeiro ADD COLUMN IF NOT EXISTS categoria TEXT DEFAULT 'Outros'
-    `);
+    `).catch(() => {});
+    await pool.query(`
+      ALTER TABLE financeiro ADD COLUMN IF NOT EXISTS metodoPagamento TEXT DEFAULT 'Dinheiro'
+    `).catch(() => {});
+    await pool.query(`
+      ALTER TABLE financeiro ADD COLUMN IF NOT EXISTS observacoes TEXT DEFAULT ''
+    `).catch(() => {});
     console.log('Tabelas criadas ou já existem.');
     isInitialized = true;
   } catch (err) {
     console.error('Erro ao inicializar banco:', err.message);
+    console.error('Stack:', err.stack);
   }
 };
 

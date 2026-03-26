@@ -2,11 +2,13 @@ const { pool } = require('../config/database');
 const { withTransaction } = require('../utils/queryHelpers');
 const { validateFinanceiroInput } = require('../utils/validators');
 
-const salvarLancamento = async (userId, { data, descricao, valor, entradaSaida, categoria }) => {
+const salvarLancamento = async (userId, { data, descricao, valor, entradaSaida, categoria, metodoPagamento, observacoes }) => {
   entradaSaida = entradaSaida.toLowerCase() === 'entrada' ? 'Entrada' :
                  entradaSaida.toLowerCase() === 'saída' ? 'Saída' : entradaSaida;
 
   const categoriaFinal = categoria || 'Outros';
+  const metodoFinal = metodoPagamento || 'Dinheiro';
+  const observacoesFinal = observacoes || '';
 
   const errors = validateFinanceiroInput(data, descricao, valor, entradaSaida);
   if (errors.length > 0) {
@@ -15,8 +17,8 @@ const salvarLancamento = async (userId, { data, descricao, valor, entradaSaida, 
 
   return await withTransaction(async (client) => {
     const { rows } = await client.query(
-      'INSERT INTO financeiro (user_id, data, descricao, valor, entradaSaida, categoria) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
-      [userId, data, descricao, valor, entradaSaida, categoriaFinal]
+      'INSERT INTO financeiro (user_id, data, descricao, valor, entradaSaida, categoria, metodoPagamento, observacoes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
+      [userId, data, descricao, valor, entradaSaida, categoriaFinal, metodoFinal, observacoesFinal]
     );
     return { id: rows[0].id, message: 'Dados salvos com sucesso.' };
   });
@@ -57,7 +59,7 @@ const editarLancamentos = async (userId, updates) => {
     throw new Error('Máximo 50 edições por vez.');
   }
 
-  const allowedFields = ['data', 'descricao', 'valor', 'entradaSaida', 'categoria'];
+  const allowedFields = ['data', 'descricao', 'valor', 'entradaSaida', 'categoria', 'metodoPagamento', 'observacoes'];
 
   return await withTransaction(async (client) => {
     let total = 0;
