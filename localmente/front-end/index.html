@@ -1,209 +1,486 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
-<!-- META -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Financeiro"> 
+  <meta name="theme-color" content="#6366f1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Gestor de Despesas">
 
   <title>Gestor de Despesas</title>
   
-  <!-- Adicionar o CSS do Toastify -->
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966327.png">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
-
-  <!-- Favicon -->
-  <link rel="icon" href="./imgs/img/icons8-general-ledger-96.png" type="image/x-icon">
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="./css/global.css">
-  <link rel="stylesheet" href="./css/style.css">
-  <link rel="stylesheet" href="./css/media.css">
-
-
+  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2966/2966327.png" type="image/x-icon">
+  
+  <link rel="stylesheet" href="./css/modern.css">
 </head>
 <body>
   <main class="main-container">
+    <aside class="AsideMain">
+      <div>
+        <h3><i class="fas fa-file-export"></i> Exportar</h3>
+        <button id="export-excel"><i class="fas fa-file-excel"></i> Excel</button>
+        <button id="export-pdf"><i class="fas fa-file-pdf"></i> PDF</button>
+        <button id="print-table"><i class="fas fa-print"></i> Imprimir</button>
+        <button id="export-table"><i class="fas fa-file-code"></i> JSON</button>
+        <button id="export-csv"><i class="fas fa-file-csv"></i> CSV</button>
+      </div>
+      
+      <div>
+        <h3><i class="fas fa-file-import"></i> Importar</h3>
+        <button id="import-table"><i class="fas fa-file-code"></i> JSON</button>
+        <button id="import-csv"><i class="fas fa-file-csv"></i> CSV</button>
+      </div>
+    </aside>
 
-    <section class="AsideMain">
-      <aside class="Aside1">
-       <button type="button" id="print-table">Imprimir</button>
-       <button id="export-excel">Salvar como Excel</button>
-       <button id="export-pdf">Salvar como PDF</button>
-      </aside>
-       <aside class="Aside2"> 
-       <button type="button" id="export-table">Exportar Tabela Json</button>
-       <button type="button" id="import-table">Importar Tabela Json</button> 
-       <button type="button"id="export-csv">Exportar Tabela CSV</button>
-       <button type="button" id="import-csv">Importar Tabela CSV</button>
-      <!-- <input type="file" id="file-input" accept=".csv, .xlsx, .xls ,.json" style="display: none;"> -->
-      </aside> 
-     </section>
-  
-     
     <section class="container">
-
       <div class="Header">
-      <header class="Header_main">
-      <h1>Despesas</h1>
-      <p>Sistema de gerenciamento de Despesas</p>
-    </header>
-    
-    <!-- Perfil do usuário logado -->
-<section class="Main-profile">
-  <div id="user-profile" class="user-profile">
-    <h2>Perfil do Usuário</h2>
-    <p class="Nome">Nome: <span id="user-name"></span></p>
-    <p>Email: <span id="user-email"></span></p>
-    <p><span id="SaldoAtual"></span></p>
-    <button onclick="logout()">Sair</button>
-  </div>
-  </section>
-</div>
-
-   
-
-
-<nav class="Main_nav">
-  <ul>
-    <!-- <li><a href="#">lançamentos</a></li> -->
-    <!-- <li><a href="./index.html">Relatórios</a></li> -->
-    <!-- <li><a href="./faturamento.html">Importar</a></li> -->
-  </ul>
-</nav>
-
-<div class="btns-nav">
-  <header class="NavBtns">
-    <button type="button" id="Lancar" >Lançar</button>
-    <button type="button" id="Editar" >Editar</button>
-    <!-- <button type="button" id="Excluir">Excluir</button> -->
-  </header>
-</div>
-
-<div class="container-main">
-       
-
-
-   <!-- Conteúdo gerado dinamicamente -->
-      <div id="lancamentos">   
-        <section  class="Gerar_campo">
-        <div class="close-button" id="close-button">X</div>
-          <header id="Header_campo" class="Header_campo_gerado">
-          <ul>
-          <li><h3>Cadastro</h3></li>
-          </ul>
-        </header>
-          
-        <select name="Entrada_Saida" id="">
-          <option value="Receita">Receita</option>
-          <option value="Despesa">Despesa</option>
-        </select>
-        <input type="date" name="" id="">
-        <input type="number"> 
-
-        <select name="Categorias" id="" >
-          <option value="Categorias">Categorias</option>
-          <option value="Carro">Carro</option>
-          <option value="Alimentação">Alimentação</option>
-          <option value="Lazer">Lazer</option>
-          <option value="Educação">Educação</option>
-          <option value="Saúde">Saúde</option>
-          <option value="Transporte">Transporte</option>
-        </select>
-
-        <!-- <button type="button" id="fechar">Fechar</button> -->
-        <button type="button">Salva na Lista</button>
-        <button type="button">Limpar</button>
-        <input type="text" name="" id="">
-      </section>
+        <div class="Header_main">
+          <h1><i class="fas fa-wallet"></i> Gestor de Despesas</h1>
+          <p>Sistema de gerenciamento financeiro pessoal</p>
+        </div>
+        <button id="toggle-theme" class="btn btn-ghost btn-icon" title="Alternar tema">
+          <i class="fas fa-moon"></i>
+        </button>
       </div>
 
-    
-      <div class="inputs-main">
-      <label for="date">Data:</label>
-      <input class="inputs" type="date" name="date" id="date">
+      <div class="filtros-bar card">
+        <div class="filtros-row">
+          <div class="filtro-group">
+            <label><i class="fas fa-search"></i> Buscar</label>
+            <input type="text" id="filtro-busca" placeholder="Descrição...">
+          </div>
+          <div class="filtro-group">
+            <label><i class="fas fa-filter"></i> Tipo</label>
+            <select id="filtro-tipo">
+              <option value="">Todos</option>
+              <option value="Entrada">Entrada</option>
+              <option value="Saída">Saída</option>
+            </select>
+          </div>
+          <div class="filtro-group">
+            <label><i class="fas fa-folder"></i> Categoria</label>
+            <select id="filtro-categoria">
+              <option value="">Todas</option>
+              <option value="Outros">Outros</option>
+              <option value="Alimentação">Alimentação</option>
+              <option value="Transporte">Transporte</option>
+              <option value="Lazer">Lazer</option>
+              <option value="Saúde">Saúde</option>
+              <option value="Educação">Educação</option>
+              <option value="Moradia">Moradia</option>
+              <option value="Salário">Salário</option>
+              <option value="Investimento">Investimento</option>
+              <option value="Presente">Presente</option>
+              <option value="Serviços">Serviços</option>
+            </select>
+          </div>
+          <div class="filtro-group">
+            <label><i class="fas fa-money-bill-wave"></i> Método</label>
+            <select id="filtro-metodo">
+              <option value="">Todos</option>
+              <option value="Dinheiro">Dinheiro</option>
+              <option value="PIX">PIX</option>
+              <option value="Débito">Débito</option>
+              <option value="Crédito">Crédito</option>
+              <option value="Transferência">Transferência</option>
+            </select>
+          </div>
+          <div class="filtro-group">
+            <label><i class="fas fa-calendar"></i> Data Início</label>
+            <input type="date" id="filtro-data-inicio">
+          </div>
+          <div class="filtro-group">
+            <label><i class="fas fa-calendar"></i> Data Fim</label>
+            <input type="date" id="filtro-data-fim">
+          </div>
+          <button id="aplicar-filtros" class="btn btn-primary btn-sm">
+            <i class="fas fa-filter"></i> Filtrar
+          </button>
+          <button id="limpar-filtros" class="btn btn-ghost btn-sm">
+            <i class="fas fa-times"></i> Limpar
+          </button>
+        </div>
+      </div>
 
-      <label for="description">Descrição</label>
-      <input class="inputs" type="text" name="description" id="description" placeholder="Descrição">
-      
-      <label for=value">Valor</label>
-      <input class="inputs" type="number" name="value" id="value" placeholder="Valor">
-      
-      <label for="">Entrada/saída</label>
-            
-      <select  id="select">
-        <option class="inputs" value="Entrada" id="entrada">Entrada</option>
-        <option class="inputs" value="Saída" id="saida">Saída</option>'
-      </select>
-    </div>
+      <div class="resumo-cards">
+        <div class="resumo-card entrada">
+          <i class="fas fa-arrow-up"></i>
+          <div class="resumo-content">
+            <span class="resumo-label">Entradas</span>
+            <span class="resumo-value" id="total-entradas">R$ 0,00</span>
+          </div>
+        </div>
+        <div class="resumo-card saida">
+          <i class="fas fa-arrow-down"></i>
+          <div class="resumo-content">
+            <span class="resumo-label">Saídas</span>
+            <span class="resumo-value" id="total-saidas">R$ 0,00</span>
+          </div>
+        </div>
+        <div class="resumo-card saldo">
+          <i class="fas fa-wallet"></i>
+          <div class="resumo-content">
+            <span class="resumo-label">Saldo</span>
+            <span class="resumo-value" id="SaldoAtual">R$ 0,00</span>
+          </div>
+        </div>
+      </div>
 
-      <div class="generator-main">
-      <table class="Generator-table" id="generator-table">
-        <thead>
-        <tr>
-          <th>Selecionar</th>
-          <th>Data</th>
-          <th>Descrição</th>
-          <th>Valor</th>
-          <th>Entrada/Saída</th>
-        </tr>
-      </thead>
-        <tbody>
-          <!-- Conteúdo gerado dinamicamente -->
+      <div class="meta-section card" id="meta-section">
+        <div class="meta-header">
+          <h3><i class="fas fa-bullseye"></i> Meta do Mês</h3>
+          <div class="meta-buttons">
+            <button id="editar-meta" class="btn btn-ghost btn-sm" title="Editar Meta"><i class="fas fa-edit"></i></button>
+            <button id="btn-orcamento-categoria" class="btn btn-ghost btn-sm" title="Orçamento por Categoria"><i class="fas fa-chart-pie"></i></button>
+          </div>
+        </div>
+        <div class="meta-content">
+          <div class="meta-info">
+            <span>Meta: <strong id="meta-valor">R$ 0,00</strong></span>
+            <span>Gasto: <strong id="meta-gasto">R$ 0,00</strong></span>
+            <span id="meta-restante">Restante: R$ 0,00</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="meta-progress"></div>
+          </div>
+          <div class="meta-alert" id="meta-alert" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i> <span id="meta-alert-msg"></span>
+          </div>
+        </div>
+      </div>
 
-        </tbody>
-      </table>    
+      <div class="categoria-resumo card" id="categoria-resumo">
+        <div class="section-header">
+          <h3><i class="fas fa-chart-pie"></i> Gastos por Categoria</h3>
+        </div>
+        <div class="categoria-grid" id="categoria-grid"></div>
+      </div>
+
+      <div class="recorrentes-section card" id="recorrentes-section">
+        <div class="section-header">
+          <h3><i class="fas fa-redo"></i> Gastos Recorrentes</h3>
+        </div>
+        <div class="recorrentes-list" id="recorrentes-list"></div>
+      </div>
+
+      <div class="calendario-section card" id="calendario-section">
+        <div class="section-header">
+          <h3><i class="fas fa-calendar-alt"></i> Calendário</h3>
+          <div class="calendario-nav">
+            <button id="calendario-anterior" class="btn btn-ghost btn-sm"><i class="fas fa-chevron-left"></i></button>
+            <span id="calendario-mes-ano"></span>
+            <button id="calendario-proximo" class="btn btn-ghost btn-sm"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div class="calendario-grid">
+          <div class="calendario-dias-semana">
+            <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+          </div>
+          <div class="calendario-dias" id="calendario-dias"></div>
+        </div>
+      </div>
+
+      <div class="actions-bar card">
+        <button id="backup-btn" class="btn btn-ghost">
+          <i class="fas fa-download"></i> Backup
+        </button>
+        <button id="export-full-btn" class="btn btn-ghost">
+          <i class="fas fa-file-export"></i> Exportar Tudo
+        </button>
+        <button id="btn-transacoes-recorrentes" class="btn btn-ghost">
+          <i class="fas fa-redo"></i> Recorrentes
+        </button>
+      </div>
+
+      <div class="user-profile card">
+        <h2><i class="fas fa-user-circle"></i> Perfil do Usuário</h2>
+        <p><span>Nome:</span> <span id="user-name"><i class="fas fa-user"></i></span></p>
+        <p><span>Email:</span> <span id="user-email"><i class="fas fa-envelope"></i></span></p>
+        <button id="logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</button>
       </div>
 
       <div class="buttons">
-        <button type="button" id="Confirmar" class="Confirmar1">Confirmar</button>
-        <button type="button" id="Deletar">Deletar</button>
-        <!-- <button type="button" id="Salvar">Salvar no Banco de Dados</button> -->
-        <button id="SelecionarTodos" type="button" >Selecionar Tudo</button>
-        <button id="saveEditsBtn"  class="save-btn">Salvar Edições</button>  
-        <button id="cancelEditsBtn" class="cancel-btn">Cancelar Edição</button>
-        <a href="../front-end/Extrato/extrato.html"><button type="button" id="FecharFaturamento">Extrato</button> </a>
+        <button id="Lancar" class="btn-success"><i class="fas fa-plus-circle"></i> Lançar</button>
+        <button id="Editar" class="btn-primary"><i class="fas fa-edit"></i> Editar</button>
       </div>
 
-    </div>
-    <!-- Adicione isso dentro do <body>, preferencialmente no final -->
-<div id="spinner" class="spinner-overlay" role="alert" aria-live="assertive" >
-  <div class="spinner" aria-hidden="true"></div>
-  <p>Processando...</p>
-</div>
+      <div class="card" style="padding: 0; overflow: hidden;">
+        <div class="generator-main" style="box-shadow: none; border: none; border-radius: 0;">
+          <table class="Generator-table" id="generator-table">
+            <thead>
+              <tr>
+                <th style="width: 50px;"><i class="fas fa-check"></i></th>
+                <th onclick="ordenarTabela(1)" class="sortable"><i class="fas fa-calendar-alt"></i> Data <i class="fas fa-sort"></i></th>
+                <th onclick="ordenarTabela(2)" class="sortable"><i class="fas fa-file-alt"></i> Descrição <i class="fas fa-sort"></i></th>
+                <th onclick="ordenarTabela(3)" class="sortable"><i class="fas fa-coins"></i> Valor <i class="fas fa-sort"></i></th>
+                <th onclick="ordenarTabela(4)" class="sortable"><i class="fas fa-folder"></i> Categoria <i class="fas fa-sort"></i></th>
+                <th onclick="ordenarTabela(5)" class="sortable"><i class="fas fa-exchange-alt"></i> Tipo <i class="fas fa-sort"></i></th>
+                <th onclick="ordenarTabela(6)" class="sortable"><i class="fas fa-money-bill-wave"></i> Método <i class="fas fa-sort"></i></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="pagination" id="pagination">
+        <span id="total-records">0 registros</span>
+        <div class="pagination-controls">
+          <button id="prev-page" class="btn btn-ghost btn-sm"><i class="fas fa-chevron-left"></i></button>
+          <span id="page-info">Página 1 de 1</span>
+          <button id="next-page" class="btn btn-ghost btn-sm"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </div>
+
+      <div class="buttons" id="action-buttons">
+        <button id="Confirmar" class="btn-success"><i class="fas fa-check"></i> Confirmar</button>
+        <button id="Deletar" class="btn-danger"><i class="fas fa-trash"></i> Deletar</button>
+        <button id="SelecionarTodos" class="btn-primary"><i class="fas fa-check-double"></i> Selecionar Tudo</button>
+        <button id="saveEditsBtn" class="save-btn btn-success" style="display:none;"><i class="fas fa-save"></i> Salvar</button>  
+        <button id="cancelEditsBtn" class="cancel-btn btn-warning" style="display:none;"><i class="fas fa-times"></i> Cancelar</button>
+        <a href="./Extrato/extrato.html" style="text-decoration: none;">
+          <button class="btn-outline"><i class="fas fa-chart-bar"></i> Extrato</button>
+        </a>
+      </div>
     </section>
   </main>
-  
-  <!-- <footer class="footer">
-    
-    <h2>Redes Sociais</h2>
-    <div class="social-media">
-      <a href="#"><img src="" alt="Facebook"></a>
-      <a href="#"><img src="" alt="Twitter"></a>
-      <a href="#"><img src="." alt="Instagram"></a>
+
+  <!-- Modal de Lançamento -->
+  <div id="modal-lancar" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-plus-circle"></i> Novo Lançamento</h3>
+        <button class="modal-close" id="close-modal"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label><i class="fas fa-calendar"></i> Data</label>
+          <input type="date" id="date" required>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-tag"></i> Descrição</label>
+          <input type="text" id="description" placeholder="Descrição do lançamento" required>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-folder"></i> Categoria</label>
+          <select id="categoria">
+            <option value="Outros">Outros</option>
+            <option value="Alimentação">Alimentação</option>
+            <option value="Transporte">Transporte</option>
+            <option value="Lazer">Lazer</option>
+            <option value="Saúde">Saúde</option>
+            <option value="Educação">Educação</option>
+            <option value="Moradia">Moradia</option>
+            <option value="Salário">Salário</option>
+            <option value="Investimento">Investimento</option>
+            <option value="Presente">Presente</option>
+            <option value="Serviços">Serviços</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-money-bill-wave"></i> Método de Pagamento</label>
+          <select id="metodo-pagamento">
+            <option value="Dinheiro">Dinheiro</option>
+            <option value="PIX">PIX</option>
+            <option value="Débito">Débito</option>
+            <option value="Crédito">Crédito</option>
+            <option value="Transferência">Transferência</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-sticky-note"></i> Observações</label>
+          <input type="text" id="observacoes" placeholder="Observações (opcional)">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-coins"></i> Valor</label>
+          <input type="number" id="value" placeholder="0,00" step="0.01" required>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-exchange-alt"></i> Tipo</label>
+          <select id="select">
+            <option value="Entrada">Entrada</option>
+            <option value="Saída">Saída</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-confirmar-lancamento" class="btn btn-success">
+          <i class="fas fa-check"></i> Confirmar
+        </button>
+        <button id="btn-limpar-formulario" class="btn btn-ghost">
+          <i class="fas fa-eraser"></i> Limpar
+        </button>
+      </div>
     </div>
-    <p>Todos os direitos reservados &copy; 2021</p>
-  </footer> -->
- 
-  <!-- Adicionar Toastify ao projeto -->
+  </div>
+
+  <!-- Modal de Detalhes -->
+  <div id="modal-detalhes" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-info-circle"></i> Detalhes do Lançamento</h3>
+        <button class="modal-close" id="close-modal-detalhes"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body" id="detalhes-content">
+      </div>
+      <div class="modal-footer">
+        <button id="btn-duplicar" class="btn btn-primary"><i class="fas fa-copy"></i> Duplicar</button>
+        <button id="btn-fechar-detalhes" class="btn btn-ghost">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Meta -->
+  <div id="modal-meta" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-bullseye"></i> Definir Meta do Mês</h3>
+        <button class="modal-close" id="close-modal-meta"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label><i class="fas fa-coins"></i> Valor da Meta (R$)</label>
+          <input type="number" id="meta-input-valor" placeholder="0,00" step="0.01">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-percentage"></i> Alerta ao atingir (%)</label>
+          <input type="number" id="meta-input-alerta" placeholder="80" value="80" min="1" max="100">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-salvar-meta" class="btn btn-success"><i class="fas fa-save"></i> Salvar</button>
+        <button id="btn-cancelar-meta" class="btn btn-ghost">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Orçamento por Categoria -->
+  <div id="modal-orcamento-categoria" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-chart-pie"></i> Orçamento por Categoria</h3>
+        <button class="modal-close" id="close-modal-orcamento-categoria"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="orcamento-categoria-header">
+          <div class="form-group">
+            <label><i class="fas fa-folder"></i> Categoria</label>
+            <select id="orcamento-categoria-select">
+              <option value="Alimentação">Alimentação</option>
+              <option value="Transporte">Transporte</option>
+              <option value="Lazer">Lazer</option>
+              <option value="Saúde">Saúde</option>
+              <option value="Educação">Educação</option>
+              <option value="Moradia">Moradia</option>
+              <option value="Serviços">Serviços</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label><i class="fas fa-coins"></i> Valor (R$)</label>
+            <input type="number" id="orcamento-categoria-valor" placeholder="0,00" step="0.01">
+          </div>
+          <button id="btn-add-orcamento-categoria" class="btn btn-primary"><i class="fas fa-plus"></i> Adicionar</button>
+        </div>
+        <div id="orcamento-categoria-list" class="orcamento-categoria-list"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-salvar-orcamento-categoria" class="btn btn-success"><i class="fas fa-save"></i> Salvar Tudo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Transações Recorrentes -->
+  <div id="modal-recorrente" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-redo"></i> Configurar Recorrência</h3>
+        <button class="modal-close" id="close-modal-recorrente"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label><i class="fas fa-file-alt"></i> Descrição</label>
+          <input type="text" id="recorrente-descricao" placeholder="Descrição da transação">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-coins"></i> Valor (R$)</label>
+          <input type="number" id="recorrente-valor" placeholder="0,00" step="0.01">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-folder"></i> Categoria</label>
+          <select id="recorrente-categoria">
+            <option value="Outros">Outros</option>
+            <option value="Alimentação">Alimentação</option>
+            <option value="Transporte">Transporte</option>
+            <option value="Lazer">Lazer</option>
+            <option value="Saúde">Saúde</option>
+            <option value="Educação">Educação</option>
+            <option value="Moradia">Moradia</option>
+            <option value="Serviços">Serviços</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-exchange-alt"></i> Tipo</label>
+          <select id="recorrente-tipo">
+            <option value="Entrada">Entrada</option>
+            <option value="Saída">Saída</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-calendar-alt"></i> Dia do Mês</label>
+          <input type="number" id="recorrente-dia" min="1" max="31" value="1">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-clock"></i> Duração</label>
+          <select id="recorrente-duracao">
+            <option value="indefinido">Indefinido</option>
+            <option value="3">3 meses</option>
+            <option value="6">6 meses</option>
+            <option value="12">12 meses</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-toggle-on"></i> Ativo</label>
+          <input type="checkbox" id="recorrente-ativo" checked>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-salvar-recorrente" class="btn btn-success"><i class="fas fa-save"></i> Salvar</button>
+        <button id="btn-listar-recorrentes" class="btn btn-primary"><i class="fas fa-list"></i> Ver Listagem</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Spinner -->
+  <div id="spinner" class="spinner-overlay">
+    <div class="spinner"></div>
+    <p>Processando...</p>
+  </div>
+  
+  <!-- Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-  
-  <script  src="../backend/api/index.js"></script>
-  <script src="../backend/server.js"></script>
-  <script src="./js/index.js" defer>
-  console.log('index.js carregado');
-  </script>
-  
-  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
-  
-
-  <!-- Para PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <!-- Para Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-
+  <!-- App Modules -->
+  <script type="module" src="./js/config.js"></script>
+  <script type="module" src="./js/utils.js"></script>
+  <script type="module" src="./js/api.js"></script>
+  <script type="module" src="./js/formatters.js"></script>
+  <script type="module" src="./js/auth.js"></script>
+  <script type="module" src="./js/financeiro.js"></script>
+  <script type="module" src="./js/table.js"></script>
+  <script type="module" src="./js/export.js"></script>
+  <script type="module" src="./js/events.js"></script>
+  <script type="module" src="./js/main.js"></script>
 </body>
 </html>

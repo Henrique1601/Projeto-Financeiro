@@ -1,11 +1,9 @@
-const FINANCEIRO_URL = '../index.html'; // Definir como constante
+const FINANCEIRO_URL = '../index.html';
 
-// Definir a URL base diretamente
 const API_BASE_URL = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')
-    ? 'http://localhost:3000' // Porta do backend local
-    : ''; // URL do backend no Vercel
+    ? 'http://localhost:3000'
+    : '';
 
-// Função auxiliar para fetch com retentativas
 async function fetchWithRetry(url, options, retries = 3, delay = 1000, timeout = 15000) {
     for (let i = 0; i < retries; i++) {
         try {
@@ -22,39 +20,30 @@ async function fetchWithRetry(url, options, retries = 3, delay = 1000, timeout =
     }
 }
 
-// Verificar se já está logado
 let token = localStorage.getItem('token');
-const BtnLogin = document.getElementById('Btn-Login');
 
 if (token) {
-    window.location.href = FINANCEIRO_URL; // Redireciona para a página do financeiro
+    window.location.href = FINANCEIRO_URL;
 }
 
-// Mostrar formulário de login
 function showLoginForm() {
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
     if (loginForm && registerForm) {
-        loginForm.style.display = 'block';
+        loginForm.style.display = 'flex';
         registerForm.style.display = 'none';
-    } else {
-        console.error('Formulários de login ou registro não encontrados.');
     }
 }
 
-// Mostrar formulário de registro
 function showRegisterForm() {
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
     if (loginForm && registerForm) {
         loginForm.style.display = 'none';
-        registerForm.style.display = 'block';
-    } else {
-        console.error('Formulários de login ou registro não encontrados.');
+        registerForm.style.display = 'flex';
     }
 }
 
-// Registrar usuário
 async function register() {
     const nome = document.getElementById('register-FNome')?.value;
     const sobrenome = document.getElementById('register-SNome')?.value;
@@ -67,7 +56,7 @@ async function register() {
             duration: 3000,
             gravity: 'top',
             position: 'right',
-            style: { background: 'red' },
+            style: { background: '#ef4444' },
         }).showToast();
         return;
     }
@@ -75,26 +64,19 @@ async function register() {
     try {
         const response = await fetchWithRetry(`${API_BASE_URL}/api/register`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nome, sobrenome, email, senha })
         });
 
-        let result;
-        try {
-            result = await response.json();
-        } catch (jsonError) {
-            throw new Error(`Erro na resposta do servidor: ${response.status} - ${response.statusText}`);
-        }
+        const result = await response.json();
 
         if (response.ok) {
             Toastify({
-                text: 'Registro bem-sucedido! Faça login.',
+                text: 'Conta criada! Faça login.',
                 duration: 3000,
                 gravity: 'top',
                 position: 'right',
-                style: { background: 'green' },
+                style: { background: '#10b981' },
             }).showToast();
             showLoginForm();
         } else {
@@ -103,33 +85,32 @@ async function register() {
                 duration: 3000,
                 gravity: 'top',
                 position: 'right',
-                style: { background: 'red' },
+                style: { background: '#ef4444' },
             }).showToast();
         }
     } catch (err) {
         console.error('Erro ao registrar:', err);
         Toastify({
-            text: 'Erro ao conectar ao servidor: ' + err.message,
+            text: 'Erro ao conectar ao servidor.',
             duration: 3000,
             gravity: 'top',
             position: 'right',
-            style: { background: 'red' },
+            style: { background: '#ef4444' },
         }).showToast();
     }
 }
 
-// Login
 async function login() {
     const email = document.getElementById('Email')?.value;
     const senha = document.getElementById('Senha')?.value;
 
     if (!email || !senha) {
         Toastify({
-            text: 'Por favor, preencha email e senha.',
+            text: 'Preencha email e senha.',
             duration: 3000,
             gravity: 'top',
             position: 'right',
-            style: { background: 'red' },
+            style: { background: '#ef4444' },
         }).showToast();
         return;
     }
@@ -137,97 +118,65 @@ async function login() {
     try {
         const response = await fetchWithRetry(`${API_BASE_URL}/api/login`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, senha })
         });
 
-        let result;
-        try {
-            result = await response.json();
-        } catch (jsonError) {
-            throw new Error(`Erro na resposta do servidor: ${response.status} - ${response.statusText}`);
-        }
+        const result = await response.json();
 
         if (response.ok) {
             token = result.token;
             localStorage.setItem('token', token);
-            window.location.href = FINANCEIRO_URL; // Redireciona para a página do financeiro
+            Toastify({
+                text: 'Login realizado!',
+                duration: 1500,
+                gravity: 'top',
+                position: 'right',
+                style: { background: '#10b981' },
+            }).showToast();
+            setTimeout(() => {
+                window.location.href = FINANCEIRO_URL;
+            }, 1500);
         } else {
             Toastify({
-                text: result.error || 'Erro ao fazer login.',
+                text: result.error || 'Email ou senha incorretos.',
                 duration: 3000,
                 gravity: 'top',
                 position: 'right',
-                style: { background: 'red' },
+                style: { background: '#ef4444' },
             }).showToast();
         }
     } catch (err) {
         console.error('Erro ao fazer login:', err);
         Toastify({
-            text: 'Erro ao conectar ao servidor: ' + err.message,
+            text: 'Erro ao conectar ao servidor.',
             duration: 3000,
             gravity: 'top',
             position: 'right',
-            style: { background: 'red' },
+            style: { background: '#ef4444' },
         }).showToast();
     }
 }
 
-// Logout (não é usado na página de login, mas mantido para consistência)
-function logout() {
-    localStorage.removeItem('token');
-    token = null;
-    showLoginForm();
-}
-
-// Inicializar eventos
 document.addEventListener('DOMContentLoaded', () => {
     showLoginForm();
 
-    const loginForm = document.getElementById('login-form');
-    const registerForm = document.getElementById('register-form');
+    document.getElementById('Btn-Login')?.addEventListener('click', login);
+    document.getElementById('Btn-Register')?.addEventListener('click', register);
+    document.getElementById('show-register')?.addEventListener('click', showRegisterForm);
+    document.getElementById('show-login')?.addEventListener('click', showLoginForm);
 
-    if (loginForm) {
-        loginForm.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                login();
-            }
-        });
-    } else {
-        console.error('Formulário de login não encontrado.');
-    }
+    document.getElementById('login-form')?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            login();
+        }
+    });
 
-    if (registerForm) {
-        registerForm.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                register();
-            }
-        });
-    } else {
-        console.error('Formulário de registro não encontrado.');
-    }
-
-    if (BtnLogin) {
-        BtnLogin.addEventListener('click', login);
-    } else {
-        console.error('Botão de login com ID "Btn-Login" não encontrado.');
-    }
-
-    const btnShowRegister = document.getElementById('show-register');
-    if (btnShowRegister) {
-        btnShowRegister.addEventListener('click', showRegisterForm);
-    } else {
-        console.error('Botão para mostrar formulário de registro não encontrado.');
-    }
-
-    const btnShowLogin = document.getElementById('show-login');
-    if (btnShowLogin) {
-        btnShowLogin.addEventListener('click', showLoginForm);
-    } else {
-        console.error('Botão para mostrar formulário de login não encontrado.');
-    }
+    document.getElementById('register-form')?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            register();
+        }
+    });
 });
