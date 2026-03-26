@@ -22,6 +22,19 @@ app.use(rateLimit({
   message: 'Muitas requisições. Tente novamente mais tarde.'
 }));
 
+app.get('/api/health', async (req, res) => {
+  try {
+    if (process.env.DATABASE_URL) {
+      await pool.query('SELECT 1');
+      res.json({ status: 'OK', database: 'connected' });
+    } else {
+      res.json({ status: 'OK', database: 'not configured' });
+    }
+  } catch (err) {
+    res.json({ status: 'OK', database: 'error', error: err.message });
+  }
+});
+
 app.use('/api', routes);
 
 app.use((err, req, res, next) => {
@@ -31,13 +44,12 @@ app.use((err, req, res, next) => {
   res.status(status).json({ error: err.message });
 });
 
-initDatabase();
+initDatabase().then(() => {
+  console.log('Banco inicializado');
+}).catch(err => {
+  console.error('Erro inicialização:', err.message);
+});
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
 
-process.on('SIGINT', async () => {
-  await pool.end();
-  console.log('Conexão fechada.');
-  process.exit(0);
-});
+module.exports = app;

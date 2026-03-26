@@ -1,16 +1,17 @@
 const { Pool } = require('pg');
 
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.VERCEL === '1';
+const dbUrl = process.env.DATABASE_URL;
 
-console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('DATABASE_URL configured:', !!process.env.DATABASE_URL);
+console.log('VERCEL:', process.env.VERCEL);
+console.log('DATABASE_URL configured:', !!dbUrl);
 
-if (!process.env.DATABASE_URL) {
-  console.error('DATABASE_URL não está configurada!');
+if (!dbUrl) {
+  console.error('ERRO: DATABASE_URL não está configurada nas variáveis de ambiente!');
 }
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: dbUrl || 'postgres://postgres:1234@localhost:5432/financeiro',
   ssl: isProduction ? { rejectUnauthorized: false } : false,
   connectionTimeoutMillis: 15000,
   idleTimeoutMillis: 30000,
@@ -68,11 +69,13 @@ const initDatabase = async () => {
     isInitialized = true;
   } catch (err) {
     console.error('Erro ao inicializar banco:', err.message);
-    console.error('Stack:', err.stack);
   }
 };
 
 const ensureDbInit = async (req, res, next) => {
+  if (!dbUrl) {
+    return res.status(500).json({ error: 'Banco de dados não configurado.' });
+  }
   if (isInitialized) return next();
   try {
     await initDatabase();
