@@ -9,7 +9,7 @@ const validateFinanceiroInput = (data, descricao, valor, entradaSaida) => {
   if (isNaN(valor)) {
     errors.push('Valor deve ser um número.');
   }
-  if (!['Entrada', 'Saída'].includes(entradaSaida)) {
+  if (!entradaSaida || !['entrada', 'saída', 'saida', 'Entrada', 'Saída'].includes(entradaSaida.toLowerCase())) {
     errors.push('Tipo deve ser "Entrada" ou "Saída".');
   }
   return errors;
@@ -17,7 +17,7 @@ const validateFinanceiroInput = (data, descricao, valor, entradaSaida) => {
 
 const validateUpdateInput = (updates) => {
   const errors = [];
-  const allowedFields = ['data', 'descricao', 'valor', 'entradaSaida'];
+  const allowedFields = ['data', 'descricao', 'valor', 'entradaSaida', 'categoria', 'metodoPagamento', 'observacoes'];
   
   updates.forEach((update, index) => {
     if (!update.id) {
