@@ -3,7 +3,8 @@ const urlsToCache = [
   './',
   './index.html',
   './css/modern.css',
-  './js/main.js'
+  './js/main.js',
+  './login/login.html'
 ];
 
 self.addEventListener('install', event => {
@@ -14,8 +15,14 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => response || fetch(event.request))
-  );
+  const url = new URL(event.request.url);
+  
+  if (url.origin.includes('vercel.app') || url.origin.includes('localhost')) {
+    if (!url.pathname.includes('/api/')) {
+      event.respondWith(
+        caches.match(event.request)
+          .then(response => response || fetch(event.request).catch(() => null))
+      );
+    }
+  }
 });
