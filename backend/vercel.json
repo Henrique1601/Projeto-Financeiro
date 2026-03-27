@@ -1,17 +1,13 @@
 {
   "builds": [
     {
-      "src": "/api/index.js",
+      "src": "api/index.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "/health",
-      "dest": "/api/index.js"
-    },
-    {
-      "src": "/(.*)",
+      "src": "/api/(.*)",
       "dest": "/api/index.js"
     }
   ]
