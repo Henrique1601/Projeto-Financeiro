@@ -1,8 +1,8 @@
-const FINANCEIRO_URL = '../index.html';
-
 const API_BASE_URL = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')
     ? 'http://localhost:3000'
-    : '';
+    : 'https://financeiro-backend.vercel.app';
+
+const FINANCEIRO_URL = '../index.html';
 
 async function fetchWithRetry(url, options, retries = 3, delay = 1000, timeout = 15000) {
     for (let i = 0; i < retries; i++) {
@@ -44,60 +44,8 @@ function showRegisterForm() {
     }
 }
 
-async function register() {
-    const nome = document.getElementById('register-FNome')?.value;
-    const sobrenome = document.getElementById('register-SNome')?.value;
-    const email = document.getElementById('register-Email')?.value;
-    const senha = document.getElementById('register-Senha')?.value;
-
-    if (!nome || !sobrenome || !email || !senha) {
-        Toastify({
-            text: 'Por favor, preencha todos os campos.',
-            duration: 3000,
-            gravity: 'top',
-            position: 'right',
-            style: { background: '#ef4444' },
-        }).showToast();
-        return;
-    }
-
-    try {
-        const response = await fetchWithRetry(`${API_BASE_URL}/api/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nome, sobrenome, email, senha })
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            Toastify({
-                text: 'Conta criada! Faça login.',
-                duration: 3000,
-                gravity: 'top',
-                position: 'right',
-                style: { background: '#10b981' },
-            }).showToast();
-            showLoginForm();
-        } else {
-            Toastify({
-                text: result.error || 'Erro ao registrar.',
-                duration: 3000,
-                gravity: 'top',
-                position: 'right',
-                style: { background: '#ef4444' },
-            }).showToast();
-        }
-    } catch (err) {
-        console.error('Erro ao registrar:', err);
-        Toastify({
-            text: 'Erro ao conectar ao servidor.',
-            duration: 3000,
-            gravity: 'top',
-            position: 'right',
-            style: { background: '#ef4444' },
-        }).showToast();
-    }
+function showForgotForm() {
+    window.location.href = './Esqueci a senha/Senha.html';
 }
 
 async function login() {
@@ -162,21 +110,14 @@ document.addEventListener('DOMContentLoaded', () => {
     showLoginForm();
 
     document.getElementById('Btn-Login')?.addEventListener('click', login);
-    document.getElementById('Btn-Register')?.addEventListener('click', register);
     document.getElementById('show-register')?.addEventListener('click', showRegisterForm);
     document.getElementById('show-login')?.addEventListener('click', showLoginForm);
+    document.getElementById('show-forgot')?.addEventListener('click', showForgotForm);
 
     document.getElementById('login-form')?.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
             login();
-        }
-    });
-
-    document.getElementById('register-form')?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            register();
         }
     });
 });

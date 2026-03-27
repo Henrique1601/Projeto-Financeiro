@@ -65,6 +65,20 @@ const initDatabase = async () => {
     await pool.query(`
       ALTER TABLE financeiro ADD COLUMN IF NOT EXISTS observacoes TEXT DEFAULT ''
     `).catch(() => {});
+    
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS password_resets (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL,
+        email TEXT NOT NULL,
+        code TEXT NOT NULL,
+        expires_at TIMESTAMP NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id)
+      )
+    `);
+    console.log('Tabela password_resets OK');
+    
     console.log('Tabelas criadas ou já existem.');
     isInitialized = true;
   } catch (err) {

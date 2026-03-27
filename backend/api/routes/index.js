@@ -8,6 +8,8 @@ const router = express.Router();
 router.post('/register', ensureDbInit, authCtrl.register);
 router.post('/login', ensureDbInit, authCtrl.login);
 router.post('/refresh-token', ensureDbInit, authCtrl.refresh);
+router.post('/forgot-password', ensureDbInit, authCtrl.forgotPassword);
+router.post('/reset-password', ensureDbInit, authCtrl.resetPassword);
 
 router.post('/salvar', authenticate, ensureDbInit, financeiroCtrl.salvar);
 router.get('/listar', authenticate, ensureDbInit, financeiroCtrl.listar);

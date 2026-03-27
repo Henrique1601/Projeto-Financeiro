@@ -10,6 +10,10 @@ const run = async (sql, params) => {
   return result.rows[0]?.id || result.rowCount;
 };
 
+const query = async (sql, params) => {
+  return pool.query(sql, params);
+};
+
 const getAll = async (sql, params) => {
   const { rows } = await pool.query(sql, params);
   return rows;
@@ -30,4 +34,4 @@ const withTransaction = async (callback) => {
   }
 };
 
-module.exports = { getOne, run, getAll, withTransaction };
+module.exports = { getOne, run, query, getAll, withTransaction };

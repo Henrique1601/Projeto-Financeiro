@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { getOne, run } = require('../utils/queryHelpers');
+const crypto = require('crypto');
+const { getOne, run, query } = require('../utils/queryHelpers');
 const { secret, expiresIn } = require('../config/jwt');
 
 const registerUser = async (nome, sobrenome, email, senha) => {
@@ -72,4 +73,55 @@ const refreshToken = async (authHeader) => {
   return { token: newToken };
 };
 
-module.exports = { registerUser, loginUser, refreshToken };
+const forgotPassword = async (email) => {
+  if (!email) {
+    throw new Error('Email é obrigatório.');
+  }
+
+  const user = await getOne('SELECT id FROM usuarios WHERE email = $1', [email]);
+  if (!user) {
+    return { message: 'Se o email existir, um código de recuperação foi enviado.' };
+  }
+
+  const code = crypto.randomInt(100000, 999999).toString();
+  const expires = new Date(Date.now() + 15 * 60 * 1000);
+
+  await query(
+    `INSERT INTO password_resets (user_id, email, code, expires_at)
+     VALUES ($1, $2, $3, $4)
+     ON CONFLICT (user_id) DO UPDATE SET code = $3, expires_at = $4`,
+    [user.id, email, code, expires]
+  );
+
+  console.log(`[密码重置] Email: ${email}, Código: ${code}`);
+
+  return { message: 'Código de recuperação gerado.', code };
+};
+
+const resetPassword = async (email, code, senha) => {
+  if (!email || !code || !senha) {
+    throw new Error('Email, código e senha são obrigatórios.');
+  }
+
+  const user = await getOne('SELECT id FROM usuarios WHERE email = $1', [email]);
+  if (!user) {
+    throw new Error('Usuário não encontrado.');
+  }
+
+  const reset = await getOne(
+    'SELECT * FROM password_resets WHERE user_id = $1 AND email = $2 AND code = $3 AND expires_at > NOW()',
+    [user.id, email, code]
+  );
+
+  if (!reset) {
+    throw new Error('Código inválido ou expirado.');
+  }
+
+  const hashedPassword = await bcrypt.hash(senha, 10);
+  await run('UPDATE usuarios SET senha = $1 WHERE id = $2', [hashedPassword, user.id]);
+  await run('DELETE FROM password_resets WHERE user_id = $1', [user.id]);
+
+  return { message: 'Senha redefinida com sucesso.' };
+};
+
+module.exports = { registerUser, loginUser, refreshToken, forgotPassword, resetPassword };
