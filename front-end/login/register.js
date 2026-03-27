@@ -1,6 +1,8 @@
-const API_BASE_URL = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')
-    ? 'http://localhost:3000'
-    : 'https://financeiro-backend.vercel.app';
+const getApiBaseUrl = () => {
+    return window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')
+        ? 'http://localhost:3000'
+        : 'https://financeiro-backend.vercel.app';
+};
 
 async function fetchWithRetry(url, options, retries = 3, delay = 1000, timeout = 15000) {
     for (let i = 0; i < retries; i++) {
@@ -12,7 +14,6 @@ async function fetchWithRetry(url, options, retries = 3, delay = 1000, timeout =
             return response;
         } catch (error) {
             if (i === retries - 1) throw error;
-            console.warn(`Tentativa ${i + 1} falhou: ${error.message}. Tentando novamente em ${delay}ms...`);
             await new Promise(resolve => setTimeout(resolve, delay));
         }
     }
@@ -36,7 +37,7 @@ async function register() {
     }
 
     try {
-        const response = await fetchWithRetry(`${API_BASE_URL}/api/register`, {
+        const response = await fetchWithRetry(`${getApiBaseUrl()}/api/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nome, sobrenome, email, senha })
@@ -78,14 +79,12 @@ async function register() {
     }
 }
 
-if (typeof window !== 'undefined') {
-    document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('Btn-Register')?.addEventListener('click', register);
-        document.getElementById('register-form')?.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                register();
-            }
-        });
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('Btn-Register')?.addEventListener('click', register);
+    document.getElementById('register-form')?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            register();
+        }
     });
-}
+});
