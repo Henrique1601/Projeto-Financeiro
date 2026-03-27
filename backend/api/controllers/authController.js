@@ -1,4 +1,4 @@
-const { registerUser, loginUser, refreshToken, forgotPassword, resetPassword } = require('../services/authService');
+const { registerUser, loginUser, refreshToken } = require('../services/authService');
 
 const register = async (req, res, next) => {
   try {
@@ -33,7 +33,8 @@ const refresh = async (req, res, next) => {
 const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
-    const result = await forgotPassword(email);
+    const authService = require('../services/authService');
+    const result = await authService.forgotPassword(email);
     res.status(200).json(result);
   } catch (err) {
     next(err);
@@ -43,7 +44,8 @@ const forgotPassword = async (req, res, next) => {
 const resetPassword = async (req, res, next) => {
   try {
     const { email, code, senha } = req.body;
-    const result = await resetPassword(email, code, senha);
+    const authService = require('../services/authService');
+    const result = await authService.resetPassword(email, code, senha);
     res.status(200).json(result);
   } catch (err) {
     next(err);
