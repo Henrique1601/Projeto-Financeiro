@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
@@ -9,6 +8,7 @@ const { pool } = require('./config/database');
 
 const app = express();
 
+app.set('trust proxy', 1);
 app.use(express.json());
 app.use(helmet());
 app.use(cors({
