@@ -445,19 +445,9 @@ POST /api/salvar
 
 ---
 
-## 📸 Screenshots
+## 📸 Demonstração
 
-| Dashboard | Formulário |
-|-----------|-------------|
-| ![Dashboard](front-end/imgs/image.png) | ![Form](front-end/imgs/image-3.png) |
-
-| Calendário | Exportação |
-|------------|------------|
-| ![Calendário](front-end/imgs/image-2.png) | ![Export](front-end/imgs/imagecopy.png) |
-
-| Categorias | Login |
-|------------|-------|
-| ![Categorias](front-end/imgs/imagecopy2.png) | ![Login](front-end/imgs/image-4.png) |
+Acesse a aplicação em: https://projeto-financeiro-frontend.vercel.app
 
 ---
 
