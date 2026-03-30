@@ -1,7 +1,7 @@
 const getApiBaseUrl = () => {
     return window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')
         ? 'http://localhost:3000'
-        : 'https://financeiro-backend.vercel.app';
+        : 'https://projeto-financeiro-vert.vercel.app';
 };
 
 async function fetchWithRetry(url, options, retries = 3, delay = 1000, timeout = 15000) {

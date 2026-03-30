@@ -3,7 +3,7 @@ let token = localStorage.getItem('token');
 
 // Determinar a URL da API com base no ambiente (compatível com index.js)
 const API_BASE_URL = window.location.hostname.includes('vercel')
-    ? 'https://financeiro-backend.vercel.app' // Substitua por sua URL real do Vercel
+    ? 'https://projeto-financeiro-vert.vercel.app'
     : 'http://localhost:3000';
 
 // Lista completa de lançamentos (para filtragem)
@@ -65,7 +65,7 @@ async function refreshToken() {
 function logout() {
     localStorage.removeItem('token');
     token = null;
-    window.location.href = '../front-end/login/login.html';
+    window.location.href = '../login/login.html';
 }
 
 // Função para formatar a data (alinhada com index.js)

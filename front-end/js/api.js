@@ -22,10 +22,12 @@ export async function request(endpoint, method = 'GET', body = null) {
   let response = await fetchWithRetry(`${API_BASE_URL}${endpoint}`, options);
 
   if (response.status === 401 || response.status === 403) {
-    const newToken = await refreshToken();
-    if (newToken) {
-      headers['Authorization'] = `Bearer ${newToken}`;
-      response = await fetchWithRetry(`${API_BASE_URL}${endpoint}`, options);
+    if (endpoint !== '/api/refresh-token') {
+      const newToken = await refreshToken();
+      if (newToken) {
+        headers['Authorization'] = `Bearer ${newToken}`;
+        response = await fetchWithRetry(`${API_BASE_URL}${endpoint}`, options);
+      }
     }
   }
 
@@ -63,7 +65,6 @@ export async function refreshToken() {
     token = data.token;
     return data.token;
   } catch (error) {
-    console.error('Erro ao renovar token:', error);
     logout();
     return null;
   }
