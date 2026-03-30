@@ -113,6 +113,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('show-register')?.addEventListener('click', showRegisterForm);
     document.getElementById('show-login')?.addEventListener('click', showLoginForm);
     document.getElementById('show-forgot')?.addEventListener('click', showForgotForm);
+    
+    document.getElementById('btn-google-login')?.addEventListener('click', () => loginSocial('google'));
+    document.getElementById('btn-github-login')?.addEventListener('click', () => loginSocial('github'));
 
     document.getElementById('login-form')?.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
@@ -121,3 +124,52 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+async function loginSocial(provider) {
+    const width = 500;
+    const height = 600;
+    const left = (window.innerWidth - width) / 2;
+    const top = (window.innerHeight - height) / 2;
+    
+    Toastify({
+        text: `Login com ${provider.charAt(0).toUpperCase() + provider.slice(1)} será implementado em breve.`,
+        duration: 4000,
+        gravity: 'top',
+        position: 'right',
+        style: { background: '#f59e0b' },
+    }).showToast();
+    
+    return;
+    
+    const authUrl = `${API_BASE_URL}/api/auth/${provider}`;
+    const popup = window.open(
+        authUrl,
+        `${provider}Auth`,
+        `width=${width},height=${height},left=${left},top=${top}`
+    );
+    
+    const checkPopup = setInterval(() => {
+        if (popup.closed) {
+            clearInterval(checkPopup);
+            const token = localStorage.getItem('token');
+            if (token) {
+                Toastify({
+                    text: 'Login social realizado!',
+                    duration: 2000,
+                    gravity: 'top',
+                    style: { background: '#10b981' },
+                }).showToast();
+                setTimeout(() => {
+                    window.location.href = FINANCEIRO_URL;
+                }, 1500);
+            }
+        }
+    }, 500);
+    
+    window.addEventListener('message', (event) => {
+        if (event.data?.token) {
+            localStorage.setItem('token', event.data.token);
+            popup.close();
+        }
+    });
+}

@@ -1,4 +1,4 @@
-const { salvarLancamento, listarLancamentos, deletarLancamento, editarLancamentos, importarLancamentos } = require('../services/financeiroService');
+const { salvarLancamento, listarLancamentos, deletarLancamento, editarLancamentos, importarLancamentos, importarAuto } = require('../services/financeiroService');
 
 const salvar = async (req, res, next) => {
   try {
@@ -48,4 +48,14 @@ const importar = async (req, res, next) => {
   }
 };
 
-module.exports = { salvar, listar, deletar, editar, importar };
+const importarAutoHandler = async (req, res, next) => {
+  try {
+    const { fileType, content } = req.body;
+    const result = await importarAuto(req.user.id, fileType, content);
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { salvar, listar, deletar, editar, importar, importarAuto: importarAutoHandler };

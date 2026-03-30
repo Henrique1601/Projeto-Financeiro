@@ -320,3 +320,76 @@ li button:hover {
     padding: 14px 20px;
   }
 }
+
+/* Social Login */
+.social-login {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.btn-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-social i {
+  font-size: 20px;
+}
+
+.btn-google {
+  background: #ffffff;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.btn-google:hover {
+  background: #f5f5f5;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.btn-google i {
+  color: #4285f4;
+}
+
+.btn-github {
+  background: #24292e;
+  color: #ffffff;
+}
+
+.btn-github:hover {
+  background: #333;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.btn-github i {
+  color: #ffffff;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 20px 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}

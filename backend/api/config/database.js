@@ -35,10 +35,21 @@ const initDatabase = async () => {
         nome TEXT NOT NULL,
         sobrenome TEXT NOT NULL,
         email TEXT UNIQUE NOT NULL,
-        senha TEXT NOT NULL
+        senha TEXT,
+        social_id TEXT,
+        provider TEXT,
+        foto TEXT,
+        primeiro_login BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(social_id, provider)
       )
     `);
     console.log('Tabela usuarios OK');
+    
+    await pool.query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS social_id TEXT`).catch(() => {});
+    await pool.query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS provider TEXT`).catch(() => {});
+    await pool.query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS foto TEXT`).catch(() => {});
+    await pool.query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS primeiro_login BOOLEAN DEFAULT TRUE`).catch(() => {});
     
     await pool.query(`
       CREATE TABLE IF NOT EXISTS financeiro (

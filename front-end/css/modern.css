@@ -1577,3 +1577,329 @@ label {
   color: var(--text-muted);
   font-size: 13px;
 }
+
+/* ===== RESPONSIVIDADE MOBILE-FIRST ===== */
+
+/* Mobile pequeno (320px - 480px) */
+@media (max-width: 480px) {
+  .main-container {
+    flex-direction: column;
+    padding: 8px;
+  }
+  
+  .AsideMain {
+    display: none;
+  }
+  
+  .container {
+    padding: 12px;
+    width: 100%;
+  }
+  
+  .Header {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+  
+  .Header h1 {
+    font-size: 20px;
+  }
+  
+  .resumo-cards {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .resumo-card {
+    padding: 12px;
+  }
+  
+  .resumo-value {
+    font-size: 16px;
+  }
+  
+  .filtros-bar {
+    padding: 12px;
+  }
+  
+  .filtros-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .filtro-group {
+    width: 100%;
+  }
+  
+  .filtro-group input,
+  .filtro-group select {
+    width: 100%;
+  }
+  
+  .buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .buttons button {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+  }
+  
+  .Generator-table {
+    font-size: 11px;
+    overflow-x: auto;
+    display: block;
+  }
+  
+  .Generator-table thead {
+    display: none;
+  }
+  
+  .Generator-table tbody {
+    display: block;
+  }
+  
+  .Generator-table tr {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 12px;
+    padding: 12px;
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+  
+  .Generator-table td {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border: none !important;
+  }
+  
+  .Generator-table td:first-child {
+    display: none;
+  }
+  
+  .Generator-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+  
+  .modal-content {
+    width: 95%;
+    padding: 16px;
+    margin: 10px;
+  }
+  
+  .modal-body {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  
+  .user-profile {
+    padding: 16px;
+  }
+  
+  .meta-section,
+  .categoria-resumo,
+  .calendario-section,
+  .recorrentes-section {
+    padding: 16px;
+  }
+  
+  .calendario-grid {
+    font-size: 12px;
+  }
+  
+  .pagination {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+  }
+  
+  .action-buttons {
+    flex-wrap: wrap;
+  }
+  
+  .user-profile button {
+    width: 100%;
+    margin-top: 8px;
+  }
+}
+
+/* Tablet (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .main-container {
+    flex-direction: column;
+  }
+  
+  .AsideMain {
+    flex-direction: row;
+    justify-content: center;
+    padding: 8px;
+  }
+  
+  .container {
+    width: 100%;
+    padding: 16px;
+  }
+  
+  .resumo-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .resumo-card.saldo {
+    grid-column: span 2;
+  }
+  
+  .filtros-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .buttons {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .Generator-table {
+    font-size: 12px;
+  }
+}
+
+/* Desktop grande (1200px+) */
+@media (min-width: 1200px) {
+  .main-container {
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  
+  .resumo-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Modo paisagem em mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .modal-content {
+    max-height: 90vh;
+  }
+  
+  .modal-body {
+    max-height: 70vh;
+  }
+}
+
+/* Reduzir animações para prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Menu hamburger para mobile */
+@media (max-width: 768px) {
+  .mobile-menu-btn {
+    display: flex !important;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    border: none;
+    box-shadow: var(--shadow-lg);
+    z-index: 999;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+  }
+  
+  .AsideMain {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    background: var(--bg-card);
+    padding: 16px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    z-index: 998;
+    display: none;
+  }
+  
+  .AsideMain.active {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+/* Touch optimizations */
+@media (pointer: coarse) {
+  button, 
+  .btn,
+  input,
+  select {
+    min-height: 44px;
+  }
+  
+  .Generator-table td:first-child {
+    min-width: 44px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .AsideMain,
+  .buttons,
+  .filtros-bar,
+  .action-buttons,
+  .pagination,
+  .meta-section,
+  .calendario-section,
+  .recorrentes-section,
+  .user-profile,
+  .categoria-resumo,
+  .Header button,
+  .modal-overlay {
+    display: none !important;
+  }
+  
+  body {
+    background: white;
+    color: black;
+  }
+  
+  .main-container {
+    display: block;
+  }
+  
+  .container {
+    width: 100%;
+    padding: 0;
+  }
+  
+  .Generator-table {
+    width: 100%;
+    border: 1px solid #ccc;
+  }
+  
+  .Generator-table th,
+  .Generator-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+  }
+}

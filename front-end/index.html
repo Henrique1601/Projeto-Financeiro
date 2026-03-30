@@ -201,9 +201,17 @@
 
       <div class="user-profile card">
         <h2><i class="fas fa-user-circle"></i> Perfil do Usuário</h2>
-        <p><span>Nome:</span> <span id="user-name"><i class="fas fa-user"></i></span></p>
-        <p><span>Email:</span> <span id="user-email"><i class="fas fa-envelope"></i></span></p>
-        <button id="logout-btn"><i class="fas fa-sign-out-alt"></i> Sair</button>
+        <div class="profile-info">
+          <img id="user-foto" src="https://cdn-icons-png.flaticon.com/512/2966/2966327.png" alt="Foto" class="profile-avatar">
+          <div>
+            <p><span>Nome:</span> <span id="user-name"><i class="fas fa-user"></i></span></p>
+            <p><span>Email:</span> <span id="user-email"><i class="fas fa-envelope"></i></span></p>
+          </div>
+        </div>
+        <div class="profile-actions">
+          <button id="change-password-btn" class="btn btn-ghost"><i class="fas fa-key"></i> Alterar Senha</button>
+          <button id="logout-btn" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Sair</button>
+        </div>
       </div>
 
       <div class="buttons">
@@ -397,6 +405,33 @@
     </div>
   </div>
 
+  <!-- Modal de Alteração de Senha -->
+  <div id="modal-senha" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-key"></i> Alterar Senha</h3>
+        <button class="modal-close" id="close-modal-senha"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label><i class="fas fa-lock"></i> Senha Atual</label>
+          <input type="password" id="senha-atual" placeholder="Senha atual">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-lock"></i> Nova Senha</label>
+          <input type="password" id="nova-senha" placeholder="Nova senha (mín. 4 caracteres)">
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-lock"></i> Confirmar Nova Senha</label>
+          <input type="password" id="confirmar-senha" placeholder="Confirme a nova senha">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-salvar-senha" class="btn btn-success"><i class="fas fa-save"></i> Salvar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal de Transações Recorrentes -->
   <div id="modal-recorrente" class="modal-overlay">
     <div class="modal-content">
@@ -481,6 +516,18 @@
   <script type="module" src="./js/table.js"></script>
   <script type="module" src="./js/export.js"></script>
   <script type="module" src="./js/events.js"></script>
+  <script type="module" src="./js/shortcuts.js"></script>
+  <script type="module" src="./js/notifications.js"></script>
   <script type="module" src="./js/main.js"></script>
+  
+  <!-- Mobile Menu Button -->
+  <button class="mobile-menu-btn" id="mobileMenuBtn" style="display: none;">
+    <i class="fas fa-bars"></i>
+  </button>
+  
+  <!-- Offline Indicator -->
+  <div id="offlineIndicator" style="display: none; position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #f59e0b; color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px; z-index: 9999;">
+    <i class="fas fa-wifi-slash"></i> Offline
+  </div>
 </body>
 </html>
