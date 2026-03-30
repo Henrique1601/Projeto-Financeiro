@@ -3,9 +3,21 @@
     {
       "src": "api/index.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "api/docs/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
+    {
+      "src": "/api/docs",
+      "dest": "/api/docs/index.html"
+    },
+    {
+      "src": "/api/docs/(.*)",
+      "dest": "/api/docs/$1"
+    },
     {
       "src": "/api/(.*)",
       "dest": "/api/index.js"

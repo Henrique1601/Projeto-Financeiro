@@ -447,7 +447,9 @@ POST /api/salvar
 
 ## 📸 Demonstração
 
-Acesse a aplicação em: https://projeto-financeiro-frontend.vercel.app
+- **Aplicação:** https://projeto-financeiro-frontend.vercel.app
+- **Documentação API:** https://financeiro-backend.vercel.app/api/docs
+- **Status API:** https://financeiro-backend.vercel.app/api/health
 
 ---
 

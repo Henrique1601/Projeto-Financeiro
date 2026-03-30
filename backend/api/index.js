@@ -43,13 +43,33 @@ app.get('/api/health', async (req, res) => {
   try {
     if (process.env.DATABASE_URL) {
       await pool.query('SELECT 1');
-      res.json({ status: 'OK', database: 'connected' });
+      res.json({
+        status: 'OK',
+        database: 'connected',
+        version: '1.0.0',
+        timestamp: new Date().toISOString()
+      });
     } else {
-      res.json({ status: 'OK', database: 'not configured' });
+      res.json({
+        status: 'OK',
+        database: 'not configured',
+        version: '1.0.0',
+        timestamp: new Date().toISOString()
+      });
     }
   } catch (err) {
-    res.json({ status: 'OK', database: 'error', error: err.message });
+    res.status(503).json({
+      status: 'ERROR',
+      database: 'error',
+      error: err.message,
+      version: '1.0.0',
+      timestamp: new Date().toISOString()
+    });
   }
+});
+
+app.get('/api/docs', (req, res) => {
+  res.sendFile(__dirname + '/docs/index.html');
 });
 
 app.use('/api', routes);
