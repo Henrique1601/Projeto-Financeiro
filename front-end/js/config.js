@@ -1,8 +1,7 @@
-const isFrontend = window.location.hostname.includes('projeto-financeiro-frontend');
 const isVercel = window.location.hostname.includes('vercel');
 
 export const API_BASE_URL = isVercel
-  ? (isFrontend ? 'https://financeiro-backend.vercel.app' : 'https://financeiro-backend.vercel.app')
+  ? 'https://projeto-financeiro-vert.vercel.app'
   : 'http://localhost:3000';
 
 export const TOAST_DURATION = 3000;
