@@ -1,8 +1,17 @@
 let token = localStorage.getItem('token');
 
-const API_BASE_URL = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')
-    ? 'http://localhost:3000'
-    : '';
+const getApiBaseUrl = () => {
+    const hostname = window.location.hostname;
+    if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) {
+        return 'http://localhost:3000';
+    }
+    if (hostname.includes('projeto-financeiro-frontend')) {
+        return 'https://financeiro-backend.vercel.app';
+    }
+    return '';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 let lancamentosCompletos = [];
 let lancamentosFiltrados = [];
