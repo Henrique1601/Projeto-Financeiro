@@ -11,8 +11,8 @@
       "dest": "/index.html"
     },
     {
-      "src": "^/extrato",
-      "dest": "/extrato.html"
+      "src": "^/extrato/?$",
+      "dest": "/extrato/extrato.html"
     },
     {
       "src": "/([^/]+)",

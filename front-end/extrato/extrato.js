@@ -5,7 +5,7 @@ const getApiBaseUrl = () => {
     if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) {
         return 'http://localhost:3000';
     }
-    if (hostname.includes('projeto-financeiro-frontend')) {
+    if (hostname.includes('projeto-financeiro-frontend') || hostname.includes('vercel')) {
         return 'https://financeiro-backend.vercel.app';
     }
     return '';

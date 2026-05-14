@@ -30,8 +30,23 @@
               "icon": "lucide-git-fork",
               "title": "Visualização em gráfico"
             }
+          },
+          {
+            "id": "0b270f9a247b4a06",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Gestor Financeiro.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Gestor Financeiro"
+            }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -104,7 +119,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Ideias de Melhorias.md",
+                "file": "Gestor Financeiro.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -114,7 +129,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Links inversos para Ideias de Melhorias"
+              "title": "Links inversos para Gestor Financeiro"
             }
           },
           {
@@ -123,12 +138,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Ideias de Melhorias.md",
+                "file": "Gestor Financeiro.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Links de saída para Ideias de Melhorias"
+              "title": "Links de saída para Gestor Financeiro"
             }
           },
           {
@@ -166,13 +181,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Ideias de Melhorias.md",
+                "file": "Gestor Financeiro.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Sumário de Ideias de Melhorias"
+              "title": "Sumário de Gestor Financeiro"
             }
           }
         ]
@@ -193,13 +208,13 @@
       "bases:Criar nova base": false
     }
   },
-  "active": "4d4e1b0eb99418da",
+  "active": "0b270f9a247b4a06",
   "lastOpenFiles": [
-    "Gestor Financeiro.md",
+    "Service Worker Notes.md",
     "Ideias de Melhorias.md",
+    "Gestor Financeiro.md",
     "Readme do Projeto.md",
     "API Documentation.md",
-    "Service Worker Notes.md",
     "Bem-vindo.md"
   ]
 }

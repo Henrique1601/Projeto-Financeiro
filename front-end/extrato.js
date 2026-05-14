@@ -1,10 +1,15 @@
 // Token de autenticação
 let token = localStorage.getItem('token');
 
-// Determinar a URL da API com base no ambiente (compatível com index.js)
-const API_BASE_URL = window.location.hostname.includes('vercel')
-    ? 'https://projeto-financeiro-vert.vercel.app'
-    : 'http://localhost:3000';
+// Determinar a URL da API com base no ambiente
+function getApiBaseUrl() {
+    const hostname = window.location.hostname;
+    if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) return 'http://localhost:3000';
+    if (hostname.includes('projeto-financeiro-frontend')) return 'https://financeiro-backend.vercel.app';
+    if (hostname.includes('vercel')) return 'https://financeiro-backend.vercel.app';
+    return '';
+}
+const API_BASE_URL = getApiBaseUrl();
 
 // Lista completa de lançamentos (para filtragem)
 let lancamentosCompletos = [];
@@ -485,7 +490,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const filtroAno = document.getElementById('filtroAno').value;
         const filtroTipo = document.getElementById('filtroTipo').value;
 
-        const lancamentosFiltrados = lancamentosCompletos.filter(lancamento => {
+        lancamentosFiltrados = lancamentosCompletos.filter(lancamento => {
             const data = new Date(lancamento.data);
             const ano = data.getFullYear().toString();
             const mes = String(data.getMonth() + 1).padStart(2, '0'); // Mês começa em 0
