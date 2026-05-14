@@ -35,7 +35,6 @@
   font-size: 16px;
 }
 
-/* Card de Filtros */
 .filtros-card {
   margin-bottom: 24px;
 }
@@ -80,7 +79,6 @@
   border-top: 1px solid var(--border);
 }
 
-/* Faturamento */
 .faturamento-card {
   margin-bottom: 24px;
   animation: slideUp 0.3s ease-out;
@@ -177,7 +175,6 @@
   color: var(--primary);
 }
 
-/* Gráficos */
 .charts-section {
   margin-bottom: 24px;
   animation: slideUp 0.3s ease-out;
@@ -223,7 +220,6 @@
   max-height: 300px;
 }
 
-/* Tabela */
 .table-section {
   overflow: hidden;
 }
@@ -299,7 +295,6 @@
   background: rgba(99, 102, 241, 0.05);
 }
 
-/* Badge para tipo */
 .badge {
   display: inline-block;
   padding: 4px 12px;
@@ -318,62 +313,25 @@
   color: var(--danger);
 }
 
-/* Responsivo */
 @media (max-width: 768px) {
-  .extrato-container {
-    padding: 16px;
-  }
-  
-  .extrato-header h1 {
-    font-size: 24px;
-  }
-  
-  .filtros-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .faturamento-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .faturamento-item {
-    padding: 16px;
-  }
-  
-  .faturamento-item .value {
-    font-size: 20px;
-  }
-  
-  .charts-wrapper {
-    grid-template-columns: 1fr;
-  }
-  
-  .chart-container canvas {
-    max-height: 250px;
-  }
-  
+  .extrato-container { padding: 16px; }
+  .extrato-header h1 { font-size: 24px; }
+  .filtros-grid { grid-template-columns: 1fr; }
+  .faturamento-grid { grid-template-columns: 1fr; }
+  .faturamento-item { padding: 16px; }
+  .faturamento-item .value { font-size: 20px; }
+  .charts-wrapper { grid-template-columns: 1fr; }
+  .chart-container canvas { max-height: 250px; }
   #extrato-table th,
-  #extrato-table td {
-    padding: 12px;
-    font-size: 13px;
-  }
+  #extrato-table td { padding: 12px; font-size: 13px; }
 }
 
 @media (max-width: 480px) {
-  .extrato-header h1 {
-    font-size: 20px;
-  }
-  
-  .filtros-actions {
-    flex-direction: column;
-  }
-  
-  .filtros-actions .btn {
-    width: 100%;
-  }
+  .extrato-header h1 { font-size: 20px; }
+  .filtros-actions { flex-direction: column; }
+  .filtros-actions .btn { width: 100%; }
 }
 
-/* Nova sections */
 #evolution-section {
   margin-top: 24px;
   background: var(--bg-card);
@@ -388,28 +346,15 @@
   color: var(--text-primary);
 }
 
-#top-gastos-section {
-  margin-top: 24px;
-}
+#top-gastos-section { margin-top: 24px; }
 
 #top-gastos-table th,
-#top-gastos-table td {
-  text-align: left;
-  padding: 12px;
-}
+#top-gastos-table td { text-align: left; padding: 12px; }
 
-#top-gastos-table td.positive {
-  color: var(--danger);
-}
+#top-gastos-table td.positive { color: var(--danger); }
 
-#comparativo-section {
-  margin-top: 24px;
-}
-
-#comparativo-section h3 {
-  margin-bottom: 16px;
-  color: var(--text-primary);
-}
+#comparativo-section { margin-top: 24px; }
+#comparativo-section h3 { margin-bottom: 16px; color: var(--text-primary); }
 
 #comparativo-grid {
   display: grid;
@@ -429,30 +374,11 @@
   margin-top: 4px;
 }
 
-#comparativo-grid .diff.positive {
-  color: var(--success);
-}
+#comparativo-grid .diff.positive { color: var(--success); }
+#comparativo-grid .diff.negative { color: var(--danger); }
 
-#comparativo-grid .diff.negative {
-  color: var(--danger);
-}
-
-#resumo-anual-section {
-  margin-top: 24px;
-}
-
+#resumo-anual-section { margin-top: 24px; }
 #resumo-anual-table th,
-#resumo-anual-table td {
-  text-align: center;
-  padding: 12px;
-}
-
-#resumo-anual-table td.positive {
-  color: var(--success);
-  font-weight: 600;
-}
-
-#resumo-anual-table td.negative {
-  color: var(--danger);
-  font-weight: 600;
-}
+#resumo-anual-table td { text-align: center; padding: 12px; }
+#resumo-anual-table td.positive { color: var(--success); font-weight: 600; }
+#resumo-anual-table td.negative { color: var(--danger); font-weight: 600; }
