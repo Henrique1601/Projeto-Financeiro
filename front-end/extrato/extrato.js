@@ -1,17 +1,22 @@
 let token = localStorage.getItem('token');
 
+const BACKEND_URL = 'https://projeto-financeiro-vert.vercel.app';
+
 const getApiBaseUrl = () => {
     const hostname = window.location.hostname;
+    console.log('[extrato] hostname:', hostname);
     if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) {
         return 'http://localhost:3000';
     }
     if (hostname.includes('projeto-financeiro-frontend') || hostname.includes('vercel')) {
-        return 'https://projeto-financeiro-vert.vercel.app';
+        return BACKEND_URL;
     }
-    return '';
+    console.warn('[extrato] hostname não reconhecido, usando fallback:', BACKEND_URL);
+    return BACKEND_URL;
 };
 
 const API_BASE_URL = getApiBaseUrl();
+console.log('[extrato] API_BASE_URL:', API_BASE_URL);
 
 let lancamentosCompletos = [];
 let lancamentosFiltrados = [];
