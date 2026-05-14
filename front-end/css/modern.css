@@ -941,6 +941,31 @@ label {
   color: var(--text-primary);
 }
 
+.profile-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.profile-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary);
+}
+
+.profile-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.profile-actions button {
+  flex: 1;
+}
+
 #SaldoAtual {
   font-size: 24px;
   font-weight: 800;

@@ -128,48 +128,53 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loginSocial(provider) {
     const width = 500;
     const height = 600;
-    const left = (window.innerWidth - width) / 2;
-    const top = (window.innerHeight - height) / 2;
-    
-    Toastify({
-        text: `Login com ${provider.charAt(0).toUpperCase() + provider.slice(1)} será implementado em breve.`,
-        duration: 4000,
-        gravity: 'top',
-        position: 'right',
-        style: { background: '#f59e0b' },
-    }).showToast();
-    
-    return;
-    
-    const authUrl = `${API_BASE_URL}/api/auth/${provider}`;
+    const left = Math.max(0, (window.innerWidth - width) / 2);
+    const top = Math.max(0, (window.innerHeight - height) / 2);
+
+    const name = provider.charAt(0).toUpperCase() + provider.slice(1);
+
     const popup = window.open(
-        authUrl,
+        `${API_BASE_URL}/api/auth/${provider}`,
         `${provider}Auth`,
-        `width=${width},height=${height},left=${left},top=${top}`
+        `width=${width},height=${height},left=${left},top=${top},popup=1`
     );
-    
-    const checkPopup = setInterval(() => {
-        if (popup.closed) {
-            clearInterval(checkPopup);
-            const token = localStorage.getItem('token');
-            if (token) {
-                Toastify({
-                    text: 'Login social realizado!',
-                    duration: 2000,
-                    gravity: 'top',
-                    style: { background: '#10b981' },
-                }).showToast();
-                setTimeout(() => {
-                    window.location.href = FINANCEIRO_URL;
-                }, 1500);
-            }
-        }
-    }, 500);
-    
-    window.addEventListener('message', (event) => {
+
+    if (!popup || popup.closed) {
+        Toastify({
+            text: 'Pop-up bloqueado. Permita pop-ups para este site.',
+            duration: 4000,
+            gravity: 'top',
+            position: 'right',
+            style: { background: '#ef4444' },
+        }).showToast();
+        return;
+    }
+
+    const handleMessage = (event) => {
         if (event.data?.token) {
+            window.removeEventListener('message', handleMessage);
             localStorage.setItem('token', event.data.token);
-            popup.close();
+            Toastify({
+                text: `Login com ${name} realizado!`,
+                duration: 1500,
+                gravity: 'top',
+                position: 'right',
+                style: { background: '#10b981' },
+            }).showToast();
+            setTimeout(() => {
+                window.location.href = FINANCEIRO_URL;
+            }, 1500);
+        } else if (event.data?.error) {
+            window.removeEventListener('message', handleMessage);
+            Toastify({
+                text: `Falha no login com ${name}.`,
+                duration: 3000,
+                gravity: 'top',
+                position: 'right',
+                style: { background: '#ef4444' },
+            }).showToast();
         }
-    });
+    };
+
+    window.addEventListener('message', handleMessage);
 }
