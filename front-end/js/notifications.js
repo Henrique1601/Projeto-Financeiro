@@ -216,7 +216,7 @@ const OfflineManager = {
       
       try {
         const API_BASE_URL = window.location.hostname.includes('vercel')
-          ? 'https://financeiro-backend.vercel.app'
+          ? 'https://projeto-financeiro-vert.vercel.app'
           : 'http://localhost:3000';
         
         const response = await fetch(`${API_BASE_URL}/api/listar`, {

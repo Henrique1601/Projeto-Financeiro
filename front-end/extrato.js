@@ -2,14 +2,9 @@
 let token = localStorage.getItem('token');
 
 // Determinar a URL da API com base no ambiente
-function getApiBaseUrl() {
-    const hostname = window.location.hostname;
-    if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) return 'http://localhost:3000';
-    if (hostname.includes('projeto-financeiro-frontend')) return 'https://financeiro-backend.vercel.app';
-    if (hostname.includes('vercel')) return 'https://financeiro-backend.vercel.app';
-    return '';
-}
-const API_BASE_URL = getApiBaseUrl();
+const API_BASE_URL = window.location.hostname.includes('vercel')
+    ? 'https://projeto-financeiro-vert.vercel.app'
+    : 'http://localhost:3000';
 
 // Lista completa de lançamentos (para filtragem)
 let lancamentosCompletos = [];
