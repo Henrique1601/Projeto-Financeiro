@@ -1,22 +1,35 @@
+console.log('[extrato] ARQUIVO CARREGADO - subdiretório extrato/extrato.js');
+console.log('[extrato] Timestamp:', new Date().toISOString());
+
 let token = localStorage.getItem('token');
+console.log('[extrato] Token encontrado?', !!token);
+if (token) console.log('[extrato] Token (primeiros 20 chars):', token.substring(0, 20) + '...');
 
 const BACKEND_URL = 'https://projeto-financeiro-vert.vercel.app';
 
 const getApiBaseUrl = () => {
     const hostname = window.location.hostname;
-    console.log('[extrato] hostname:', hostname);
+    console.log('[extrato] hostname detectado:', hostname);
+    console.log('[extrato] hostname.includes("localhost"):', hostname.includes('localhost'));
+    console.log('[extrato] hostname.includes("127.0.0.1"):', hostname.includes('127.0.0.1'));
+    console.log('[extrato] hostname.includes("projeto-financeiro-frontend"):', hostname.includes('projeto-financeiro-frontend'));
+    console.log('[extrato] hostname.includes("vercel"):', hostname.includes('vercel'));
+    
     if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) {
+        console.log('[extrato] → Usando URL LOCAL');
         return 'http://localhost:3000';
     }
     if (hostname.includes('projeto-financeiro-frontend') || hostname.includes('vercel')) {
+        console.log('[extrato] → Usando BACKEND_URL:', BACKEND_URL);
         return BACKEND_URL;
     }
-    console.warn('[extrato] hostname não reconhecido, usando fallback:', BACKEND_URL);
+    console.warn('[extrato] → NENHUMA CONDIÇÃO ATENDIDA, usando fallback');
     return BACKEND_URL;
 };
 
 const API_BASE_URL = getApiBaseUrl();
-console.log('[extrato] API_BASE_URL:', API_BASE_URL);
+console.log('[extrato] API_BASE_URL FINAL:', `"${API_BASE_URL}"`);
+console.log('[extrato] URL completa que será fetchada:', `${API_BASE_URL}/api/listar`);
 
 let lancamentosCompletos = [];
 let lancamentosFiltrados = [];
@@ -37,6 +50,8 @@ async function fetchWithRetry(url, options, retries = 3, delay = 1000, timeout =
 }
 
 async function refreshToken() {
+    console.log('[extrato] refreshToken() chamado');
+    console.log('[extrato] refreshToken → URL:', `${API_BASE_URL}/api/refresh-token`);
     const response = await fetch(`${API_BASE_URL}/api/refresh-token`, {
         method: 'POST',
         headers: {
@@ -44,8 +59,10 @@ async function refreshToken() {
             'Authorization': `Bearer ${token}`
         }
     });
+    console.log('[extrato] refreshToken → response.status:', response.status);
     if (!response.ok) throw new Error('Erro ao renovar token');
     const data = await response.json();
+    console.log('[extrato] refreshToken → novo token obtido:', data.token?.substring(0, 20) + '...');
     localStorage.setItem('token', data.token);
     token = data.token;
     return data.token;
@@ -281,30 +298,50 @@ function generateCharts() {
 }
 
 async function carregarExtrato() {
+    console.log('[extrato] carregarExtrato() chamado');
+    console.log('[extrato] API_BASE_URL usado:', `"${API_BASE_URL}"`);
+    console.log('[extrato] URL do fetch:', `${API_BASE_URL}/api/listar`);
+    console.log('[extrato] Token existe?', !!token);
+    console.log('[extrato] Token (primeiros 30):', token?.substring(0, 30) + '...');
+    
     showSpinner('Carregando extrato...');
     try {
         let response = await fetchWithRetry(`${API_BASE_URL}/api/listar`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
+        console.log('[extrato] fetch response.status:', response.status);
+        console.log('[extrato] fetch response.url (redirect?):', response.url);
+        console.log('[extrato] fetch response.headers:', [...response.headers.entries()].map(h => `${h[0]}:${h[1]}`).join(', '));
+
         if (response.status === 401 || response.status === 403) {
+            console.log('[extrato] Token expirado! Vai tentar refresh...');
             await refreshToken();
+            console.log('[extrato] Refresh concluído, refazendo fetch...');
             response = await fetchWithRetry(`${API_BASE_URL}/api/listar`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+            console.log('[extrato] segundo fetch response.status:', response.status);
+            console.log('[extrato] segundo fetch response.url:', response.url);
         }
 
-        if (!response.ok) throw new Error('Erro ao carregar dados');
+        if (!response.ok) {
+            const errorText = await response.text().catch(() => 'sem corpo');
+            console.error('[extrato] response NOT OK. status:', response.status, 'body:', errorText.substring(0, 500));
+            throw new Error(`Erro ao carregar dados (${response.status})`);
+        }
 
         lancamentosCompletos = await response.json();
+        console.log('[extrato] Dados carregados:', lancamentosCompletos.length, 'lançamentos');
         lancamentosFiltrados = lancamentosCompletos;
         exibirExtrato(lancamentosCompletos);
         preencherFiltroAno();
         hideSpinner();
     } catch (err) {
-        console.error('Erro:', err);
+        console.error('[extrato] Erro no catch:', err.message);
+        console.error('[extrato] Stack:', err.stack?.substring(0, 300));
         hideSpinner();
-        showToast('Erro ao carregar extrato');
+        showToast('Erro ao carregar extrato: ' + err.message);
     }
 }
 
@@ -463,11 +500,15 @@ function calcularFaturamento() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    console.log('[extrato] DOMContentLoaded disparado');
+    console.log('[extrato] Token no DOMContentLoaded:', !!token);
     if (!token) {
+        console.warn('[extrato] Sem token, redirecionando para login...');
         window.location.href = '../login/login.html';
         return;
     }
 
+    console.log('[extrato] Token OK, chamando carregarExtrato()...');
     await carregarExtrato();
 
     document.getElementById('voltar')?.addEventListener('click', () => {
