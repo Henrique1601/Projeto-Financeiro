@@ -14,6 +14,9 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
+  // Ignorar requests que não são GET (ex: HEAD, POST)
+  if (e.request.method !== 'GET') return;
+
   const url = new URL(e.request.url);
 
   // API calls: network-first, cache fallback
