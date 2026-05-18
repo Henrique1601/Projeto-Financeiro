@@ -2,14 +2,14 @@ import { apiGet, apiPost } from './api.js';
 import { store } from './store.js';
 import { API_BASE_URL } from './config.js';
 
-export async function login(email, password) {
-  const data = await apiPost('/api/login', { email, password });
+export async function login(email, senha) {
+  const data = await apiPost('/api/login', { email, senha });
   store.token = data.token;
   return data;
 }
 
-export async function register(name, email, password) {
-  const data = await apiPost('/api/register', { name, email, password });
+export async function register(nome, email, senha) {
+  const data = await apiPost('/api/register', { nome, sobrenome: '', email, senha });
   store.token = data.token;
   return data;
 }
