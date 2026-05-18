@@ -23,7 +23,8 @@ cssclasses:
 
 > **Sistema completo de gerenciamento financeiro pessoal** com PWA, suporte offline, categorização automática e login social.
 
-- **Frontend:** https://projeto-financeiro-frontend.vercel.app
+- **Frontend:** https://projeto-financeiro-frontend.vercel.app  
+  (refatorado para Vite + SPA — ver [[Refatoração Frontend V2]])
 - **API:** https://financeiro-backend.vercel.app/api
 - **Documentação:** https://financeiro-backend.vercel.app/api/docs
 - **Status:** https://financeiro-backend.vercel.app/api/health
@@ -53,12 +54,11 @@ cssclasses:
 ## ⚡ Stack Tecnológica
 
 ### Frontend
-- **HTML5** + **CSS3** (mobile-first, tema claro/escuro)
-- **JavaScript** Vanilla (ES6 Modules)
+- **Vite 6** (bundler, ES Modules, HMR)
+- **JavaScript** Vanilla (SPA com hash routing)
 - **Chart.js** para gráficos
 - **Toastify.js** para notificações
 - **Font Awesome** para ícones
-- **SheetJS + jsPDF + PapaParse** para exportação
 
 ### Backend
 - **Node.js** + **Express**
@@ -106,38 +106,48 @@ postgre/
 │   ├── .env
 │   └── vercel.json
 │
-├── front-end/                        # SPA
-│   ├── index.html                    # Dashboard principal
-│   ├── css/
-│   │   ├── modern.css                # Estilos principais + responsivo
-│   │   └── Login.css                 # Estilos login + social
-│   ├── js/
-│   │   ├── config.js                 # API_BASE_URL
-│   │   ├── api.js                    # Fetch wrapper
-│   │   ├── auth.js                   # Gerenciamento de auth
-│   │   ├── financeiro.js             # Lógica financeira
-│   │   ├── events.js                 # Event listeners
-│   │   ├── table.js                  # Tabela + paginação
-│   │   ├── export.js                 # Exportar dados
-│   │   ├── formatters.js             # Formatação moeda/data
-│   │   ├── utils.js                  # Utilitários
-│   │   ├── main.js                   # Init principal
-│   │   ├── shortcuts.js              # Atalhos de teclado
-│   │   └── notifications.js          # PWA + offline + notificações
-│   ├── login/
-│   │   ├── login.html
-│   │   ├── login.js                  # Login + social
-│   │   ├── register.js               # Registro
-│   │   └── Esqueci a senha/
-│   │       ├── Senha.html
-│   │       ├── esqueci.js
-│   │       └── esqueci.css
-│   ├── extrato/
-│   │   ├── extrato.html              # Página de extrato
-│   │   └── extrato.js                # Lógica do extrato
-│   ├── sw.js                         # Service Worker v2
+├── front-end/                        # SPA (Vite)
+│   ├── index.html                    # Entry point único
+│   ├── package.json                  # Vite + Chart.js + Toastify
+│   ├── vite.config.js
 │   ├── vercel.json
-│   └── manifest.json
+│   ├── public/
+│   │   ├── sw.js                     # Service Worker v3
+│   │   └── manifest.json
+│   ├── src/
+│   │   ├── main.js                   # App init + router + lazy loading
+│   │   ├── config.js                 # API_BASE_URL (centralizado)
+│   │   ├── api.js                    # Fetch + retry + refresh automático
+│   │   ├── auth.js                   # Login, register, social, reset
+│   │   ├── store.js                  # Estado reativo
+│   │   ├── router.js                 # Hash-based SPA router
+│   │   ├── pages/
+│   │   │   ├── LoginPage.js
+│   │   │   ├── RegisterPage.js
+│   │   │   ├── DashboardPage.js
+│   │   │   ├── ExtratoPage.js
+│   │   │   ├── CallbackPage.js
+│   │   │   ├── ForgotPasswordPage.js
+│   │   │   └── ResetPasswordPage.js
+│   │   ├── utils/
+│   │   │   ├── dom.js                # Toast, Spinner
+│   │   │   └── format.js             # Data, Moeda, Tipo
+│   │   └── styles/
+│   │       ├── variables.css
+│   │       ├── global.css
+│   │       ├── login.css
+│   │       ├── dashboard.css
+│   │       └── extrato.css
+│   └── imgs/                         # Ícones
+│
+├── 2º Cerebro/
+│   └── Cerebro do projeto/           # Obsidian vault
+│       ├── Gestor Financeiro.md
+│       ├── Refatoração Frontend V2.md
+│       ├── API Documentation.md
+│       ├── Readme do Projeto.md
+│       ├── Ideias de Melhorias.md
+│       └── Service Worker Notes.md
 │
 ├── 2º Cerebro/
 │   └── Cerebro do projeto/           # Obsidian vault
@@ -387,12 +397,13 @@ Neon pode hibernar no plano gratuito. A primeira requisição pode demorar ~5s.
 ## 📈 Métricas do Projeto
 
 ```yaml
-Arquivos: ~50
-Linhas de código: ~5000+
-Dependências: 15 (backend) + 5 CDN (frontend)
+Arquivos: ~45
+Linhas de código: ~6000+
+Dependências: 15 (backend) + 3 npm (frontend)
 Banco: 3 tabelas
 Endpoints API: 15
-Telas: 4 (Login, Dashboard, Extrato, Esqueci Senha)
+Telas: 5 (Login, Dashboard, Extrato, Esqueci Senha, Reset)
+Estrutura: Vite SPA com hash routing + ES Modules
 ```
 
 ---
@@ -403,6 +414,7 @@ Telas: 4 (Login, Dashboard, Extrato, Esqueci Senha)
 - [[API Documentation]]
 - [[Service Worker Notes]]
 - [[Ideias de Melhorias]]
+- [[Refatoração Frontend V2]]
 
 ---
 

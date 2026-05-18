@@ -464,12 +464,3 @@ function showImportSection() {
 function showExtrato() {
   navigate('/extrato');
 }
-
-function loadOfflineData() {
-  try {
-    const cached = localStorage.getItem('offline_lancamentos');
-    if (cached && !lancamentos.length) {
-      lancamentos = JSON.parse(cached);
-    }
-  } catch {}
-}

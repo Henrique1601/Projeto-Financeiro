@@ -20,7 +20,7 @@ cssclasses:
 # Service Worker Notes
 
 > Documentação da arquitetura PWA do Gestor Financeiro.  
-> Arquivo: `front-end/sw.js` (v2)
+> Arquivo: `front-end/public/sw.js` (v3 — refatorado com Vite)
 
 ---
 
