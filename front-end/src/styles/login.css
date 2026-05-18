@@ -1,0 +1,102 @@
+/* Login / Register pages */
+.login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+  background: linear-gradient(135deg, var(--bg) 0%, #1e1b4b 100%);
+}
+
+.auth-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 40px;
+  width: 100%;
+  max-width: 420px;
+  border: 1px solid var(--border);
+  box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+}
+
+.auth-card h1 {
+  font-size: 1.75rem;
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.auth-card p {
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: 32px;
+  font-size: 0.9rem;
+}
+
+.auth-card .form-group {
+  margin-bottom: 20px;
+}
+
+.auth-card label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.auth-card .btn {
+  margin-top: 8px;
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.auth-footer a {
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.social-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.social-buttons .btn {
+  justify-content: center;
+}
+
+.btn-google {
+  background: #fff;
+  color: #333;
+}
+.btn-google:hover { background: #f0f0f0; }
+
+.btn-github {
+  background: #24292e;
+  color: #fff;
+}
+.btn-github:hover { background: #1b1f23; }
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 24px 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+.divider::before, .divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+@media (max-width: 480px) {
+  .auth-card { padding: 24px; }
+}

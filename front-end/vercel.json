@@ -1,26 +1,11 @@
 {
-  "builds": [
-    {
-      "src": "**",
-      "use": "@vercel/static"
-    }
-  ],
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
   "routes": [
     {
-      "src": "^/$",
-      "dest": "/index.html"
-    },
-    {
-      "src": "^/extrato/?$",
-      "dest": "/extrato/extrato.html"
-    },
-    {
-      "src": "/([^/]+)",
-      "dest": "/$1.html"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/$1"
+      "dest": "/"
     }
   ]
 }

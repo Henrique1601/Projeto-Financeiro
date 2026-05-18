@@ -1,0 +1,156 @@
+/* Extrato page */
+.extrato-page .extrato-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.extrato-page .extrato-header h1 {
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.extrato-page .extrato-header h1 i { color: var(--primary); }
+
+.extrato-filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  align-items: flex-end;
+}
+
+.extrato-filters .filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.extrato-filters .filter-group label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.extrato-filters .filter-group input,
+.extrato-filters .filter-group select {
+  min-width: 150px;
+}
+
+.total-records {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.extrato-table th:nth-child(1) { width: 120px; }
+.extrato-table th:nth-child(2) { width: auto; }
+.extrato-table th:nth-child(3) { width: 140px; text-align: right; }
+.extrato-table th:nth-child(4) { width: 100px; text-align: center; }
+
+.extrato-table td:nth-child(3) { text-align: right; font-weight: 600; }
+.extrato-table td:nth-child(4) { text-align: center; }
+
+.charts-section {
+  margin-top: 32px;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 24px;
+  margin-top: 16px;
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 20px;
+  border: 1px solid var(--border);
+}
+
+.chart-card h3 {
+  font-size: 1rem;
+  margin-bottom: 16px;
+  color: var(--text-secondary);
+}
+
+.chart-card canvas {
+  max-height: 300px;
+}
+
+.chart-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.chart-controls select {
+  width: auto;
+  min-width: 180px;
+}
+
+.resumo-anual table th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+
+.resumo-anual table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.faturamento-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.faturamento-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 20px;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+
+.faturamento-card .faturamento-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.faturamento-card .faturamento-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+  .extrato-filters {
+    flex-direction: column;
+  }
+  .extrato-filters .filter-group input,
+  .extrato-filters .filter-group select {
+    min-width: 100%;
+  }
+  .extrato-page .extrato-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
