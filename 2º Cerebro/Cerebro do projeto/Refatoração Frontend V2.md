@@ -112,7 +112,7 @@ Não há mais chance de retornar string vazia — o código antigo não tinha fa
 - [x] Criar estrutura Vite + SPA
 - [x] Migrar Login, Dashboard, Extrato
 - [x] Centralizar API/Config/Auth
-- [ ] Rodar `npm install && npm run build`
-- [ ] Deploy no Vercel
+- [x] Rodar `npm install && npm run build`
+- [x] Deploy no Vercel
 - [ ] Remover arquivos antigos (`login/`, `extrato/`, `js/`, `css/`)
 - [ ] Testar fluxo completo em produção

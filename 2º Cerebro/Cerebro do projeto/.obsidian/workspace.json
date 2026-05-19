@@ -22,7 +22,7 @@
             }
           },
           {
-            "id": "018199521ce4bf85",
+            "id": "0b270f9a247b4a06",
             "type": "leaf",
             "state": {
               "type": "graph",
@@ -32,17 +32,17 @@
             }
           },
           {
-            "id": "0b270f9a247b4a06",
+            "id": "479e3a89e27d0b51",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Gestor Financeiro.md",
+                "file": "Refatoração Frontend V2.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Gestor Financeiro"
+              "title": "Refatoração Frontend V2"
             }
           }
         ],
@@ -208,11 +208,11 @@
       "bases:Criar nova base": false
     }
   },
-  "active": "0b270f9a247b4a06",
+  "active": "479e3a89e27d0b51",
   "lastOpenFiles": [
+    "Gestor Financeiro.md",
     "Service Worker Notes.md",
     "Ideias de Melhorias.md",
-    "Gestor Financeiro.md",
     "Readme do Projeto.md",
     "API Documentation.md",
     "Bem-vindo.md"
