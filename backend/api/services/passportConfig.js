@@ -21,17 +21,22 @@ function createPassport() {
 
       if (!user) {
         if (email) {
-          const existing = await getOne('SELECT id FROM usuarios WHERE email = $1', [email]);
+          const existing = await getOne('SELECT * FROM usuarios WHERE email = $1', [email]);
           if (existing) {
-            return done(null, false, { message: 'Email já cadastrado. Faça login com email e senha.' });
+            if (!existing.social_id) {
+              await run('UPDATE usuarios SET social_id = $1, provider = $2, foto = $3 WHERE id = $4', [id, provider, foto, existing.id]);
+            }
+            user = existing;
           }
         }
 
-        const userId = await run(
-          'INSERT INTO usuarios (nome, sobrenome, email, senha, social_id, provider, foto) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
-          [nome, sobrenome, email || `${provider}_${id}@placeholder.com`, null, id, provider, foto]
-        );
-        user = await getOne('SELECT * FROM usuarios WHERE id = $1', [userId]);
+        if (!user) {
+          const userId = await run(
+            'INSERT INTO usuarios (nome, sobrenome, email, senha, social_id, provider, foto) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+            [nome, sobrenome, email || `${provider}_${id}@placeholder.com`, null, id, provider, foto]
+          );
+          user = await getOne('SELECT * FROM usuarios WHERE id = $1', [userId]);
+        }
       }
 
       const token = jwt.sign(

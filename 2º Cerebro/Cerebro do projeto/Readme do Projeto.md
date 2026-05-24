@@ -1,7 +1,7 @@
 ---
 title: Readme do Projeto
 description: Visão geral, arquitetura, setup e deploy do Gestor Financeiro
-date: 2026-03-27
+date: 2026-05-21
 tags:
   - projeto
   - setup
@@ -17,7 +17,7 @@ cssclasses:
 
 # Readme do Projeto
 
-> **Gestor Financeiro** — Sistema completo de gerenciamento financeiro pessoal com PWA, suporte offline, categorização automática e login social.
+> **Gestor Financeiro** — Sistema completo de gerenciamento financeiro pessoal com PWA, categorização automática e login social.
 
 ---
 
@@ -25,18 +25,18 @@ cssclasses:
 
 ```mermaid
 graph LR
-    F[Frontend<br/>HTML + CSS + JS] -->|HTTP| B[Backend<br/>Node + Express]
+    F[Frontend<br/>Vite SPA + Vanilla JS] -->|HTTP| B[Backend<br/>Node + Express]
     B -->|SQL| D[(PostgreSQL<br/>Neon)]
-    F --> SW[Service Worker<br/>Cache + Push]
+    F --> SW[Service Worker<br/>Cache GET]
     B --> O[OAuth2<br/>Google + GitHub]
 ```
 
 | Camada | Tecnologia | Deploy |
 |--------|-----------|--------|
-| Frontend | HTML5, CSS3, JS Vanilla, Chart.js, Toastify | Vercel (static) |
+| Frontend | Vite 6, Vanilla JS ES Modules, Chart.js | Vercel (static) |
 | Backend | Node.js, Express, JWT, bcrypt, Passport.js | Vercel (serverless) |
 | Database | PostgreSQL (Neon Serverless) | Neon |
-| PWA | Service Worker (v2), Cache API, Push API | Vercel |
+| PWA | Service Worker v3, Cache API | Vercel |
 | Auth | JWT + OAuth2 (Google/GitHub) | Vercel env vars |
 
 ---
@@ -60,14 +60,38 @@ postgre/
 │   ├── .env
 │   └── vercel.json
 │
-├── front-end/                  # SPA (static)
-│   ├── index.html              # Dashboard principal
-│   ├── login/                  # login.html, register.js, callback.html
-│   ├── extrato/                # extrato.html + extrato.js
-│   ├── css/                    # modern.css, Login.css, Extrato.css
-│   ├── js/                     # config, api, auth, financeiro, events, table, ...
-│   ├── sw.js                   # Service Worker v2
-│   ├── manifest.json
+├── front-end/                  # Vite 6 SPA
+│   ├── index.html              # Entry point
+│   ├── src/
+│   │   ├── main.js             # App init + router + keyboard shortcuts
+│   │   ├── config.js           # API_BASE_URL (env-aware)
+│   │   ├── api.js              # Fetch centralizado + retry + refresh
+│   │   ├── auth.js             # Login, register, social, reset, change-password
+│   │   ├── router.js           # Hash-based SPA router
+│   │   ├── store.js            # Reactive store
+│   │   ├── theme.js            # 4 temas + apply + localStorage
+│   │   ├── pages/
+│   │   │   ├── LoginPage.js
+│   │   │   ├── RegisterPage.js
+│   │   │   ├── DashboardPage.js    # ~1131 linhas
+│   │   │   ├── ExtratoPage.js
+│   │   │   ├── CallbackPage.js
+│   │   │   ├── ForgotPasswordPage.js
+│   │   │   ├── ResetPasswordPage.js
+│   │   │   └── ChangePasswordPage.js
+│   │   ├── utils/
+│   │   │   ├── dom.js          # Toast, Spinner
+│   │   │   └── format.js       # Data, Moeda, Tipo
+│   │   └── styles/
+│   │       ├── variables.css   # 4 temas (dark, dracula, nord, light)
+│   │       ├── global.css
+│   │       ├── login.css
+│   │       ├── dashboard.css   # + sort, pagination, checkbox, textarea
+│   │       └── extrato.css
+│   ├── public/
+│   │   ├── sw.js               # Service Worker v3
+│   │   └── manifest.json
+│   ├── package.json
 │   └── vercel.json
 │
 ├── 2º Cerebro/                 # Obsidian vault
@@ -76,9 +100,10 @@ postgre/
 │       ├── API Documentation.md
 │       ├── Readme do Projeto.md
 │       ├── Service Worker Notes.md
-│       └── Ideias de Melhorias.md
+│       ├── Ideias de Melhorias.md
+│       └── README Gap Analysis.md
 │
-└── locally/                    # Versão local SQLite (legacy)
+└── (legacy files a serem removidos: js/, css/, login/, extrato/, extrato.html, extrato.js, sw.js, manifest.json, imgs/img/)
 ```
 
 ---
@@ -106,8 +131,8 @@ npm run dev             # http://localhost:3000
 
 # 3. Frontend (em outro terminal)
 cd front-end
-# Servir com live-server ou similar
-npx serve .             # http://localhost:5000
+npm install
+npm run dev             # http://localhost:5173
 ```
 
 ### `.env`
@@ -117,7 +142,7 @@ DATABASE_URL=postgresql://user:pass@host:5432/financeiro?sslmode=require
 JWT_SECRET=minha-chave-secreta-aqui
 NODE_ENV=development
 PORT=3000
-FRONTEND_URL=http://localhost:5000
+FRONTEND_URL=http://localhost:5173
 API_URL=http://localhost:3000
 
 GOOGLE_CLIENT_ID=
@@ -150,7 +175,7 @@ vercel --prod
 
 > [!tip] Domínios
 > - Frontend: `https://projeto-financeiro-frontend.vercel.app`
-> - Backend: `https://financeiro-backend.vercel.app`
+> - Backend: `https://projeto-financeiro-vert.vercel.app`
 
 ---
 
@@ -208,6 +233,13 @@ erDiagram
 | `GOOGLE_CLIENT_SECRET` | OAuth Client Secret (Google) | ❌ |
 | `GITHUB_CLIENT_ID` | OAuth Client ID (GitHub) | ❌ |
 | `GITHUB_CLIENT_SECRET` | OAuth Client Secret (GitHub) | ❌ |
+| `SMTP_HOST` | Servidor SMTP (ex: smtp.gmail.com) | ❌ |
+| `SMTP_PORT` | Porta SMTP (587) | ❌ |
+| `SMTP_USER` | Email do remetente | ❌ |
+| `SMTP_PASS` | Senha de app do email | ❌ |
+| `VAPID_PUBLIC_KEY` | Chave pública VAPID (push) | ❌ |
+| `VAPID_PRIVATE_KEY` | Chave privada VAPID (push) | ❌ |
+| `VAPID_SUBJECT` | `mailto:seuemail@example.com` | ❌ |
 
 ---
 
@@ -219,8 +251,8 @@ erDiagram
 > [!warning] CORS bloqueando
 > Verificar se `FRONTEND_URL` está na lista `allowedOrigins` e se o CORS middleware manual permite OPTIONS.
 
-> [!warning] CSS 404 (Linux case-sensitive)
-> Vercel usa Linux. `Extrato.css` ≠ `extrato.css`. Nomes de arquivo devem corresponder exatamente.
+> [!warning] `@vite/client` 404 no dev
+> Reiniciar o servidor Vite (`Ctrl+C` + `npm run dev`). Ocorre quando o Vite perde o WebSocket.
 
 > [!warning] Neon hibernando
 > Plano gratuito do Neon pode hibernar. Primeira requisição após inatividade leva ~5s.

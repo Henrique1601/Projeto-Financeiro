@@ -7,7 +7,7 @@
 ![Badge](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
 ![Badge](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 ![Badge](https://img.shields.io/badge/Neon-3F8EFC?style=for-the-badge&logo=neon&logoColor=white)
-![Badge](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![Badge](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
 ![Badge](https://img.shields.io/badge/PWA-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)
 ![Badge](https://img.shields.io/badge/License-MIT-FF5733?style=for-the-badge)
 
@@ -40,18 +40,16 @@ O **Gestor de Despesas** é uma aplicação web completa para controle financeir
 
 ### ✨ Principais Características
 
-- **Interface moderna** com tema escuro e design responsivo (mobile-first)
-- **PWA completo** com suporte offline e sincronização automática
-- **Múltiplos formatos de exportação** (PDF, Excel, CSV, JSON)
+- **Interface moderna** com 4 temas (Dark, Dracula, Nord, Claro) e design responsivo (mobile-first)
+- **PWA** com service worker e cache offline de leitura
+- **Exportação** CSV e PDF com seleção de período e filtros
+- **Dashboard avançado** com gráficos Chart.js, comparativo mensal, meta de economia e projeção de saldo
 - **Sistema de autenticação** com JWT
 - **Login social** (Google, GitHub)
 - **Recuperação de senha** por código
-- **Categorização automática** por IA
+- **Categorização automática** por palavras-chave
 - **Importação automática** de extratos (OFX, CSV)
-- **Notificações push** para alertas
-- **Atalhos de teclado** para produtividade
-- **Calendário financeiro** integrado
-- **Transações recorrentes** automáticas
+- **Atalhos de teclado** para navegação rápida
 
 ---
 
@@ -68,13 +66,12 @@ O **Gestor de Despesas** é uma aplicação web completa para controle financeir
 ### Gestão Financeira
 - [x] Lançar entradas e saídas
 - [x] Editar transações existentes
-- [x] Deletar transações individuais ou em massa
-- [x] Selecionar múltiplas transações
-- [x] Duplicar transações
-- [x] Categorização automática por IA
+- [x] Deletar transações individuais
+- [x] Categorização automática por palavras-chave (10 categorias, 100+ palavras)
+- [x] Observações personalizadas
+- [x] Método de pagamento (Dinheiro, PIX, Débito, Crédito, Boleto, Transferência)
 
 ### Importação
-- [x] Importar de JSON
 - [x] Importar de CSV
 - [x] Importar de OFX (formato bancário)
 - [x] Importação automática com categorização
@@ -82,8 +79,7 @@ O **Gestor de Despesas** é uma aplicação web completa para controle financeir
 ### Categorização
 - [x] Categorias pré-definidas (Alimentação, Transporte, Lazer, etc.)
 - [x] 10 categorias com +100 palavras-chave
-- [x] Métodos de pagamento (Dinheiro, PIX, Débito, Crédito)
-- [x] Observações personalizadas
+- [x] Categoria automática via backend
 
 ### Filtros e Busca
 - [x] Busca por descrição
@@ -91,40 +87,41 @@ O **Gestor de Despesas** é uma aplicação web completa para controle financeir
 - [x] Filtro por categoria
 - [x] Filtro por método de pagamento
 - [x] Filtro por período (data início/fim)
-- [x] Ordenação por colunas
 
 ### Relatórios e Exportação
 - [x] Resumo financeiro (Entradas, Saídas, Saldo)
-- [x] Gráfico de gastos por categoria
-- [x] Exportar para Excel
-- [x] Exportar para PDF
-- [x] Exportar para CSV
+- [x] Dashboard com gráfico de evolução mensal (linha)
+- [x] Dashboard com gráfico de categorias (donut)
+- [x] Comparativo mensal (mês atual × anterior)
+- [x] Projeção de saldo para fim do mês
+- [x] Meta de economia mensal com barra de progresso
+- [x] Exportar para CSV com período e filtros
 - [x] Exportar para JSON
-- [x] Importar de JSON/CSV/OFX
-- [x] Imprimir tabela
-- [x] Extrato detalhado com filtros
+- [x] Exportar para PDF com gráficos (via impressão)
+- [x] Extrato detalhado com filtros, gráficos e resumo anual
 
-### Planejamento
-- [x] Definir meta mensal
-- [x] Alerta ao atingir percentual da meta
-- [x] Orçamento por categoria
-- [x] Transações recorrentes
+### Seleção em Massa
+- [x] Checkbox por linha + selecionar todos
+- [x] Deletar múltiplos lançamentos de uma vez
+- [x] Duplicar transação existente
+
+### Ordenação e Paginação
+- [x] Ordenar por qualquer coluna (clicar no header)
+- [x] Paginação com 10/20/50/100 itens por página
 
 ### Interface
-- [x] Tema claro/escuro
-- [x] Calendário integrado
-- [x] Responsivo mobile-first (3 breakpoints)
+- [x] 4 temas (Dark, Dracula, Nord, Claro) com transição suave
+- [x] Seletor de tema no sidebar
+- [x] Responsivo mobile-first
 - [x] Menu hamburger para mobile
-- [x] Paginação de resultados
 - [x] Animações e feedback visual (Toastify)
-- [x] Atalhos de teclado
+- [x] Atalhos de teclado (Ctrl+H, Ctrl+E, Ctrl+T, Ctrl+N, Ctrl+S, Ctrl+F, Esc)
+- [x] Página de alterar senha
 
 ### PWA e Offline
-- [x] Service Worker com cache
-- [x] Funciona offline
-- [x] Indicador de status offline
-- [x] Sincronização automática
-- [x] Notificações push
+- [x] Service Worker com cache de assets
+- [x] Cache offline da lista de transações (localStorage)
+- [x] Indicador de status offline (banner amarelo)
 
 ---
 
@@ -133,16 +130,13 @@ O **Gestor de Despesas** é uma aplicação web completa para controle financeir
 ### Front-end
 | Tecnologia | Descrição |
 |------------|-----------|
-| HTML5 | Estrutura semântica |
-| CSS3 | Estilização moderna (mobile-first) |
-| JavaScript | Lógica da aplicação |
+| Vite 6 | Build tool e dev server |
+| CSS3 | Estilização moderna com variáveis CSS |
+| JavaScript (ES Modules) | Lógica da aplicação |
+| Chart.js | Gráficos (evolução, categorias) |
 | Service Worker | PWA offline |
 | Toastify.js | Notificações |
 | Font Awesome | Ícones |
-| SheetJS | Exportação Excel |
-| jsPDF | Exportação PDF |
-| PapaParse | Parsing CSV |
-| html2canvas | Captura de tela |
 
 ### Back-end
 | Tecnologia | Descrição |
@@ -176,71 +170,65 @@ O **Gestor de Despesas** é uma aplicação web completa para controle financeir
 ```
 postgre/
 ├── backend/
-│   ├── api/
-│   │   ├── config/
-│   │   │   ├── database.js      # Configuração do banco
-│   │   │   └── jwt.js          # Configuração JWT
-│   │   ├── controllers/
-│   │   │   ├── authController.js
-│   │   │   └── financeiroController.js
-│   │   ├── docs/
-│   │   │   └── index.html      # Documentação da API
-│   │   ├── middleware/
-│   │   │   └── auth.js         # Middleware de autenticação
-│   │   ├── routes/
-│   │   │   └── index.js        # Rotas da API
-│   │   ├── services/
-│   │   │   ├── authService.js
-│   │   │   └── financeiroService.js
+│   └── api/
+│       ├── config/
+│       │   └── database.js      # Configuração do banco Neon/PostgreSQL
+│       ├── controllers/
+│       │   ├── authController.js
+│       │   └── financeiroController.js
+│       ├── docs/
+│       │   └── index.html       # Documentação da API
+│       ├── middleware/
+│       │   └── auth.js          # Middleware de autenticação JWT
+│       ├── routes/
+│       │   └── index.js         # Rotas da API
+│       ├── services/
+│       │   ├── authService.js
+│       │   ├── financeiroService.js
+│       │   └── passportConfig.js
+│       ├── utils/
+│       │   └── validators.js
+│       ├── index.js             # Entry point Express
+│       ├── .env
+│       └── package.json
+│
+├── front-end/
+│   ├── public/
+│   │   ├── sw.js                # Service Worker
+│   │   └── manifest.json
+│   ├── src/
+│   │   ├── pages/               # Páginas SPA
+│   │   │   ├── DashboardPage.js
+│   │   │   ├── ExtratoPage.js
+│   │   │   ├── LoginPage.js
+│   │   │   ├── RegisterPage.js
+│   │   │   ├── CallbackPage.js
+│   │   │   ├── ForgotPasswordPage.js
+│   │   │   └── ResetPasswordPage.js
+│   │   ├── styles/
+│   │   │   ├── variables.css    # Variáveis CSS + temas
+│   │   │   ├── global.css       # Estilos globais
+│   │   │   ├── dashboard.css    # Dashboard + sidebar
+│   │   │   ├── extrato.css
+│   │   │   └── login.css
 │   │   ├── utils/
-│   │   │   ├── queryHelpers.js  # Helpers SQL
-│   │   │   └── validators.js   # Validações
-│   │   └── index.js            # Entry point
-│   ├── lib/
-│   │   ├── lib_auth.js
-│   │   ├── lib_db.js
-│   │   └── lib_middlewares.js
-│   ├── .env
+│   │   │   ├── dom.js           # Toast, spinner
+│   │   │   └── format.js        # Formatação data/moeda
+│   │   ├── api.js               # Cliente HTTP com refresh token
+│   │   ├── auth.js              # Autenticação
+│   │   ├── config.js            # API_BASE_URL
+│   │   ├── main.js              # Entry point + router
+│   │   ├── router.js            # Hash-based SPA router
+│   │   ├── store.js             # Estado reativo
+│   │   └── theme.js             # Gerenciador de temas
+│   ├── index.html
+│   ├── vite.config.js
 │   ├── vercel.json
 │   └── package.json
 │
-├── front-end/
-│   ├── css/
-│   │   ├── Login.css
-│   │   └── modern.css
-│   ├── extrato/
-│   │   └── extrato.html
-│   ├── imgs/
-│   ├── js/
-│   │   ├── api.js
-│   │   ├── auth.js
-│   │   ├── config.js
-│   │   ├── events.js
-│   │   ├── export.js
-│   │   ├── finance.js
-│   │   ├── formatters.js
-│   │   ├── main.js
-│   │   ├── notifications.js    # Notificações PWA
-│   │   ├── shortcuts.js        # Atalhos de teclado
-│   │   ├── table.js
-│   │   └── utils.js
-│   ├── login/
-│   │   ├── login.html
-│   │   ├── login.js
-│   │   ├── register.js
-│   │   └── Esqueci a senha/
-│   │       ├── Senha.html
-│   │       ├── esqueci.js
-│   │       └── esqueci.css
-│   ├── sw.js                   # Service Worker
-│   ├── index.html
-│   ├── extrato.js
-│   ├── vercel.json
-│   └── manifest.json
-│
-├── locally/                    # Versão local (SQLite)
+├── 2º Cerebro/                  # Obsidian vault
 ├── LICENSE
-└── readme.md
+└── README.md
 ```
 
 ---
@@ -271,8 +259,8 @@ npm install
 
 ```bash
 cd front-end
-npm install -g vercel
-vercel dev
+npm install
+npm run dev
 ```
 
 ---
@@ -328,7 +316,10 @@ GITHUB_CLIENT_ID=seu_github_client_id
 
 1. Crie um novo projeto na Vercel
 2. Importe a pasta `front-end`
-3. Deploy!
+3. A Vercel detecta automaticamente o Vite e executa `npm run build`
+4. Configure as variáveis de ambiente:
+   - `VITE_API_URL` — URL do backend (ex: `https://backend.vercel.app`)
+5. Deploy!
 
 ---
 
@@ -380,11 +371,9 @@ POST /api/salvar
 {
   "data": "2024-01-15",
   "descricao": "Supermercado",
-  "valor": 250.00,
+  "valor": -250.00,
   "entradaSaida": "Saída",
-  "categoria": "Alimentação",
-  "metodoPagamento": "PIX",
-  "observacoes": "Compras da semana"
+  "categoria": "Alimentação"
 }
 ```
 
@@ -434,8 +423,8 @@ POST /api/importar/auto
 | valor | NUMERIC | Valor (positivo) |
 | entradaSaida | TEXT | "Entrada" ou "Saída" |
 | categoria | TEXT | Categoria |
-| metodoPagamento | TEXT | Método de pagamento |
-| observacoes | TEXT | Observações |
+| metodoPagamento | TEXT | Método de pagamento (reservado) |
+| observacoes | TEXT | Observações (reservado) |
 
 #### `password_resets`
 | Coluna | Tipo | Descrição |
@@ -470,8 +459,9 @@ O sistema categoriza automaticamente transações baseado em palavras-chave:
 ### Medidas Implementadas
 
 - [x] **Senhas criptografadas** com bcrypt (salt rounds: 10)
-- [x] **JWT tokens** com expiração
-- [x] **Rate limiting** (1000 req/15min por IP)
+- [x] **JWT tokens** com expiração (24h)
+- [x] **Refresh token** automático para sessões longas
+- [x] **Rate limiting** (1000 req/15min por IP) com express-rate-limit
 - [x] **Helmet.js** para headers de segurança
 - [x] **CORS** configurado para origens específicas
 - [x] **Validação de inputs** no backend
@@ -484,40 +474,36 @@ O sistema categoriza automaticamente transações baseado em palavras-chave:
 
 | Atalho | Ação |
 |--------|------|
-| `Ctrl + N` | Novo lançamento |
-| `Ctrl + S` | Salvar |
-| `Ctrl + E` | Exportar |
-| `Ctrl + F` | Buscar |
-| `Ctrl + D` | Deletar |
-| `Ctrl + ,` | Ir para perfil |
+| `Ctrl + H` | Ir para Dashboard |
+| `Ctrl + E` | Ir para Extrato |
+| `Ctrl + T` | Alternar tema |
+| `Ctrl + N` | Nova transação (no dashboard) |
+| `Ctrl + S` | Salvar formulário aberto |
+| `Ctrl + F` | Focar campo de busca |
 | `Esc` | Fechar modal |
-| `F1` ou `?` | Mostrar ajuda |
-| `F5` | Atualizar página |
-| `+` | Próxima página |
-| `-` | Página anterior |
 
 ---
 
 ## 📱 Modo Offline (PWA)
 
-A aplicação funciona offline:
+A aplicação possui suporte offline parcial:
 
-1. **Cache de Assets**: CSS, JS, HTML são cacheados
-2. **Cache de Dados**: Lista de transações é cacheada
+1. **Cache de Assets**: CSS, JS são cacheados via Service Worker
+2. **Cache de Dados**: Lista de transações é cacheada no `localStorage`
 3. **Indicador**: Banner amarelo indica quando offline
-4. **Sincronização**: Dados são sincronizados quando volta online
+4. **Leitura offline**: Dashboard carrega dados do cache quando offline
+5. **Instalação**: Abra no Chrome/Edge e clique em "Instalar" no banner ou menu
 
-Para instalar como PWA:
-1. Abra no Chrome/Edge
-2. Clique em "Instalar" no banner ou menu
+> [!NOTE]
+> Escrita offline (adicionar/editar sem conexão) ainda não implementada.
 
 ---
 
 ## 📸 Demonstração
 
 - **Aplicação:** https://projeto-financeiro-frontend.vercel.app
-- **Documentação API:** https://financeiro-backend.vercel.app/api/docs
-- **Status API:** https://financeiro-backend.vercel.app/api/health
+- **Status API:** https://projeto-financeiro-vert.vercel.app/api/health
+- **Documentação API:** https://projeto-financeiro-vert.vercel.app/api/docs
 
 ---
 

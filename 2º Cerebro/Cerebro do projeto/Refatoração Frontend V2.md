@@ -5,20 +5,21 @@ tags:
   - refatoracao
   - vite
   - spa
-date: 2026-05-18
+date: 2026-05-20
 aliases:
   - Nova Arquitetura Frontend
+status: completo
 ---
 
 # Refatoração Frontend V2
 
 ## Motivação
 
-A estrutura anterior do frontend estava causando bugs críticos:
-- `API_BASE_URL` retornava string vazia em produção, fazendo requisições baterem no domínio errado (`/api/listar` 404)
-- Código deployado no Vercel estava **sempre desatualizado** em relação ao código local (prova: line numbers não batiam)
+A estrutura anterior do Frontend estava causando bugs críticos:
+- `API_BASE_URL` retornava string vazia em produção
+- Código deployado no Vercel estava **sempre desatualizado**
 - Duplicação de arquivos (`extrato.html` na raiz E em `extrato/`)
-- `index.js` com ~2090 linhas (monolito difícil de manter)
+- `index.js` com ~2090 linhas (monolito)
 - Lógica de API/Token/Config espalhada por múltiplos arquivos
 
 ## Mudanças Principais
@@ -28,12 +29,13 @@ A estrutura anterior do frontend estava causando bugs críticos:
 | Bundler | Nenhum (CDNs) | **Vite 6** |
 | Arquitetura | Multi-page HTML | **SPA** com hash routing |
 | API URL | `getApiBaseUrl()` duplicado em N arquivos | **Único** `src/config.js` com `import.meta.env.DEV` |
-| Dashboard | `index.js` (~2090 linhas) | `DashboardPage.js` (~470 linhas) |
+| Dashboard | `index.js` (~2090 linhas) | `DashboardPage.js` (~1131 linhas) |
 | Extrato | `extrato.js` (root) + `extrato/extrato.js` (subdir) | **Único** `ExtratoPage.js` |
 | Login | `login.html` + `login.js` + `register.js` + `callback.html` | Componentes em `src/pages/` |
 | Estilos | 7 CSSs espalhados | 5 CSSs organizados em `src/styles/` |
 | Fetch | Manual com retry duplicado | Centralizado em `src/api.js` (retry + refresh automático) |
 | Estado | `localStorage` direto | `src/store.js` reativo |
+| Temas | Fixo (só dark) | 4 temas via `src/theme.js` |
 
 ## Estrutura Nova
 
@@ -49,9 +51,9 @@ front-end/
 ├── src/
 │   ├── main.js             # App init + router + lazy loading
 │   ├── config.js           # API_BASE_URL (centralizado)
-│   ├── api.js              # fetchWithRetry + refresh automático
-│   ├── auth.js             # Login/register/social/reset
-│   ├── store.js            # Estado reativo simples
+│   ├── api.js              # Fetch + retry + refresh automático
+│   ├── auth.js             # Login, register, social, reset, change-password
+│   ├── store.js            # Estado reativo (token)
 │   ├── router.js           # Hash-based SPA router
 │   ├── pages/
 │   │   ├── LoginPage.js
@@ -60,15 +62,17 @@ front-end/
 │   │   ├── ExtratoPage.js
 │   │   ├── CallbackPage.js
 │   │   ├── ForgotPasswordPage.js
-│   │   └── ResetPasswordPage.js
+│   │   ├── ResetPasswordPage.js
+│   │   └── ChangePasswordPage.js
+│   ├── theme.js         # 4 temas + apply + localStorage
 │   ├── utils/
 │   │   ├── dom.js           # Toast, Spinner
-│   │   └── format.js        # Data, Moeda, Tipo
-│   └── styles/
-│       ├── variables.css
-│       ├── global.css
+│   │   └── format.js        # Data, Moeda, Tipo (isSaida, getTipo)
+│   ── styles/
+│       ├── variables.css    # 4 temas completos (dark, dracula, nord, light)
+│       ├── global.css       # Transição suave entre temas
 │       ├── login.css
-│       ├── dashboard.css
+│       ├── dashboard.css    # + sort, pagination, checkbox, textarea
 │       └── extrato.css
 └── imgs/                    # Ícones (mantido)
 ```
@@ -87,16 +91,21 @@ graph TD
     A[Hash Router] -->|#/login| B[LoginPage]
     A -->|#/dashboard| C[DashboardPage]
     A -->|#/extrato| D[ExtratoPage]
+    A -->|#/alterar-senha| E[ChangePasswordPage]
+    A -->|#/callback| F[CallbackPage]
 
-    B --> E[auth.js]
-    C --> F[api.js]
-    D --> F
+    B --> G[auth.js]
+    C --> H[api.js]
+    D --> H
+    E --> G
 
-    F --> G[config.js]
-    F --> H[store.js]
+    H --> I[config.js]
+    H --> J[store.js]
 
-    G --> I[API_BASE_URL]
-    F --> J[fetch + refresh token]
+    I --> K[API_BASE_URL]
+    H --> L[fetch + refresh token]
+
+    C --> M[theme.js]
 ```
 
 ## API_BASE_URL (solução do bug)
@@ -107,12 +116,36 @@ Em `src/config.js`:
 
 Não há mais chance de retornar string vazia — o código antigo não tinha fallback.
 
+## Bugs Corrigidos
+
+| Bug | Solução |
+|-----|---------|
+| `sobrenome: ''` falhava no cadastro | RegisterPage agora tem campo sobrenome |
+| Reset senha incompatível | Frontend agora envia `{email, code, senha}` |
+| Importar arquivo não funcionava | Usa `/api/importar/auto` com JSON |
+| OAuth redirect 404 | Backend redireciona pra `/#/callback` |
+| Profile update POST→PUT | Corrigido para `apiPut` |
+| `pageTitle` null crash | Adicionada verificação `if (pageTitle)` |
+| Categorias duplicadas | Usa `CATEGORIAS` de `config.js` |
+| `@vite/client` 404 | Servidor Vite reiniciado corretamente |
+| Código morto removido | `setState/getState/onState`, `showExtrato()`, `showToast` import |
+
 ## Próximos Passos
 
 - [x] Criar estrutura Vite + SPA
 - [x] Migrar Login, Dashboard, Extrato
 - [x] Centralizar API/Config/Auth
-- [x] Rodar `npm install && npm run build`
+- [x] Corrigir bugs críticos (cadastro, reset, import, OAuth)
+- [x] Limpar código morto
 - [x] Deploy no Vercel
-- [ ] Remover arquivos antigos (`login/`, `extrato/`, `js/`, `css/`)
-- [ ] Testar fluxo completo em produção
+- [x] Testar fluxo completo em produção
+- [x] Adicionar página de alterar senha
+- [x] Sistema de temas (4 temas + theme switcher)
+- [x] Gráficos no dashboard (Chart.js)
+- [x] Export CSV/JSON/PDF
+- [x] Ordenação por coluna + paginação
+- [x] Seleção em lote + exclusão em massa
+- [x] Duplicar transação
+- [x] Observações personalizadas + método de pagamento
+- [x] Atalhos de teclado
+- [x] Limpar arquivos antigos: `js/`, `css/`, `login/`, `extrato/`, `extrato.html`, `extrato.js`, `sw.js`, `manifest.json`, `imgs/img/`

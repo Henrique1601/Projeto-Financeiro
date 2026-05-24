@@ -1,7 +1,7 @@
 ---
 title: 🧠 Gestor Financeiro - Segundo Cérebro
 description: Documentação completa do projeto Gestor Financeiro
-date: 2026-03-27
+date: 2026-05-21
 tags:
   - projeto
   - financeiro
@@ -24,30 +24,42 @@ cssclasses:
 > **Sistema completo de gerenciamento financeiro pessoal** com PWA, suporte offline, categorização automática e login social.
 
 - **Frontend:** https://projeto-financeiro-frontend.vercel.app  
-  (refatorado para Vite + SPA — ver [[Refatoração Frontend V2]])
-- **API:** https://financeiro-backend.vercel.app/api
-- **Documentação:** https://financeiro-backend.vercel.app/api/docs
-- **Status:** https://financeiro-backend.vercel.app/api/health
+  (Vite SPA — ver [[Refatoração Frontend V2]])
+- **API:** https://projeto-financeiro-vert.vercel.app/api
+- **Documentação:** https://projeto-financeiro-vert.vercel.app/api/docs
+- **Status:** https://projeto-financeiro-vert.vercel.app/api/health
 - **GitHub:** https://github.com/Henrique1601/Projeto-Financeiro
 
 ---
 
 ## ✅ Roadmap & Status
 
-| Funcionalidade | Status | Prioridade |
-| -------------- | :----: | :--------: |
-| Autenticação JWT | ✅ | Alta |
-| CRUD Transações | ✅ | Alta |
-| Categorização Automática | ✅ | Alta |
-| Modo Offline (PWA) | ✅ | Alta |
-| Dashboard Responsivo | ✅ | Alta |
-| Atalhos de Teclado | ✅ | Média |
-| Importação OFX/CSV | ✅ | Média |
-| Notificações Push | ✅ | Média |
-| Login Social | ✅ | Baixa |
-| Alteração de Senha | ✅ | Baixa |
-| Gráficos e Relatórios | ✅ | Média |
-| Exportação Multi-formato | ✅ | Média |
+| Funcionalidade                                             | Status | Prioridade |
+| ---------------------------------------------------------- | :----: | :--------: |
+| Autenticação JWT                                           |   ✅    |    Alta    |
+| CRUD Transações                                            |   ✅    |    Alta    |
+| Categorização Automática                                   |   ✅    |    Alta    |
+| Modo Offline (PWA)                                         |   ✅    |    Alta    |
+| Dashboard Responsivo                                       |   ✅    |    Alta    |
+| Dashboard Avançado (gráficos, comparativo, meta, projeção) |   ✅    |    Alta    |
+| Filtros (descrição, tipo, categoria, pagamento, período)   |   ✅    |    Alta    |
+| Ordenação por colunas + Paginação                          |   ✅    |    Alta    |
+| Bulk Select + Deletar em Massa                             |   ✅    |    Alta    |
+| Temas (Dark, Dracula, Nord, Claro)                         |   ✅    |    Alta    |
+| Importação OFX/CSV                                         |   ✅    |   Média    |
+| Exportação CSV/JSON/PDF (período + filtros)                |   ✅    |   Média    |
+| Duplicar Transação                                         |   ✅    |   Média    |
+| Observações + Método Pagamento                             |   ✅    |   Média    |
+| Sistema de Tipo (Entrada/Saída) por sinal do valor          |   ✅    |    Alta    |
+| Importação CSV refatorada (Tipo, BOM, quotes, quebras)      |   ✅    |   Média    |
+| Atalhos de Teclado (Ctrl+N/S/F/H/E/T/Esc)                  |   ✅    |   Média    |
+| Login Social (Google, GitHub)                              |   ✅    |   Baixa    |
+| Esqueci/Resetar Senha (com email)                          |   ✅    |   Baixa    |
+| Alterar Senha (logado)                                     |   ✅    |   Baixa    |
+| Página de Perfil                                           |   ✅    |   Baixa    |
+| Notificações Push                                          |   ✅    |   Média    |
+| Excel (.xlsx)                                              |   ❌    |   Baixa    |
+| Transações Recorrentes                                     |   ❌    |    Alta    |
 
 ---
 
@@ -96,7 +108,9 @@ postgre/
 │   │   │   └── index.js              # Todas as rotas
 │   │   ├── services/
 │   │   │   ├── authService.js        # Lógica de auth + auto-categorize
-│   │   │   └── financeiroService.js  # CRUD + parser OFX/CSV
+│   │   │   ├── financeiroService.js  # CRUD + parser OFX/CSV
+│   │   │   ├── emailService.js       # Nodemailer SMTP + fallback dev
+│   │   │   └── notificationService.js # Push subscription CRUD
 │   │   ├── utils/
 │   │   │   ├── queryHelpers.js       # getOne, run, getAll, withTransaction
 │   │   │   └── validators.js         # Validação de inputs
@@ -124,14 +138,17 @@ postgre/
 │   │   ├── pages/
 │   │   │   ├── LoginPage.js
 │   │   │   ├── RegisterPage.js
-│   │   │   ├── DashboardPage.js
+│   │   │   ├── DashboardPage.js    # ~1131 linhas
 │   │   │   ├── ExtratoPage.js
 │   │   │   ├── CallbackPage.js
 │   │   │   ├── ForgotPasswordPage.js
-│   │   │   └── ResetPasswordPage.js
+│   │   │   ├── ResetPasswordPage.js
+│   │   │   ├── ChangePasswordPage.js
+│   │   │   └── ProfilePage.js
 │   │   ├── utils/
 │   │   │   ├── dom.js                # Toast, Spinner
 │   │   │   └── format.js             # Data, Moeda, Tipo
+│   │   ├── theme.js              # │   │   ├── theme.js              # Gerenciador de temas
 │   │   └── styles/
 │   │       ├── variables.css
 │   │       ├── global.css
@@ -143,17 +160,17 @@ postgre/
 ├── 2º Cerebro/
 │   └── Cerebro do projeto/           # Obsidian vault
 │       ├── Gestor Financeiro.md
+│       ├── Bug Fixes.md
 │       ├── Refatoração Frontend V2.md
 │       ├── API Documentation.md
 │       ├── Readme do Projeto.md
 │       ├── Ideias de Melhorias.md
-│       └── Service Worker Notes.md
+│       ├── Service Worker Notes.md
+│       └── README Gap Analysis.md
 │
-├── 2º Cerebro/
-│   └── Cerebro do projeto/           # Obsidian vault
-│       └── Gestor Financeiro.md
+├── AGENTS.md                         # Instruções para OpenCode
 │
-└── locally/                          # Versão local SQLite
+└── (legacy files a serem removidos: js/, css/, login/, extrato/, extrato.html, extrato.js, sw.js, manifest.json, imgs/img/)
 ```
 
 ---
@@ -164,8 +181,8 @@ postgre/
 ```http
 POST /api/register         # { nome, sobrenome, email, senha }
 POST /api/login            # { email, senha }
-POST /api/forgot-password  # { email }
-POST /api/reset-password   # { email, code, senha }
+POST /api/forgot-password  # { email } → envia código de 6 dígitos por email (SMTP) ou exibe na tela (dev)
+POST /api/reset-password   # { email, code, senha } → 3 mensagens de erro distintas
 GET  /api/health           # Status + versão
 GET  /api/docs             # Documentação HTML
 ```
@@ -280,42 +297,34 @@ O sistema usa um dicionário de **>100 palavras-chave** em 10 categorias:
 
 | Tecla | Ação |
 |-------|------|
-| `Ctrl + N` | 📝 Novo lançamento |
-| `Ctrl + S` | 💾 Salvar |
-| `Ctrl + E` | 📤 Exportar (1=Excel/2=PDF/3=CSV) |
-| `Ctrl + F` | 🔍 Focar busca |
-| `Ctrl + D` | 🗑️ Deletar |
+| `Ctrl + H` | 🏠 Ir para Dashboard |
+| `Ctrl + E` | 📋 Ir para Extrato |
+| `Ctrl + T` | 🎨 Alternar tema |
+| `Ctrl + N` | 📝 Nova transação (no dashboard) |
+| `Ctrl + S` | 💾 Salvar formulário aberto |
+| `Ctrl + F` | 🔍 Focar campo de busca |
 | `Esc` | ❌ Fechar modal |
-| `Ctrl + ,` | ⚙️ Perfil |
-| `F5` | 🔄 Atualizar |
-| `+` / `-` | 📄 Próxima/Anterior página |
-| `F1` / `?` | ❓ Ajuda |
-
-> [!tip] Exportação interativa
-> Ao pressionar `Ctrl+E`, aparece um menu temporário: digite `1` para Excel, `2` para PDF ou `3` para CSV.
 
 ---
 
 ## 📱 PWA & Offline
 
-### Service Worker (`sw.js` v2)
+### Service Worker (`sw.js` v3)
 ```javascript
 // Estratégias de cache:
-// - STATIC_CACHE: assets estáticos (cache-first)
-// - DATA_CACHE: requisições API (network-first)
-// Indicador offline com sincronização automática
+// - CACHE_NAME: assets estáticos (cache-first, apenas GET)
+// - Indicador offline com banner amarelo
+// - Dados cacheados via localStorage para leitura offline
 ```
 
 ### Funcionamento Offline
 1. **Instalação**: Assets estáticos são cacheados
-2. **Modo offline**: Dados da última sessão ficam disponíveis
-3. **Indicador**: Banner amarelo "Offline" aparece
-4. **Reconexão**: Dados são sincronizados automaticamente
+2. **Modo offline**: Lista de transações da última sessão via `localStorage`
+3. **Indicador**: Banner amarelo aparece quando offiline
+4. **Leitura offline**: Dashboard carrega dados do cache local
 
-### Notificações Push
-- Service Worker registrado para push
-- Notificações para alertas financeiros
-- Ações: "Abrir" e "Fechar"
+> [!warning] Escrita offline
+> Ainda não implementada. Adicionar/editar/excluir requer conexão.
 
 ---
 
@@ -344,6 +353,18 @@ PORT=3000
 FRONTEND_URL=https://seu-frontend.vercel.app
 API_URL=http://localhost:3000                   # Usado para callbackURL do OAuth
 
+# SMTP (opcional - envio de email)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=seuemail@gmail.com
+SMTP_PASS=sua-senha-de-app
+
+# Push Notification (opcional - VAPID keys)
+# Gerar com: npx web-push generate-vapid-keys
+VAPID_PUBLIC_KEY=BCxxxxx
+VAPID_PRIVATE_KEY=yyyyy
+VAPID_SUBJECT=mailto:seuemail@example.com
+
 # OAuth2 (opcional - login social)
 GOOGLE_CLIENT_ID=seu-google-client-id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=seu-google-client-secret
@@ -354,12 +375,12 @@ GITHUB_CLIENT_SECRET=seu-github-client-secret
 > [!warning] Configurar OAuth no Google Cloud
 > 1. Criar projeto em https://console.cloud.google.com
 > 2. Ativar Google+ API / People API
-> 3. Criar credenciais OAuth → Authorized redirect URIs: `https://financeiro-backend.vercel.app/api/auth/google/callback`
+> 3. Authorized redirect URIs: `https://projeto-financeiro-vert.vercel.app/api/auth/google/callback`
 > 4. Adicionar `GOOGLE_CLIENT_ID` e `GOOGLE_CLIENT_SECRET` no Vercel
 
 > [!warning] Configurar OAuth no GitHub
 > 1. Settings → Developer settings → OAuth Apps → New OAuth App
-> 2. Authorization callback URL: `https://financeiro-backend.vercel.app/api/auth/github/callback`
+> 2. Authorization callback URL: `https://projeto-financeiro-vert.vercel.app/api/auth/github/callback`
 > 3. Adicionar `GITHUB_CLIENT_ID` e `GITHUB_CLIENT_SECRET` no Vercel
 
 ### Deploy Backend (Vercel)
@@ -397,12 +418,12 @@ Neon pode hibernar no plano gratuito. A primeira requisição pode demorar ~5s.
 ## 📈 Métricas do Projeto
 
 ```yaml
-Arquivos: ~45
-Linhas de código: ~6000+
+Arquivos: ~50
+Linhas de código: ~7000+
 Dependências: 15 (backend) + 3 npm (frontend)
 Banco: 3 tabelas
-Endpoints API: 15
-Telas: 5 (Login, Dashboard, Extrato, Esqueci Senha, Reset)
+Endpoints API: 17
+Telas: 8 (Login, Dashboard, Extrato, Esqueci Senha, Reset, Alterar Senha, Callback, Perfil)
 Estrutura: Vite SPA com hash routing + ES Modules
 ```
 

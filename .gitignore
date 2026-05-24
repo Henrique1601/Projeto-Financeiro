@@ -2,3 +2,9 @@ node_modules/
 backup/
 ./front-end/.env
 ./front-end/login/.env
+.agents
+.claude
+agents.md
+cleanup.ps1
+skills-lock.json
+skills-lock.backup.json

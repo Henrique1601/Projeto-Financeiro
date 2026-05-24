@@ -1,6 +1,8 @@
 const ROUTES = new Map();
 let currentCleanup = null;
 
+const ROUTE_PARAMS = {};
+
 export function route(path, handler) {
   ROUTES.set(path, handler);
 }
@@ -9,13 +11,27 @@ export function navigate(path) {
   window.location.hash = path;
 }
 
+export function getRouteParams() {
+  return { ...ROUTE_PARAMS };
+}
+
 export function initRouter() {
   window.addEventListener('hashchange', onHashChange);
   onHashChange();
 }
 
 async function onHashChange() {
-  const hash = window.location.hash.slice(1) || '/login';
+  const fullHash = window.location.hash.slice(1) || '/login';
+  const [path, queryString] = fullHash.split('?');
+
+  // Parse query params from hash
+  Object.keys(ROUTE_PARAMS).forEach(k => delete ROUTE_PARAMS[k]);
+  if (queryString) {
+    queryString.split('&').forEach(pair => {
+      const [k, v] = pair.split('=');
+      ROUTE_PARAMS[decodeURIComponent(k)] = decodeURIComponent(v || '');
+    });
+  }
 
   if (currentCleanup && typeof currentCleanup === 'function') {
     currentCleanup();
@@ -27,7 +43,7 @@ async function onHashChange() {
 
   app.innerHTML = '<div class="page-transition"><div class="spinner"></div></div>';
 
-  let handler = ROUTES.get(hash);
+  let handler = ROUTES.get(path);
 
   if (!handler) {
     const catchAll = ROUTES.get('*');

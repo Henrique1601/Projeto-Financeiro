@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { getOne, run, query } = require('../utils/queryHelpers');
 const { secret, expiresIn } = require('../config/jwt');
+const { sendResetCode } = require('./emailService');
 
 const CATEGORIAS_PALAVRAS = {
   'Alimentação': ['supermercado', 'mercado', 'restaurante', 'lanche', 'pizza', 'burger', 'comida', 'ifood', 'rappi', 'globo', 'panificadora', 'açougue', 'feira', 'hortifruti', 'padaria', 'café', 'bar', 'lanchonete'],
@@ -170,10 +171,6 @@ const forgotPassword = async (email) => {
     return { message: 'Se o email existir, um código de recuperação foi enviado.' };
   }
 
-  if (!user.senha) {
-    throw new Error('Este email foi registrado via rede social. Faça login com a mesma conta.');
-  }
-
   const code = crypto.randomInt(100000, 999999).toString();
   const expires = new Date(Date.now() + 15 * 60 * 1000);
 
@@ -184,9 +181,13 @@ const forgotPassword = async (email) => {
     [user.id, email, code, expires]
   );
 
-  console.log(`[密码重置] Email: ${email}, Código: ${code}`);
+  const emailResult = await sendResetCode(email, code);
 
-  return { message: 'Código de recuperação gerado.', code };
+  if (emailResult?.devMode) {
+    return { message: 'Código de recuperação gerado.', code };
+  }
+
+  return { message: 'Código enviado para seu e-mail.' };
 };
 
 const resetPassword = async (email, code, senha) => {
@@ -199,13 +200,21 @@ const resetPassword = async (email, code, senha) => {
     throw new Error('Usuário não encontrado.');
   }
 
-  const reset = await getOne(
-    'SELECT * FROM password_resets WHERE user_id = $1 AND email = $2 AND code = $3 AND expires_at > NOW()',
-    [user.id, email, code]
+  const existing = await getOne(
+    'SELECT * FROM password_resets WHERE user_id = $1 AND email = $2',
+    [user.id, email]
   );
 
-  if (!reset) {
-    throw new Error('Código inválido ou expirado.');
+  if (!existing) {
+    throw new Error('Nenhum código foi solicitado para este email. Solicite um novo código.');
+  }
+
+  if (existing.code !== code) {
+    throw new Error('Código inválido. Verifique se digitou corretamente.');
+  }
+
+  if (new Date(existing.expires_at) < new Date()) {
+    throw new Error('Código expirado. Solicite um novo código.');
   }
 
   const hashedPassword = await bcrypt.hash(senha, 10);
@@ -217,7 +226,7 @@ const resetPassword = async (email, code, senha) => {
 
 const getUserProfile = async (userId) => {
   const user = await getOne(
-    'SELECT id, nome, sobrenome, email, foto, provider, created_at FROM usuarios WHERE id = $1',
+    'SELECT id, nome, sobrenome, email, foto, provider, theme, created_at FROM usuarios WHERE id = $1',
     [userId]
   );
   if (!user) {
@@ -227,23 +236,19 @@ const getUserProfile = async (userId) => {
 };
 
 const updateUserProfile = async (userId, dados) => {
-  const { nome, sobrenome } = dados;
-  
-  if (!nome && !sobrenome) {
-    throw new Error('Nenhum dado para atualizar.');
-  }
+  const { nome, sobrenome, foto, theme } = dados;
 
   const updates = [];
   const values = [];
   let idx = 1;
 
-  if (nome) {
-    updates.push(`nome = $${idx++}`);
-    values.push(nome);
-  }
-  if (sobrenome) {
-    updates.push(`sobrenome = $${idx++}`);
-    values.push(sobrenome);
+  if (nome !== undefined) { updates.push(`nome = $${idx++}`); values.push(nome); }
+  if (sobrenome !== undefined) { updates.push(`sobrenome = $${idx++}`); values.push(sobrenome); }
+  if (foto !== undefined) { updates.push(`foto = $${idx++}`); values.push(foto); }
+  if (theme !== undefined) { updates.push(`theme = $${idx++}`); values.push(theme); }
+
+  if (!updates.length) {
+    throw new Error('Nenhum dado para atualizar.');
   }
 
   values.push(userId);

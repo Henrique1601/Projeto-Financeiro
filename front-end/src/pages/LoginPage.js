@@ -4,7 +4,10 @@ import { navigate } from '../router.js';
 
 export async function render(app) {
   app.innerHTML = `
-    <div class="login-page">
+    <div class="login-page page-enter">
+      <div class="deco-shape deco-shape-1"></div>
+      <div class="deco-shape deco-shape-2"></div>
+      <div class="deco-shape deco-shape-3"></div>
       <div class="auth-card">
         <h1>Gestor Financeiro</h1>
         <p>Faça login para continuar</p>
@@ -59,27 +62,6 @@ export async function render(app) {
     }
   });
 
-  googleBtn.addEventListener('click', async () => {
-    showSpinner('Abrindo Google...');
-    try {
-      await socialLogin('google');
-      navigate('/dashboard');
-    } catch (err) {
-      showToast(err.message || 'Erro no login Google');
-    } finally {
-      hideSpinner();
-    }
-  });
-
-  githubBtn.addEventListener('click', async () => {
-    showSpinner('Abrindo GitHub...');
-    try {
-      await socialLogin('github');
-      navigate('/dashboard');
-    } catch (err) {
-      showToast(err.message || 'Erro no login GitHub');
-    } finally {
-      hideSpinner();
-    }
-  });
+  googleBtn.addEventListener('click', () => socialLogin('google'));
+  githubBtn.addEventListener('click', () => socialLogin('github'));
 }

@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const { Pool } = require('pg');
 
 const isProduction = process.env.VERCEL === '1';
@@ -46,10 +48,13 @@ const initDatabase = async () => {
     `);
     console.log('Tabela usuarios OK');
     
+    await pool.query(`ALTER TABLE usuarios ALTER COLUMN senha DROP NOT NULL`).catch(() => {});
     await pool.query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS social_id TEXT`).catch(() => {});
     await pool.query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS provider TEXT`).catch(() => {});
     await pool.query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS foto TEXT`).catch(() => {});
     await pool.query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS primeiro_login BOOLEAN DEFAULT TRUE`).catch(() => {});
+    await pool.query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP`).catch(() => {});
+    await pool.query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS theme TEXT DEFAULT 'dark'`).catch(() => {});
     
     await pool.query(`
       CREATE TABLE IF NOT EXISTS financeiro (
@@ -90,6 +95,43 @@ const initDatabase = async () => {
     `);
     console.log('Tabela password_resets OK');
     
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS push_subscriptions (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL,
+        endpoint TEXT NOT NULL,
+        p256dh TEXT NOT NULL,
+        auth TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, endpoint),
+        FOREIGN KEY (user_id) REFERENCES usuarios(id) ON DELETE CASCADE
+      )
+    `);
+    console.log('Tabela push_subscriptions OK');
+    
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS recorrentes (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL,
+        descricao TEXT NOT NULL,
+        valor NUMERIC NOT NULL,
+        entradaSaida TEXT NOT NULL,
+        categoria TEXT DEFAULT 'Outros',
+        metodoPagamento TEXT DEFAULT 'Dinheiro',
+        observacoes TEXT DEFAULT '',
+        frequencia TEXT NOT NULL,
+        dia_vencimento INTEGER,
+        proxima_data DATE NOT NULL,
+        data_fim DATE,
+        max_ocorrencias INTEGER,
+        ocorrencias_geradas INTEGER DEFAULT 0,
+        ativo BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES usuarios(id) ON DELETE CASCADE
+      )
+    `);
+    console.log('Tabela recorrentes OK');
+
     console.log('Tabelas criadas ou já existem.');
     isInitialized = true;
   } catch (err) {

@@ -38,8 +38,9 @@ export async function apiFetch(path, options = {}) {
   }
 
   if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new ApiError(`Erro HTTP ${res.status}`, res.status, text);
+    let msg = `Erro HTTP ${res.status}`;
+    try { const json = await res.json(); if (json.error) msg = json.error; } catch {}
+    throw new ApiError(msg, res.status);
   }
 
   return res.json();
@@ -88,6 +89,6 @@ export async function apiPut(path, body) {
   return apiFetch(path, { method: 'PUT', body: JSON.stringify(body) });
 }
 
-export async function apiDelete(path) {
-  return apiFetch(path, { method: 'DELETE' });
+export async function apiDelete(path, body) {
+  return apiFetch(path, { method: 'DELETE', body: body ? JSON.stringify(body) : undefined });
 }

@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from './api.js';
+import { apiGet, apiPost, apiPut } from './api.js';
 import { store } from './store.js';
 import { API_BASE_URL } from './config.js';
 
@@ -8,62 +8,35 @@ export async function login(email, senha) {
   return data;
 }
 
-export async function register(nome, email, senha) {
-  const data = await apiPost('/api/register', { nome, sobrenome: '', email, senha });
+export async function register(nome, sobrenome, email, senha) {
+  const data = await apiPost('/api/register', { nome, sobrenome, email, senha });
   store.token = data.token;
   return data;
 }
 
-export async function socialLogin(provider) {
-  const width = 500, height = 600;
-  const left = (screen.width / 2) - (width / 2);
-  const top = (screen.height / 2) - (height / 2);
-  const url = `${API_BASE_URL}/api/auth/${provider}`;
-
-  return new Promise((resolve, reject) => {
-    const popup = window.open(
-      url,
-      `Login ${provider}`,
-      `width=${width},height=${height},left=${left},top=${top}`
-    );
-
-    function handler(event) {
-      if (event.data?.token) {
-        window.removeEventListener('message', handler);
-        store.token = event.data.token;
-        resolve(event.data);
-      }
-    }
-    window.addEventListener('message', handler);
-
-    const timer = setInterval(() => {
-      if (popup?.closed) {
-        clearInterval(timer);
-        window.removeEventListener('message', handler);
-        resolve(null);
-      }
-    }, 500);
-  });
+export function socialLogin(provider) {
+  sessionStorage.setItem('oauth_redirect', window.location.hash);
+  window.location.href = `${API_BASE_URL}/api/auth/${provider}`;
 }
 
 export async function requestPasswordReset(email) {
   return apiPost('/api/forgot-password', { email });
 }
 
-export async function resetPassword(token, password) {
-  return apiPost('/api/reset-password', { token, password });
+export async function resetPassword(email, code, senha) {
+  return apiPost('/api/reset-password', { email, code, senha });
 }
 
-export async function changePassword(currentPassword, newPassword) {
-  return apiPost('/api/change-password', { currentPassword, newPassword });
+export async function changePassword(senhaAtual, novaSenha) {
+  return apiPut('/api/change-password', { senhaAtual, novaSenha });
 }
 
 export async function getProfile() {
   return apiGet('/api/profile');
 }
 
-export async function updateProfile(data) {
-  return apiPost('/api/profile', data);
+export async function updateProfile(dados) {
+  return apiPut('/api/profile', dados);
 }
 
 export function isAuthenticated() {

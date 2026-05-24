@@ -6,6 +6,80 @@
   min-height: 100vh;
   padding: 24px;
   background: linear-gradient(135deg, var(--bg) 0%, #1e1b4b 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-page::before,
+.login-page::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+}
+
+.login-page::before {
+  width: 400px;
+  height: 400px;
+  top: -120px;
+  right: -120px;
+  background: linear-gradient(135deg, var(--primary), transparent 70%);
+  clip-path: polygon(100% 0, 0 100%, 100% 100%);
+  opacity: 0.15;
+}
+
+.login-page::after {
+  width: 300px;
+  height: 300px;
+  bottom: -80px;
+  left: -80px;
+  background: linear-gradient(225deg, var(--success), transparent 70%);
+  clip-path: circle(50%);
+  opacity: 0.1;
+}
+
+/* Decorative floating shapes */
+.login-page .deco-shape {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 0;
+}
+
+.login-page .deco-shape-1 {
+  width: 80px;
+  height: 80px;
+  top: 20%;
+  left: 8%;
+  background: var(--primary);
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+  opacity: 0.06;
+  animation: floatShape 8s ease-in-out infinite;
+}
+
+.login-page .deco-shape-2 {
+  width: 50px;
+  height: 50px;
+  bottom: 25%;
+  right: 12%;
+  background: var(--warning);
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+  opacity: 0.08;
+  animation: floatShape 6s ease-in-out infinite reverse;
+}
+
+.login-page .deco-shape-3 {
+  width: 120px;
+  height: 120px;
+  top: 50%;
+  right: 5%;
+  border: 2px solid var(--primary);
+  clip-path: polygon(25% 0%, 100% 0%, 75% 100%, 0% 100%);
+  opacity: 0.05;
+  animation: floatShape 10s ease-in-out infinite;
+}
+
+@keyframes floatShape {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(8deg); }
 }
 
 .auth-card {

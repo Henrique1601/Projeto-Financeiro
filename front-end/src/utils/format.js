@@ -1,8 +1,10 @@
 export function formatDate(iso) {
   if (!iso) return '';
   try {
-    const d = new Date(iso);
-    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+    const parts = iso.split('T')[0].split('-');
+    if (parts.length !== 3) return iso;
+    const [y, m, d] = parts.map(Number);
+    return `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
   } catch {
     return iso;
   }
@@ -12,8 +14,7 @@ export function formatCurrency(value) {
   try {
     const num = Number(value);
     if (isNaN(num)) return value;
-    const sign = num < 0 ? '-' : '';
-    return `${sign}R$${Math.abs(num).toFixed(2).replace('.', ',')}`;
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(num);
   } catch {
     return value;
   }
@@ -29,7 +30,18 @@ export function getTipoLabel(tipoRaw) {
   return (str === 'saída' || str === 'saida') ? 'Saída' : 'Entrada';
 }
 
-export function isSaida(tipoRaw) {
-  const str = String(tipoRaw || '').trim().toLowerCase();
+export function isSaida(item) {
+  if (!item) return false;
+  if (typeof item === 'object') {
+    const str = String(item.entradaSaida || '').trim().toLowerCase();
+    if (str === 'saída' || str === 'saida') return true;
+    if (str === 'entrada') return false;
+    return Number(item.valor) < 0;
+  }
+  const str = String(item || '').trim().toLowerCase();
   return str === 'saída' || str === 'saida';
+}
+
+export function getTipo(item) {
+  return isSaida(item) ? 'Saída' : 'Entrada';
 }

@@ -1,7 +1,7 @@
 ---
 title: API Documentation
 description: Referência completa da API REST do Gestor Financeiro
-date: 2026-03-27
+date: 2026-05-21
 tags:
   - api
   - reference
@@ -17,8 +17,13 @@ cssclasses:
 
 # API Documentation
 
-> Base URL: `https://financeiro-backend.vercel.app/api`  
+> Base URL: `https://projeto-financeiro-vert.vercel.app/api`  
 > Local: `http://localhost:3000/api`
+>
+> Local: 'http://localhost:3000/api/auth/github/callback'
+   vercel: https://projeto-financeiro-vert.vercel.app/api/auth/github/callback
+   local: http://localhost:3000/api/auth/google/callback
+   vercel: https://projeto-financeiro-vert.vercel.app/api/auth/google/callback
 
 %%自动生成 - mantida sincronizada com o código-fonte%%
 
@@ -57,7 +62,6 @@ GET /api/docs
 >   "timestamp": "2026-03-27T12:00:00.000Z",
 >   "features": {
 >     "socialLogin": true,
->     "notifications": true,
 >     "autoCategorize": true
 >   }
 > }
@@ -128,8 +132,8 @@ GET /api/auth/failure                 # Fallback de erro
 > 1. Botão → abre popup para `/api/auth/{provider}`
 > 2. Backend redireciona para provedor OAuth
 > 3. Provedor redireciona de volta → Passport valida → gera JWT
-> 4. Backend redireciona para `callback.html?token=<jwt>`
-> 5. `callback.html` envia token via `postMessage` para janela pai
+> 4. Backend redireciona para `/#/callback?token=<jwt>`
+> 5. `CallbackPage.js` envia token via `postMessage` para janela pai
 > 6. Pai salva token no `localStorage` e redireciona para dashboard
 
 > [!warning] Configuração Necessária
@@ -183,12 +187,18 @@ Content-Type: application/json
 { "email": "joao@email.com" }
 ```
 
-> [!example] Response
+> [!example] Response (dev mode — SMTP não configurado)
 > ```json
-> { "message": "Código de recuperação gerado.", "code": "123456" }
+> { "message": "Código enviado!", "devMode": true, "code": "123456" }
 > ```
 >
-> %%Em produção, o código é enviado por email. Em dev, logado no console.%%
+> [!example] Response (produção — SMTP configurado)
+> ```json
+> { "message": "Código enviado!" }
+> ```
+>
+> %%O código é enviado por email via SMTP. Em dev, retornado no response e exibido na tela.%%
+> %%Configurar `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` no .env para envio real.%%
 
 ```http
 POST /api/reset-password
@@ -200,6 +210,13 @@ Content-Type: application/json
 > [!success] 200 OK
 > ```json
 > { "message": "Senha redefinida com sucesso." }
+> ```
+
+> [!failure] 400 — 3 mensagens de erro distintas
+> ```json
+> { "error": "Nenhum código foi solicitado para este email. Solicite um novo código." }
+> { "error": "Código inválido. Verifique se digitou corretamente." }
+> { "error": "Código expirado. Solicite um novo código." }
 > ```
 
 ---
@@ -294,31 +311,26 @@ Authorization: Bearer <token>
 Content-Type: application/json
 
 {
-  "updates": [
-    { "id": 1, "valor": 50.00, "categoria": "Transporte" },
-    { "id": 2, "descricao": "Novo nome" }
-  ]
+  "id": 1,
+  "descricao": "Novo nome",
+  "valor": 50.00,
+  "categoria": "Transporte"
 }
 ```
+
+Aceita edição única ou múltipla com `updates: [...]`.
 
 #### Deletar
 
 ```http
-DELETE /api/deletar
+DELETE /api/deletar?id=1
 Authorization: Bearer <token>
-Content-Type: application/json
-
-{ "id": 1 }
 ```
 
-Ou múltiplos:
+O backend lê o ID de `req.query.id` (também aceita `req.body.id` como fallback).
 
-```http
-DELETE /api/deletar
-Content-Type: application/json
-
-{ "ids": [1, 2, 3] }
-```
+> [!warning] Exclusão em lote
+> O frontend faz requisições individuais em loop. O backend **não** aceita `{ ids: [...] }`.
 
 ---
 
@@ -357,9 +369,19 @@ Content-Type: application/json
 | `csv` | CSV com header | `;` (ponto e vírgula) |
 | `json` | JSON array | N/A |
 
-> [!tip] Headers esperados no CSV
-> `data;descricao;valor;entradaSaida`  
-> A categorização é automática.
+> [!tip] Headers aceitos no CSV
+> O parser detecta automaticamente os headers (com ou sem acentos, quotes).
+> - **Descrição**: `descricao`, `descrição`, `nome`, `name`, `memo`, `lançamento`
+> - **Valor**: `valor`, `amount`, `value`
+> - **Data**: `data`, `date`, `data transação`
+> - **Tipo** (opcional): `tipo`, `tipo_` — se presente, usado como fonte primária (evita dedução pelo sinal do valor)
+> - **Categoria** (opcional): `categoria`, `category` — se presente, usado; senão, auto-categoriza
+> - **MetodoPagamento** (opcional): `metodopagamento`, `metodo_pagamento`, `método de pagamento`, `pagamento`
+>
+> O separador é auto-detectado (`;` ou `,`). BOM UTF-8 e `\r\n` são tratados automaticamente.
+
+> [!tip] Debug da Importação
+> A resposta de `POST /api/importar/auto` agora inclui `debug.sample` com os 3 primeiros registros parseados, útil para diagnóstico.
 
 ---
 

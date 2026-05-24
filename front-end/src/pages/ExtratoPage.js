@@ -3,7 +3,7 @@ import { showToast, showSpinner, hideSpinner } from '../utils/dom.js';
 import { formatDate, formatCurrency, getMonthName, isSaida } from '../utils/format.js';
 import { navigate } from '../router.js';
 import { isAuthenticated } from '../auth.js';
-import Chart from 'chart.js/auto';
+import Chart from '../chartSetup.js';
 
 let lancamentos = [];
 let chartInstances = {};
@@ -12,7 +12,7 @@ export async function render(app) {
   if (!isAuthenticated()) { navigate('/login'); return; }
 
   app.innerHTML = `
-    <div class="dashboard-layout">
+    <div class="dashboard-layout page-enter">
       <aside class="sidebar">
         <div class="sidebar-header">
           <h2><i class="fas fa-wallet"></i> Gestor</h2>
@@ -162,7 +162,7 @@ function filtrar() {
     if (data && l.data && l.data.split('T')[0] !== data) return false;
     if (descricao && !(l.descricao || '').toLowerCase().includes(descricao)) return false;
     if (tipo) {
-      const s = isSaida(l.entradaSaida);
+      const s = isSaida(l);
       if (tipo === 'entrada' && s) return false;
       if (tipo === 'saida' && !s) return false;
     }
@@ -179,7 +179,7 @@ function exibirTabela(dados) {
     return;
   }
   tbody.innerHTML = dados.map(l => {
-    const saida = isSaida(l.entradaSaida);
+    const saida = isSaida(l);
     return `<tr>
       <td>${formatDate(l.data)}</td>
       <td>${l.descricao || '-'}</td>
@@ -251,7 +251,7 @@ function gerarGraficoEvolucao(dados, type) {
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
     if (!meses[key]) meses[key] = { entradas: 0, saidas: 0 };
     const v = Number(l.valor) || 0;
-    if (isSaida(l.entradaSaida)) meses[key].saidas += Math.abs(v);
+    if (isSaida(l)) meses[key].saidas += Math.abs(v);
     else meses[key].entradas += v;
   });
   const keys = Object.keys(meses).sort();
@@ -290,7 +290,7 @@ function calcularFaturamento() {
   let entradas = 0, saidas = 0;
   filtrados.forEach(l => {
     const v = Number(l.valor) || 0;
-    if (isSaida(l.entradaSaida)) saidas += Math.abs(v);
+    if (isSaida(l)) saidas += Math.abs(v);
     else entradas += v;
   });
   const saldo = entradas - saidas;
@@ -331,7 +331,7 @@ function showResumoAnual() {
       const d = new Date(l.data);
       if (d.getFullYear() === ano && String(d.getMonth() + 1).padStart(2, '0') === mes) {
         const v = Number(l.valor) || 0;
-        if (isSaida(l.entradaSaida)) saida += Math.abs(v);
+        if (isSaida(l)) saida += Math.abs(v);
         else entrada += v;
       }
     });

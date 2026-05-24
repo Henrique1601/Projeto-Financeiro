@@ -4,8 +4,7 @@ const { validateFinanceiroInput } = require('../utils/validators');
 const { autoCategorize } = require('./authService');
 
 const salvarLancamento = async (userId, { data, descricao, valor, entradaSaida, categoria, metodoPagamento, observacoes }) => {
-  entradaSaida = entradaSaida.toLowerCase() === 'entrada' ? 'Entrada' :
-                 entradaSaida.toLowerCase() === 'saída' ? 'Saída' : entradaSaida;
+  entradaSaida = parseFloat(valor) < 0 ? 'Saída' : 'Entrada';
 
   const categoriaFinal = categoria || autoCategorize(descricao);
   const metodoFinal = metodoPagamento || 'Dinheiro';
@@ -26,6 +25,8 @@ const salvarLancamento = async (userId, { data, descricao, valor, entradaSaida, 
 };
 
 const listarLancamentos = async (userId) => {
+  const recorrenteService = require('./recorrenteService');
+  await recorrenteService.gerarLancamentos(userId).catch(() => {});
   const { rows } = await pool.query(
     'SELECT * FROM financeiro WHERE user_id = $1 ORDER BY data DESC',
     [userId]
@@ -92,14 +93,21 @@ const importarLancamentos = async (userId, lancamentos) => {
   const insertedIds = [];
   const updatedIds = [];
 
-  for (const { data, descricao, valor, entradaSaida, categoria } of lancamentos) {
-    if (!data || !descricao || isNaN(valor) || !['Entrada', 'Saída'].includes(entradaSaida)) {
+  for (const item of lancamentos) {
+    const { data, descricao, valor, entradaSaida, categoria, metodoPagamento, observacoes } = item;
+
+    if (!data || !descricao || isNaN(valor)) {
       throw new Error('Campos inválidos em um dos lançamentos.');
     }
 
+    const tipoFinal = entradaSaida || (parseFloat(valor) < 0 ? 'Saída' : 'Entrada');
+    const metodoFinal = metodoPagamento || 'Outro';
+    const observacoesFinal = observacoes || '';
+    const categoriaFinal = categoria || autoCategorize(descricao);
+
     const existing = await pool.query(
       'SELECT id FROM financeiro WHERE user_id = $1 AND data = $2 AND descricao = $3 AND valor = $4 AND entradaSaida = $5',
-      [userId, data, descricao, valor, entradaSaida]
+      [userId, data, descricao, valor, tipoFinal]
     );
 
     if (existing.rows.length > 0) {
@@ -107,11 +115,9 @@ const importarLancamentos = async (userId, lancamentos) => {
       continue;
     }
 
-    const categoriaFinal = categoria || autoCategorize(descricao);
-
     const result = await pool.query(
-      'INSERT INTO financeiro (user_id, data, descricao, valor, entradaSaida, categoria) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
-      [userId, data, descricao, valor, entradaSaida, categoriaFinal]
+      'INSERT INTO financeiro (user_id, data, descricao, valor, entradaSaida, categoria, metodoPagamento, observacoes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
+      [userId, data, descricao, valor, tipoFinal, categoriaFinal, metodoFinal, observacoesFinal]
     );
     insertedIds.push(result.rows[0].id);
   }
@@ -120,6 +126,7 @@ const importarLancamentos = async (userId, lancamentos) => {
 };
 
 const parseOFX = (content) => {
+  content = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   const transactions = [];
   const regex = /<STMTTRN>([\s\S]*?)<\/STMTTRN>/gi;
   let match;
@@ -145,16 +152,16 @@ const parseOFX = (content) => {
       const day = dtposted.substring(6, 8);
       const data = `${year}-${month}-${day}`;
 
-      const valor = parseFloat(trnamt);
+      const rawValor = parseFloat(trnamt);
       const descricao = name || memo || 'Transação';
-      const entradaSaida = valor >= 0 ? 'Entrada' : 'Saída';
+      const ehSaida = rawValor < 0;
       const categoria = autoCategorize(descricao + ' ' + (memo || ''));
 
       transactions.push({
         data,
         descricao,
-        valor: Math.abs(valor),
-        entradaSaida,
+        valor: ehSaida ? -Math.abs(rawValor) : Math.abs(rawValor),
+        entradaSaida: ehSaida ? 'Saída' : 'Entrada',
         categoria,
         metodoPagamento: 'Transferência',
         observacoes: trntype || ''
@@ -166,41 +173,63 @@ const parseOFX = (content) => {
 };
 
 const parseCSV = (content) => {
-  const lines = content.split('\n').filter(line => line.trim());
+  content = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  content = content.replace(/^\uFEFF/, '');
+
+  const lines = content.split('\n').filter(Boolean);
   if (lines.length < 2) return [];
 
-  const headers = lines[0].split(';').map(h => h.trim().toLowerCase());
+  const rawHeaders = lines[0];
+  const commaCount = (rawHeaders.match(/,/g) || []).length;
+  const semicolonCount = (rawHeaders.match(/;/g) || []).length;
+  const sep = semicolonCount >= commaCount ? ';' : ',';
+
+  const headers = rawHeaders.split(sep).map(h => h.trim().replace(/"/g, '').toLowerCase());
   const transactions = [];
 
   for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(';').map(v => v.trim().replace(/"/g, ''));
-    const row = {};
-    
-    headers.forEach((header, index) => {
-      row[header] = values[index] || '';
-    });
+    const vals = [];
+    let current = '';
+    let inQuotes = false;
+    for (const ch of lines[i]) {
+      if (ch === '"') inQuotes = !inQuotes;
+      else if (ch === sep && !inQuotes) { vals.push(current.trim()); current = ''; }
+      else current += ch;
+    }
+    vals.push(current.trim());
 
-    const descricao = row.descricao || row.nome || row.memo || row.name || 'Transação';
-    let valor = parseFloat((row.valor || row.amount || row.value || '0').replace(',', '.'));
-    let data = row.data || row.date || row['data transação'];
-    
+    const row = {};
+    headers.forEach((h, idx) => { row[h] = vals[idx] ? vals[idx].replace(/"/g, '') : ''; });
+
+    const descricao = row.descricao || row['descrição'] || row.nome || row.name || row.memo || row.lançamento || row.description || row.descr || 'Transação';
+
+    let valor = parseFloat((row.valor || row.amount || row.value || row['valor '] || row.valor_ || '0').replace(',', '.'));
+
+    let data = row.data || row.date || row['data transação'] || row['data '] || row.data_ || row.dt;
     if (typeof data === 'string' && data.includes('/')) {
-      const [d, m, y] = data.split('/');
-      data = `${y}-${m}-${d}`;
+      const parts = data.split('/');
+      if (parts.length === 3) {
+        const d = parts[0].padStart(2, '0');
+        const m = parts[1].padStart(2, '0');
+        const y = parts[2].length === 2 ? '20' + parts[2] : parts[2];
+        data = `${y}-${m}-${d}`;
+      }
     }
 
     if (!data || isNaN(valor)) continue;
 
-    const entradaSaida = valor < 0 ? 'Saída' : 'Entrada';
-    const categoria = autoCategorize(descricao);
+    const rowTipo = (row.tipo || row['tipo '] || row.tipo_ || '').trim().toLowerCase();
+    const ehSaida = rowTipo === 'saída' || rowTipo === 'saida' || valor < 0;
+    const entradaSaida = ehSaida ? 'Saída' : 'Entrada';
+    const categoria = row.categoria || row.category || row.categoria_ || row['categoria '] || autoCategorize(descricao);
 
     transactions.push({
       data,
       descricao,
-      valor: Math.abs(valor),
+      valor: ehSaida ? -Math.abs(valor) : Math.abs(valor),
       entradaSaida,
       categoria,
-      metodoPagamento: 'Outro'
+      metodoPagamento: row.metodopagamento || row.metodo_pagamento || row['método de pagamento'] || row.pagamento || 'Outro'
     });
   }
 
@@ -222,14 +251,19 @@ const importarAuto = async (userId, fileType, content) => {
     try {
       const json = JSON.parse(content);
       if (Array.isArray(json)) {
-        lancamentos = json.map(item => ({
-          data: item.data || item.date,
-          descricao: item.descricao || item.description || item.name,
-          valor: parseFloat(item.valor || item.amount || item.value || 0),
-          entradaSaida: (item.entradaSaida || item.type || 'Saída'),
-          categoria: item.categoria || autoCategorize(item.descricao || ''),
-          metodoPagamento: item.metodoPagamento || 'Outro'
-        }));
+        lancamentos = json.map(item => {
+          const rawValor = parseFloat(item.valor || item.amount || item.value || 0);
+          const rawTipo = (item.entradaSaida || item.type || '').trim().toLowerCase();
+          const ehSaida = rawTipo === 'saída' || rawTipo === 'saida' || rawValor < 0;
+          return {
+            data: item.data || item.date,
+            descricao: item.descricao || item.description || item.name,
+            valor: ehSaida ? -Math.abs(rawValor) : Math.abs(rawValor),
+            entradaSaida: ehSaida ? 'Saída' : 'Entrada',
+            categoria: item.categoria || autoCategorize(item.descricao || ''),
+            metodoPagamento: item.metodoPagamento || 'Outro'
+          };
+        });
       }
     } catch {
       throw new Error('Formato não suportado. Use OFX, CSV ou JSON.');
@@ -240,7 +274,34 @@ const importarAuto = async (userId, fileType, content) => {
     throw new Error('Nenhuma transação encontrada no arquivo.');
   }
 
-  return await importarLancamentos(userId, lancamentos);
+  const result = await importarLancamentos(userId, lancamentos);
+  result.debug = {
+    totalParsed: lancamentos.length,
+    sample: lancamentos.slice(0, 3).map(l => ({ data: l.data, descricao: l.descricao, valor: l.valor, categoria: l.categoria }))
+  };
+  return result;
 };
 
-module.exports = { salvarLancamento, listarLancamentos, deletarLancamento, editarLancamentos, importarLancamentos, importarAuto };
+const exportarXlsx = async (lancamentos) => {
+  const XLSX = require('xlsx');
+  const rows = lancamentos.map(l => ({
+    Data: l.data ? l.data.split('T')[0] : '',
+    Descrição: l.descricao || '',
+    Valor: Number(l.valor || 0),
+    Tipo: (parseFloat(l.valor) < 0) ? 'Saída' : 'Entrada',
+    Categoria: l.categoria || '',
+    'Método Pagamento': l.metodoPagamento || '',
+    Observações: l.observacoes || ''
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const colWidths = [
+    { wch: 12 }, { wch: 40 }, { wch: 14 },
+    { wch: 8 }, { wch: 16 }, { wch: 18 }, { wch: 30 }
+  ];
+  ws['!cols'] = colWidths;
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Financeiro');
+  return XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+};
+
+module.exports = { salvarLancamento, listarLancamentos, deletarLancamento, editarLancamentos, importarLancamentos, importarAuto, exportarXlsx, parseCSV, parseOFX };

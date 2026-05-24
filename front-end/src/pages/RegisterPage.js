@@ -4,14 +4,21 @@ import { navigate } from '../router.js';
 
 export async function render(app) {
   app.innerHTML = `
-    <div class="login-page">
+    <div class="login-page page-enter">
+      <div class="deco-shape deco-shape-1"></div>
+      <div class="deco-shape deco-shape-2"></div>
+      <div class="deco-shape deco-shape-3"></div>
       <div class="auth-card">
         <h1>Criar Conta</h1>
         <p>Cadastre-se no Gestor Financeiro</p>
         <form id="registerForm">
           <div class="form-group">
             <label for="name">Nome</label>
-            <input type="text" id="name" placeholder="Seu nome" required autocomplete="name" />
+            <input type="text" id="name" placeholder="Seu nome" required autocomplete="given-name" />
+          </div>
+          <div class="form-group">
+            <label for="surname">Sobrenome</label>
+            <input type="text" id="surname" placeholder="Seu sobrenome" required autocomplete="family-name" />
           </div>
           <div class="form-group">
             <label for="email">E-mail</label>
@@ -32,12 +39,13 @@ export async function render(app) {
 
   document.getElementById('registerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const name = document.getElementById('name').value.trim();
+    const nome = document.getElementById('name').value.trim();
+    const sobrenome = document.getElementById('surname').value.trim();
     const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
+    const senha = document.getElementById('password').value;
     showSpinner('Cadastrando...');
     try {
-      await register(name, email, password);
+      await register(nome, sobrenome, email, senha);
       showToast('Conta criada com sucesso!', 'success');
       navigate('/dashboard');
     } catch (err) {

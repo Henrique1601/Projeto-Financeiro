@@ -1,5 +1,5 @@
-const CACHE = 'gestor-v3';
-const API_CACHE = 'gestor-api-v3';
+const CACHE = 'gestor-v4';
+const API_CACHE = 'gestor-api-v4';
 
 self.addEventListener('install', (e) => {
   self.skipWaiting();
@@ -14,21 +14,44 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
-  // Ignorar requests que não são GET (ex: HEAD, POST)
   if (e.request.method !== 'GET') return;
-
   const url = new URL(e.request.url);
-
-  // API calls: network-first, cache fallback
+  if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith('/api/')) {
     e.respondWith(networkFirst(e.request));
     return;
   }
+  e.respondWith(cacheFirst(e.request));
+});
 
-  // Static assets: cache-first
-  if (url.origin === self.location.origin) {
-    e.respondWith(cacheFirst(e.request));
-  }
+self.addEventListener('push', (e) => {
+  let data = { title: 'Gestor Financeiro', body: '' };
+  try {
+    if (e.data) data = e.data.json();
+  } catch {}
+  const options = {
+    body: data.body || '',
+    icon: '/favicon.svg',
+    badge: '/favicon.svg',
+    vibrate: [200, 100, 200],
+    data: { url: data.url || '/' },
+  };
+  e.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
+});
+
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  const url = e.notification.data?.url || '/';
+  e.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
+      for (const client of clientList) {
+        if (client.url.includes(url) && 'focus' in client) return client.focus();
+      }
+      if (clients.openWindow) return clients.openWindow(url);
+    })
+  );
 });
 
 async function networkFirst(request) {

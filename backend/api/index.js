@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
@@ -15,6 +16,7 @@ app.use(helmet());
 const allowedOrigins = [
   'https://projeto-financeiro-frontend.vercel.app',
   'https://projeto-financeiro-frontend-git-p-a06e7c-henrique1601s-projects.vercel.app',
+  'http://localhost:5173',
   'http://localhost:3000',
   process.env.FRONTEND_URL
 ].filter(Boolean);
@@ -77,16 +79,19 @@ app.use('/api', routes);
 app.use((err, req, res, next) => {
   console.error('Erro:', err.message);
   const status = err.message.includes('não encontrado') ? 404 :
-                 err.message.includes('obrigatório') ? 400 : 500;
+                 err.message.includes('obrigatório') || err.message.includes('rede social') || err.message.includes('inválido') || err.message.includes('expirado') || err.message.includes('código foi solicitado') ? 400 : 500;
   res.status(status).json({ error: err.message });
 });
 
+const PORT = process.env.PORT || 3000;
+
 initDatabase().then(() => {
   console.log('Banco inicializado');
+  app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+  });
 }).catch(err => {
   console.error('Erro inicialização:', err.message);
 });
-
-const PORT = process.env.PORT || 3000;
 
 module.exports = app;
