@@ -1,4 +1,6 @@
 const { describe, it, before, after } = require('node:test');
+
+const describeDB = process.env.DATABASE_URL ? describe : describe.skip;
 const assert = require('node:assert');
 const express = require('express');
 const { initDatabase, pool } = require('../config/database');
@@ -18,7 +20,13 @@ const testUser = {
 };
 
 before(async () => {
-  await initDatabase();
+  if (!process.env.DATABASE_URL) return;
+  try {
+    await initDatabase();
+  } catch (error) {
+    console.error('Database init failed:', error.message);
+    throw new Error(`Integration tests require a database. Set DATABASE_URL env var.`);
+  }
 
   const app = express();
   app.use(express.json());
@@ -40,6 +48,7 @@ before(async () => {
 });
 
 after(async () => {
+  if (!process.env.DATABASE_URL || !pool) return;
   try {
     if (transactionId) {
       await pool.query('DELETE FROM financeiro WHERE id = $1', [transactionId]);
@@ -60,7 +69,7 @@ after(async () => {
   }
 });
 
-describe('Health', () => {
+describeDB('Integration — Health', () => {
   it('GET /api/health returns OK', async () => {
     const res = await fetch(`${baseURL}/api/health`);
     assert.strictEqual(res.status, 200);
@@ -70,7 +79,7 @@ describe('Health', () => {
   });
 });
 
-describe('Auth Integration', () => {
+describeDB('Integration — Auth', () => {
   it('POST /api/register — cria usuário e retorna token', async () => {
     const res = await fetch(`${baseURL}/api/register`, {
       method: 'POST',
@@ -127,7 +136,7 @@ describe('Auth Integration', () => {
   });
 });
 
-describe('Financeiro Integration', () => {
+describeDB('Integration — Financeiro', () => {
   it('POST /api/salvar — cria lançamento com token válido', async () => {
     const res = await fetch(`${baseURL}/api/salvar`, {
       method: 'POST',
@@ -209,7 +218,7 @@ describe('Financeiro Integration', () => {
   });
 });
 
-describe('Recorrentes Integration', () => {
+describeDB('Integration — Recorrentes', () => {
   let recId;
 
   after(() => {
@@ -259,7 +268,7 @@ describe('Recorrentes Integration', () => {
   });
 });
 
-describe('Orçamentos Integration', () => {
+describeDB('Integration — Orçamentos', () => {
   let orcId;
 
   after(() => {
@@ -300,7 +309,7 @@ describe('Orçamentos Integration', () => {
   });
 });
 
-describe('Profile Integration', () => {
+describeDB('Integration — Profile', () => {
   it('GET /api/profile — retorna perfil', async () => {
     const res = await fetch(`${baseURL}/api/profile`, {
       headers: { 'Authorization': `Bearer ${token}` }
@@ -328,7 +337,7 @@ describe('Profile Integration', () => {
   });
 });
 
-describe('Error Handling', () => {
+describeDB('Integration — Error Handling', () => {
   it('retorna 401 para rotas sem token', async () => {
     const res = await fetch(`${baseURL}/api/profile`);
     assert.strictEqual(res.status, 401);
