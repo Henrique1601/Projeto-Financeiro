@@ -17,7 +17,7 @@ const salvarLancamento = async (userId, { data, descricao, valor, entradaSaida, 
 
   return await withTransaction(async (client) => {
     const { rows } = await client.query(
-      'INSERT INTO financeiro (user_id, data, descricao, valor, entradaSaida, categoria, metodoPagamento, observacoes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
+      'INSERT INTO financeiro (user_id, data, descricao, valor, entradaSaida, categoria, "metodoPagamento", observacoes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
       [userId, data, descricao, valor, entradaSaida, categoriaFinal, metodoFinal, observacoesFinal]
     );
     return { id: rows[0].id, message: 'Dados salvos com sucesso.', categoria: categoriaFinal };
@@ -27,6 +27,8 @@ const salvarLancamento = async (userId, { data, descricao, valor, entradaSaida, 
 const listarLancamentos = async (userId) => {
   const recorrenteService = require('./recorrenteService');
   await recorrenteService.gerarLancamentos(userId).catch(() => {});
+  const orcamentoService = require('./orcamentoService');
+  orcamentoService.verificarAlertas(userId).catch(() => {});
   const { rows } = await pool.query(
     'SELECT * FROM financeiro WHERE user_id = $1 ORDER BY data DESC',
     [userId]
@@ -116,7 +118,7 @@ const importarLancamentos = async (userId, lancamentos) => {
     }
 
     const result = await pool.query(
-      'INSERT INTO financeiro (user_id, data, descricao, valor, entradaSaida, categoria, metodoPagamento, observacoes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
+      'INSERT INTO financeiro (user_id, data, descricao, valor, entradaSaida, categoria, "metodoPagamento", observacoes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
       [userId, data, descricao, valor, tipoFinal, categoriaFinal, metodoFinal, observacoesFinal]
     );
     insertedIds.push(result.rows[0].id);

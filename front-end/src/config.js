@@ -1,4 +1,4 @@
-const BACKEND_URL = 'https://projeto-financeiro-vert.vercel.app';
+const BACKEND_URL = 'https://gestor-financeiro-api-proj.vercel.app';
 
 export function getApiBaseUrl() {
   if (import.meta.env.DEV) {

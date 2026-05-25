@@ -198,6 +198,22 @@ table {
   }
 }
 
+/* Staggered item entrance */
+@keyframes itemFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.item-enter {
+  animation: itemFadeIn 0.4s var(--ease-spring) forwards;
+  opacity: 0;
+}
+
 /* Headings */
 h1, h2, h3, h4 {
   font-family: var(--font-heading);
@@ -320,6 +336,92 @@ h1, h2, h3, h4 {
   margin-bottom: 8px;
   opacity: .6;
 }
+
+/* Orcamentos */
+.orcamentos-details {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card-bg);
+}
+
+.orcamentos-summary {
+  padding: 16px 20px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.orcamentos-summary i { color: var(--primary); }
+
+.orcamentos-body {
+  padding: 0 20px 20px;
+}
+
+.orcamento-form-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.orcamento-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.orcamento-item:last-child { border-bottom: none; }
+
+.orcamento-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.orcamento-categoria {
+  font-weight: 500;
+  min-width: 120px;
+}
+
+.orcamento-valores {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.orcamento-pct {
+  font-weight: 600;
+  font-size: 0.85rem;
+  min-width: 40px;
+  text-align: right;
+}
+
+.orcamento-item .progress-bar {
+  flex: 1;
+  min-width: 100px;
+  height: 8px;
+  background: var(--surface-secondary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.orcamento-item .progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--primary);
+  transition: width 0.4s ease;
+}
+
+.orcamento-item .progress-fill.warning { background: var(--warning); }
+.orcamento-item .progress-fill.danger { background: var(--danger); }
 
 /* Error page */
 .error-page {

@@ -14,7 +14,9 @@ app.use(express.json());
 app.use(helmet());
 
 const allowedOrigins = [
+  'https://gestor-financeiro-proj.vercel.app',
   'https://projeto-financeiro-frontend.vercel.app',
+  'https://front-ck0fxtiwd-henrique1601s-projects.vercel.app',
   'https://projeto-financeiro-frontend-git-p-a06e7c-henrique1601s-projects.vercel.app',
   'http://localhost:5173',
   'http://localhost:3000',
@@ -79,7 +81,8 @@ app.use('/api', routes);
 app.use((err, req, res, next) => {
   console.error('Erro:', err.message);
   const status = err.message.includes('não encontrado') ? 404 :
-                 err.message.includes('obrigatório') || err.message.includes('rede social') || err.message.includes('inválido') || err.message.includes('expirado') || err.message.includes('código foi solicitado') ? 400 : 500;
+    err.message.includes('incorretos') ? 401 :
+    err.message.includes('obrigatório') || err.message.includes('obrigatória') || err.message.includes('rede social') || err.message.includes('inválido') || err.message.includes('expirado') || err.message.includes('código foi solicitado') || err.message.includes('já está') ? 400 : 500;
   res.status(status).json({ error: err.message });
 });
 

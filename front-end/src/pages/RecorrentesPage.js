@@ -50,7 +50,7 @@ function renderPage(app) {
           </thead>
           <tbody id="recorrentesTbody">
             ${recorrentes.length === 0 ? '<tr><td colspan="9"><div class="empty-state"><div class="empty-state-illustration">' + emptyStateSVG('list') + '</div><h3 class="empty-state-title">Nenhuma recorrência</h3><p class="empty-state-subtitle">Crie uma transação no Dashboard marcando "Repetir"</p></div></td></tr>' : ''}
-            ${recorrentes.map(r => renderRow(r)).join('')}
+            ${recorrentes.map((r, i) => renderRow(r, i)).join('')}
           </tbody>
         </table>
       </div>
@@ -73,12 +73,12 @@ function renderPage(app) {
   document.addEventListener('keydown', _keyHandler);
 }
 
-function renderRow(r) {
+function renderRow(r, i) {
   const freqLabels = { semanal: 'Semanal', quinzenal: 'Quinzenal', mensal: 'Mensal', anual: 'Anual' };
   const tipo = getTipo(r);
   const tipoClass = tipo === 'Saída' ? 'tipo-saida' : 'tipo-entrada';
   return `
-    <tr class="${r.ativo ? '' : 'inativo'}">
+    <tr class="item-enter ${r.ativo ? '' : 'inativo'}" style="animation-delay:${(i || 0) * 40}ms">
       <td>${r.descricao}</td>
       <td class="valor-cell ${tipoClass}">${formatCurrency(r.valor)}</td>
       <td><span class="badge ${tipoClass}">${tipo}</span></td>
@@ -109,7 +109,7 @@ async function toggleAtivo(e) {
     await apiPut(`/api/recorrentes/${id}`, { ativo });
     showToast(ativo ? 'Ativado' : 'Desativado', 'success');
     recorrentes = await apiGet('/api/recorrentes');
-    document.getElementById('recorrentesTbody').innerHTML = recorrentes.map(r => renderRow(r)).join('');
+    document.getElementById('recorrentesTbody').innerHTML = recorrentes.map((r, i) => renderRow(r, i)).join('');
     rebindEvents();
   } catch (err) {
     showToast(err.message);
@@ -124,7 +124,7 @@ async function deletarRecorrente(e) {
     await apiDelete(`/api/recorrentes/${id}`);
     showToast('Removida', 'success');
     recorrentes = await apiGet('/api/recorrentes');
-    document.getElementById('recorrentesTbody').innerHTML = recorrentes.map(r => renderRow(r)).join('');
+    document.getElementById('recorrentesTbody').innerHTML = recorrentes.map((r, i) => renderRow(r, i)).join('');
     rebindEvents();
   } catch (err) {
     showToast(err.message);
@@ -141,7 +141,7 @@ async function gerarAgora() {
     feedback.textContent = result.mensagem;
     feedback.className = 'gerar-feedback success';
     recorrentes = await apiGet('/api/recorrentes');
-    document.getElementById('recorrentesTbody').innerHTML = recorrentes.map(r => renderRow(r)).join('');
+    document.getElementById('recorrentesTbody').innerHTML = recorrentes.map((r, i) => renderRow(r, i)).join('');
     rebindEvents();
   } catch (err) {
     feedback.style.display = 'block';

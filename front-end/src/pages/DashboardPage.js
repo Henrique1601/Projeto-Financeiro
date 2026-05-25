@@ -42,6 +42,9 @@ export async function render(app) {
           <button class="nav-item" data-page="recorrentes">
             <i class="fas fa-redo"></i> Recorrentes
           </button>
+          <button class="nav-item" data-page="orcamentos">
+            <i class="fas fa-chart-pie"></i> Orçamentos
+          </button>
           <button class="nav-item" data-page="nova-transacao">
             <i class="fas fa-plus-circle"></i> Nova Transação
           </button>
@@ -145,6 +148,7 @@ function registerSidebarHandlers() {
       else if (page === 'extrato') navigate('/extrato');
       else if (page === 'perfil') navigate('/perfil');
       else if (page === 'recorrentes') navigate('/recorrentes');
+      else if (page === 'orcamentos') { _scrollToOrcamentos = true; showDashboard(); }
       else if (page === 'nova-transacao') showFormModal();
       else if (page === 'importar') showImportSection();
     });
@@ -225,6 +229,8 @@ function calcularStats(items) {
   return { entradas, saidas, saldo: entradas - saidas };
 }
 
+let _scrollToOrcamentos = false;
+
 async function showDashboard() {
   const params = getRouteParams();
   if (params.page) currentPage = parseInt(params.page) || 1;
@@ -257,26 +263,28 @@ async function showDashboard() {
 
     const categoriasUnicas = [...new Set(lancamentos.map(l => l.categoria).filter(Boolean))];
     const metodosPagamento = [...new Set(lancamentos.map(l => l.metodoPagamento).filter(Boolean))];
+    const _scroll = _scrollToOrcamentos;
+    _scrollToOrcamentos = false;
 
     content.innerHTML = `
       <div class="page-enter">
       <div class="stats-grid">
-        <div class="stat-card">
+        <div class="stat-card item-enter" style="animation-delay:0ms">
           <div class="stat-icon neutral-bg"><i class="fas fa-wallet"></i></div>
           <div class="stat-label">Saldo Total</div>
           <div class="stat-value ${stats.saldo >= 0 ? 'positive' : 'negative'}">${formatCurrency(stats.saldo)}</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card item-enter" style="animation-delay:80ms">
           <div class="stat-icon positive-bg"><i class="fas fa-arrow-up"></i></div>
           <div class="stat-label">Entradas</div>
           <div class="stat-value positive">${formatCurrency(stats.entradas)}</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card item-enter" style="animation-delay:160ms">
           <div class="stat-icon negative-bg"><i class="fas fa-arrow-down"></i></div>
           <div class="stat-label">Saídas</div>
           <div class="stat-value negative">${formatCurrency(stats.saidas)}</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card item-enter" style="animation-delay:240ms">
           <div class="stat-icon neutral-bg"><i class="fas fa-exchange-alt"></i></div>
           <div class="stat-label">Transações</div>
           <div class="stat-value">${filtrados.length}</div>
@@ -284,22 +292,22 @@ async function showDashboard() {
       </div>
 
       <div class="dashboard-charts" id="dashCharts" style="${filtrados.length === 0 ? 'display:none' : ''}">
-        <div class="chart-card">
+        <div class="chart-card item-enter" style="animation-delay:50ms">
           <h3><i class="fas fa-chart-line"></i> Evolução Mensal</h3>
           <canvas id="chartEvolucaoDash" class="skeleton skeleton-chart"></canvas>
         </div>
-        <div class="chart-card">
+        <div class="chart-card item-enter" style="animation-delay:100ms">
           <h3><i class="fas fa-chart-pie"></i> Categorias</h3>
           <canvas id="chartCategoriasDash" class="skeleton skeleton-chart"></canvas>
         </div>
       </div>
 
       <div class="insights-grid" id="dashInsights" style="${filtrados.length === 0 ? 'display:none' : ''}">
-        <div class="insight-card">
+        <div class="insight-card item-enter" style="animation-delay:50ms">
           <div class="insight-header"><i class="fas fa-calendar-compare"></i> Comparativo Mensal</div>
           <div class="insight-body" id="comparativoBody">Carregando...</div>
         </div>
-        <div class="insight-card">
+        <div class="insight-card item-enter" style="animation-delay:100ms">
           <div class="insight-header"><i class="fas fa-piggy-bank"></i> Meta de Economia</div>
           <div class="insight-body" id="metaBody">
             <div class="meta-input-row">
@@ -312,10 +320,27 @@ async function showDashboard() {
             </div>
           </div>
         </div>
-        <div class="insight-card">
+        <div class="insight-card item-enter" style="animation-delay:150ms">
           <div class="insight-header"><i class="fas fa-chart-simple"></i> Projeção de Saldo</div>
           <div class="insight-body" id="projecaoBody">Carregando...</div>
         </div>
+      </div>
+
+      <div class="card" id="orcamentosSection">
+        <details class="orcamentos-details" ${_scrollToOrcamentos ? 'open' : ''}>
+          <summary class="orcamentos-summary"><i class="fas fa-chart-pie"></i> Orçamentos do Mês</summary>
+          <div class="orcamentos-body">
+            <div class="orcamento-form-row">
+              <select id="orcCategoria" class="form-input" style="flex:1">
+                <option value="">Selecione a categoria</option>
+                ${categoriasUnicas.map(c => `<option value="${c}">${c}</option>`).join('')}
+              </select>
+              <input type="number" id="orcLimite" class="form-input" placeholder="Limite (R$)" step="0.01" min="0" style="width:150px" />
+              <button class="btn btn-primary btn-sm" id="btnAddOrcamento"><i class="fas fa-plus"></i> Adicionar</button>
+            </div>
+            <div id="orcamentosList"></div>
+          </div>
+        </details>
       </div>
 
       <div class="filter-bar" id="dashFiltros">
@@ -389,9 +414,9 @@ async function showDashboard() {
               </tr>
             </thead>
             <tbody id="dashTableBody">
-              ${paginated.length === 0 ? '<tr><td colspan="7"><div class="empty-state"><div class="empty-state-illustration">' + emptyStateSVG('search') + '</div><h3 class="empty-state-title">Nenhum lançamento</h3><p class="empty-state-subtitle">Tente ajustar os filtros ou crie uma nova transação</p></div></td></tr>' : ''}
-              ${paginated.map(l => `
-                <tr class="${selectedIds.has(l.id) ? 'selected-row ' : ''}${isSaida(l) ? 'row-saida' : 'row-entrada'}">
+              ${paginated.length === 0 ? '<tr><td colspan="7"><div class="empty-state" style="animation:none"><div class="empty-state-illustration">' + emptyStateSVG('search') + '</div><h3 class="empty-state-title">Nenhum lançamento</h3><p class="empty-state-subtitle">Tente ajustar os filtros ou crie uma nova transação</p></div></td></tr>' : ''}
+              ${paginated.map((l, i) => `
+                <tr class="item-enter ${selectedIds.has(l.id) ? 'selected-row ' : ''}${isSaida(l) ? 'row-saida' : 'row-entrada'}" style="animation-delay:${i * 40}ms">
                   <td><input type="checkbox" class="select-item" data-id="${l.id}" ${selectedIds.has(l.id) ? 'checked' : ''} /></td>
                   <td>${formatDate(l.data)}</td>
                   <td>${l.descricao || '-'}</td>
@@ -479,6 +504,12 @@ async function showDashboard() {
       atualizarProjecao(filtrados);
       document.getElementById('btnDefinirMeta')?.addEventListener('click', definirMeta);
     }
+
+    document.getElementById('btnAddOrcamento')?.addEventListener('click', addOrcamento);
+    if (_scroll) {
+      setTimeout(() => document.getElementById('orcamentosSection')?.scrollIntoView({ behavior: 'smooth' }), 100);
+    }
+    await carregarOrcamentos();
 
   } catch (err) {
     content.innerHTML = `<div class="error-page"><h1>Erro ao carregar dados</h1><p>${err.message}</p></div>`;
@@ -1176,6 +1207,7 @@ async function exportEmail(dados, dataInicio, dataFim) {
 function exportPDF(dados, incluirGraficos) {
   const win = window.open('', '_blank');
   if (!win) { showToast('Popup bloqueado. Permita popups para exportar PDF.', 'warning'); return; }
+  const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#6366f1';
 
   let chartImages = '';
   if (incluirGraficos) {
@@ -1194,7 +1226,7 @@ function exportPDF(dados, incluirGraficos) {
       <title>Relatório Financeiro</title>
       <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #333; }
-        h1 { color: #6366f1; border-bottom: 2px solid #6366f1; padding-bottom: 8px; }
+        h1 { color: ${primaryColor}; border-bottom: 2px solid ${primaryColor}; padding-bottom: 8px; }
         .summary { display: flex; gap: 16px; margin: 24px 0; flex-wrap: wrap; }
         .summary-box { padding: 16px 24px; border-radius: 8px; border: 1px solid #e2e8f0; }
         .summary-box .label { font-size: 0.8rem; color: #64748b; text-transform: uppercase; }
@@ -1233,7 +1265,7 @@ function exportPDF(dados, incluirGraficos) {
       ${chartImages ? `<div class="graficos-section"><h2>Gráficos</h2>${chartImages}</div>` : ''}
       <div class="footer">Gestor Financeiro · Relatório gerado automaticamente</div>
       <div class="no-print" style="text-align:center;margin-top:24px">
-        <button onclick="window.print()" style="padding:12px 32px;background:#6366f1;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:1rem">
+        <button onclick="window.print()" style="padding:12px 32px;background:${primaryColor};color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:1rem">
           Salvar como PDF
         </button>
         <p style="color:#94a3b8;margin-top:8px;font-size:0.85rem">Clique no botão e selecione "Salvar como PDF"</p>
@@ -1294,6 +1326,57 @@ function showImportSection() {
     };
     reader.readAsText(file);
   });
+}
+
+async function carregarOrcamentos() {
+  const container = document.getElementById('orcamentosList');
+  if (!container) return;
+  try {
+    const orcamentos = await apiGet('/api/orcamentos');
+    if (!orcamentos.length) {
+      container.innerHTML = '<p class="empty-row">Nenhum orçamento definido. Adicione um limite acima.</p>';
+      return;
+    }
+    const gastos = await apiGet('/api/orcamentos/verificar').catch(() => ({}));
+    container.innerHTML = orcamentos.map((o, i) => {
+      const alerta = Array.isArray(gastos) ? gastos.find(a => a.categoria === o.categoria) : null;
+      const pct = alerta ? alerta.pct : 0;
+      const gasto = alerta ? alerta.gasto : 0;
+      const barClass = pct >= 100 ? 'progress-fill danger' : pct >= 80 ? 'progress-fill warning' : 'progress-fill';
+      return `<div class="orcamento-item item-enter" style="animation-delay:${i * 40}ms">
+        <div class="orcamento-info">
+          <span class="orcamento-categoria">${o.categoria}</span>
+          <span class="orcamento-valores">R$ ${Number(gasto).toFixed(2)} / R$ ${Number(o.limite).toFixed(2)}</span>
+          <span class="orcamento-pct" style="color:${pct >= 100 ? 'var(--danger)' : pct >= 80 ? 'var(--warning)' : 'var(--text-secondary)'}">${pct}%</span>
+        </div>
+        <div class="progress-bar"><div class="${barClass}" style="width:${Math.min(pct, 100)}%"></div></div>
+        <button class="btn btn-ghost btn-sm btn-delete-orc" data-id="${o.id}" title="Remover"><i class="fas fa-trash"></i></button>
+      </div>`;
+    }).join('');
+    container.querySelectorAll('.btn-delete-orc').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        try {
+          await apiDelete(`/api/orcamentos/${btn.dataset.id}`);
+          showToast('Orçamento removido', 'success');
+          carregarOrcamentos();
+        } catch (err) { showToast(err.message); }
+      });
+    });
+  } catch (err) {
+    container.innerHTML = `<p class="empty-row">Erro ao carregar: ${err.message}</p>`;
+  }
+}
+
+async function addOrcamento() {
+  const categoria = document.getElementById('orcCategoria')?.value;
+  const limite = document.getElementById('orcLimite')?.value;
+  if (!categoria || !limite || limite <= 0) { showToast('Selecione uma categoria e defina um limite.', 'warning'); return; }
+  try {
+    await apiPost('/api/orcamentos', { categoria, limite: parseFloat(limite) });
+    showToast('Orçamento adicionado!', 'success');
+    document.getElementById('orcLimite').value = '';
+    await carregarOrcamentos();
+  } catch (err) { showToast(err.message); }
 }
 
 function showExtrato() {

@@ -1,0 +1,72 @@
+name: Test, Build and Deploy
+
+on:
+  push:
+    branches: [postgreSQL, main]
+  pull_request:
+    branches: [postgreSQL, main]
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npm test
+
+  test-frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: front-end
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: front-end/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+
+  deploy:
+    needs: [test-backend, test-frontend]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
+      - name: Create Vercel project config (backend)
+        run: |
+          mkdir -p .vercel
+          echo '{"projectId":"${{ secrets.VERCEL_PROJECT_ID_BACKEND }}","orgId":"${{ secrets.VERCEL_ORG_ID }}"}' > .vercel/project.json
+        working-directory: backend
+
+      - name: Create Vercel project config (frontend)
+        run: |
+          mkdir -p .vercel
+          echo '{"projectId":"${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}","orgId":"${{ secrets.VERCEL_ORG_ID }}"}' > .vercel/project.json
+        working-directory: front-end
+
+      - name: Deploy backend
+        run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: backend
+
+      - name: Deploy frontend
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: front-end

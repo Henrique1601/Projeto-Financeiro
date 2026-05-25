@@ -65,7 +65,7 @@ const initDatabase = async () => {
         valor NUMERIC NOT NULL,
         entradaSaida TEXT NOT NULL,
         categoria TEXT DEFAULT 'Outros',
-        metodoPagamento TEXT DEFAULT 'Dinheiro',
+        "metodoPagamento" TEXT DEFAULT 'Dinheiro',
         observacoes TEXT DEFAULT '',
         FOREIGN KEY (user_id) REFERENCES usuarios(id) ON DELETE CASCADE
       )
@@ -76,7 +76,7 @@ const initDatabase = async () => {
       ALTER TABLE financeiro ADD COLUMN IF NOT EXISTS categoria TEXT DEFAULT 'Outros'
     `).catch(() => {});
     await pool.query(`
-      ALTER TABLE financeiro ADD COLUMN IF NOT EXISTS metodoPagamento TEXT DEFAULT 'Dinheiro'
+      ALTER TABLE financeiro ADD COLUMN IF NOT EXISTS "metodoPagamento" TEXT DEFAULT 'Dinheiro'
     `).catch(() => {});
     await pool.query(`
       ALTER TABLE financeiro ADD COLUMN IF NOT EXISTS observacoes TEXT DEFAULT ''
@@ -131,6 +131,20 @@ const initDatabase = async () => {
       )
     `);
     console.log('Tabela recorrentes OK');
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS orcamentos (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL,
+        categoria TEXT NOT NULL,
+        limite NUMERIC NOT NULL,
+        mes TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, categoria, mes),
+        FOREIGN KEY (user_id) REFERENCES usuarios(id) ON DELETE CASCADE
+      )
+    `);
+    console.log('Tabela orcamentos OK');
 
     console.log('Tabelas criadas ou já existem.');
     isInitialized = true;

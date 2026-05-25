@@ -17,7 +17,7 @@ const criarRecorrente = async (userId, data) => {
   const { descricao, valor, entradaSaida, categoria, metodoPagamento, observacoes, frequencia, proxima_data, data_fim, max_ocorrencias } = data;
   const categoriaFinal = categoria || autoCategorize(descricao);
   const { rows } = await pool.query(
-    `INSERT INTO recorrentes (user_id, descricao, valor, entradaSaida, categoria, metodoPagamento, observacoes, frequencia, proxima_data, data_fim, max_ocorrencias)
+    `INSERT INTO recorrentes (user_id, descricao, valor, entradaSaida, categoria, "metodoPagamento", observacoes, frequencia, proxima_data, data_fim, max_ocorrencias)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
     [userId, descricao, valor, entradaSaida || (Number(valor) < 0 ? 'Saída' : 'Entrada'), categoriaFinal, metodoPagamento || 'Dinheiro', observacoes || '', frequencia, proxima_data, data_fim || null, max_ocorrencias || null]
   );
@@ -62,7 +62,32 @@ const deletarRecorrente = async (id, userId) => {
 };
 
 const gerarLancamentos = async (userId) => {
+  const { sendToUser } = require('./notificationService');
   const hoje = new Date().toISOString().split('T')[0];
+
+  const avisosFim = [];
+  const { rows: todosAtivos } = await pool.query(
+    'SELECT * FROM recorrentes WHERE user_id = $1 AND ativo = TRUE',
+    [userId]
+  );
+  for (const rec of todosAtivos) {
+    if (rec.data_fim) {
+      const diff = Math.ceil((new Date(rec.data_fim) - new Date(hoje)) / (1000 * 60 * 60 * 24));
+      if (diff >= 0 && diff <= 7) {
+        avisosFim.push(`"${rec.descricao}" ${diff === 0 ? 'vence hoje' : `encerra em ${diff} dia(s)`}`);
+      }
+    }
+    if (rec.max_ocorrencias) {
+      const restantes = rec.max_ocorrencias - rec.ocorrencias_geradas;
+      if (restantes > 0 && restantes <= 2) {
+        avisosFim.push(`"${rec.descricao}" — última(s) ${restantes} parcela(s)`);
+      }
+    }
+  }
+  if (avisosFim.length > 0) {
+    try { await sendToUser(userId, '⏰ Recorrências próximas do fim', avisosFim.join('\n')); } catch {}
+  }
+
   const { rows: pendentes } = await pool.query(
     'SELECT * FROM recorrentes WHERE user_id = $1 AND ativo = TRUE AND proxima_data <= $2',
     [userId, hoje]
@@ -76,7 +101,7 @@ const gerarLancamentos = async (userId) => {
       let qtdRec = 0;
       while (dataGerar <= hoje) {
         await client.query(
-          `INSERT INTO financeiro (user_id, data, descricao, valor, entradaSaida, categoria, metodoPagamento, observacoes)
+          `INSERT INTO financeiro (user_id, data, descricao, valor, entradaSaida, categoria, "metodoPagamento", observacoes)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
           [userId, dataGerar, rec.descricao, rec.valor, rec.entradaSaida, rec.categoria, rec.metodoPagamento, rec.observacoes]
         );
@@ -96,7 +121,6 @@ const gerarLancamentos = async (userId) => {
   });
 
   try {
-    const { sendToUser } = require('./notificationService');
     const valorTotal = pendentes.reduce((s, r) => s + Number(r.valor), 0);
     await sendToUser(userId, '🔁 Lançamentos recorrentes gerados',
       `${gerados} lançamento(s) gerado(s) — total de ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Math.abs(valorTotal))}`
@@ -105,4 +129,4 @@ const gerarLancamentos = async (userId) => {
   return { gerados, mensagem: `${gerados} lançamento(s) gerado(s).` };
 };
 
-module.exports = { criarRecorrente, listarRecorrentes, atualizarRecorrente, deletarRecorrente, gerarLancamentos };
+module.exports = { criarRecorrente, listarRecorrentes, atualizarRecorrente, deletarRecorrente, gerarLancamentos, calcularProximaData };

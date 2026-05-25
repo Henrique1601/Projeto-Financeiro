@@ -1,13 +1,13 @@
 const validateFinanceiroInput = (data, descricao, valor, entradaSaida) => {
   const errors = [];
   if (!data || !/^\d{4}-\d{2}-\d{2}$/.test(data)) {
-    errors.push('Data deve estar no formato YYYY-MM-DD.');
+    errors.push('Data é obrigatória e deve estar no formato YYYY-MM-DD.');
   }
   if (!descricao || typeof descricao !== 'string' || descricao.length > 255) {
     errors.push('Descrição é obrigatória e deve ter no máximo 255 caracteres.');
   }
   if (isNaN(valor)) {
-    errors.push('Valor deve ser um número.');
+    errors.push('Valor é obrigatório e deve ser um número.');
   }
   if (!entradaSaida || !['entrada', 'saída', 'saida', 'Entrada', 'Saída'].includes(entradaSaida.toLowerCase())) {
     errors.push('Tipo deve ser "Entrada" ou "Saída".');

@@ -1,3 +1,5 @@
 node_modules/
 financeiro.db/
 /.env
+.vercel
+.env*.local

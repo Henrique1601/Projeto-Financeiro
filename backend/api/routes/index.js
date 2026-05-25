@@ -3,6 +3,7 @@ const { ensureDbInit, pool } = require('../config/database');
 const authCtrl = require('../controllers/authController');
 const financeiroCtrl = require('../controllers/financeiroController');
 const recorrenteCtrl = require('../controllers/recorrenteController');
+const orcamentoCtrl = require('../controllers/orcamentoController');
 const express = require('express');
 const { createPassport } = require('../services/passportConfig');
 const router = express.Router();
@@ -10,7 +11,7 @@ const router = express.Router();
 const passport = createPassport();
 router.use(passport.initialize());
 
-const FRONTEND_URL = process.env.FRONTEND_URL || (process.env.NODE_ENV === 'production' ? 'https://projeto-financeiro-frontend.vercel.app' : 'http://localhost:5173');
+const FRONTEND_URL = process.env.FRONTEND_URL || (process.env.NODE_ENV === 'production' ? 'https://gestor-financeiro-proj.vercel.app' : 'http://localhost:5173');
 const SPA_URL = FRONTEND_URL.replace(/\/$/, '') + '/#/callback';
 
 router.post('/register', ensureDbInit, authCtrl.register);
@@ -54,6 +55,11 @@ router.get('/recorrentes', authenticate, ensureDbInit, recorrenteCtrl.listar);
 router.put('/recorrentes/:id', authenticate, ensureDbInit, recorrenteCtrl.atualizar);
 router.delete('/recorrentes/:id', authenticate, ensureDbInit, recorrenteCtrl.deletar);
 router.post('/recorrentes/gerar', authenticate, ensureDbInit, recorrenteCtrl.gerar);
+
+router.post('/orcamentos', authenticate, ensureDbInit, orcamentoCtrl.criar);
+router.get('/orcamentos', authenticate, ensureDbInit, orcamentoCtrl.listar);
+router.delete('/orcamentos/:id', authenticate, ensureDbInit, orcamentoCtrl.deletar);
+router.get('/orcamentos/verificar', authenticate, ensureDbInit, orcamentoCtrl.verificar);
 
 router.get('/categorias/palavras', authenticate, ensureDbInit, (req, res) => {
   const authService = require('../services/authService');
