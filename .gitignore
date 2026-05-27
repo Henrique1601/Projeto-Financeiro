@@ -9,3 +9,7 @@ cleanup.ps1
 skills-lock.json
 skills-lock.backup.json
 .vercel
+.playwright-mcp/
+screenshots/
+__pycache__/
+*.pyc
