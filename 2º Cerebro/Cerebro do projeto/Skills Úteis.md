@@ -57,6 +57,11 @@ Estas skills já estão no system prompt e podem ser usadas sem carregar:
 | 2026-05-22 | `context7-mcp` | Pesquisa de melhorias: Chart.js tree-shaking, vite-plugin-pwa, Express 5 |
 | 2026-05-22 | `frontend-design` + `high-end-visual-design` | Chart.js tree-shaking, page transitions em todas as páginas, skeleton screens |
 
+## Regra Obrigatória
+
+> [!important] Consultar Skill/MCP Primeiro
+> Antes de QUALQUER tarefa — usar ferramenta, consultar doc, gerar código ou depurar — o Claude DEVE primeiro verificar se uma skill carregada ou MCP ativo pode guiar o trabalho. Skills fornecem workflows e constraints específicos do domínio. MCPs fornecem acesso a ferramentas live (Neon DB, Context7 docs, gh_grep, chrome-devtools, etc.). Sempre preferi-los sobre conhecimento bruto do LLM.
+
 ## Notas
 
 - O shell está quebrado (EPERM) — comandos `npx skills add` e `git` precisam ser executados manualmente pelo usuário

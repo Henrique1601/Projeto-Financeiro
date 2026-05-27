@@ -16,6 +16,8 @@ const SPA_URL = FRONTEND_URL.replace(/\/$/, '') + '/#/callback';
 
 router.post('/register', ensureDbInit, authCtrl.register);
 router.post('/login', ensureDbInit, authCtrl.login);
+router.post('/login/2fa', ensureDbInit, authCtrl.login2FA);
+router.post('/login/2fa/resend', ensureDbInit, authCtrl.resend2FACode);
 router.post('/login/social', authenticate, ensureDbInit, authCtrl.loginSocial);
 router.post('/refresh-token', ensureDbInit, authCtrl.refresh);
 router.post('/forgot-password', ensureDbInit, authCtrl.forgotPassword);
@@ -24,6 +26,11 @@ router.put('/change-password', authenticate, ensureDbInit, authCtrl.changePasswo
 
 router.get('/profile', authenticate, ensureDbInit, authCtrl.getProfile);
 router.put('/profile', authenticate, ensureDbInit, authCtrl.updateProfile);
+
+router.get('/auth/2fa/status', authenticate, ensureDbInit, authCtrl.get2FAStatus);
+router.post('/auth/2fa/setup', authenticate, ensureDbInit, authCtrl.setup2FA);
+router.post('/auth/2fa/verify', authenticate, ensureDbInit, authCtrl.verify2FASetup);
+router.delete('/auth/2fa', authenticate, ensureDbInit, authCtrl.disable2FA);
 
 router.post('/push/subscribe', authenticate, ensureDbInit, async (req, res, next) => {
   try {
@@ -44,6 +51,7 @@ router.get('/push/vapid-public-key', (req, res) => {
 router.post('/salvar', authenticate, ensureDbInit, financeiroCtrl.salvar);
 router.get('/listar', authenticate, ensureDbInit, financeiroCtrl.listar);
 router.delete('/deletar', authenticate, ensureDbInit, financeiroCtrl.deletar);
+router.post('/desfazer', authenticate, ensureDbInit, financeiroCtrl.desfazer);
 router.put('/editar', authenticate, ensureDbInit, financeiroCtrl.editar);
 router.post('/importar', authenticate, ensureDbInit, financeiroCtrl.importar);
 router.post('/importar/auto', authenticate, ensureDbInit, financeiroCtrl.importarAuto);
@@ -58,6 +66,7 @@ router.post('/recorrentes/gerar', authenticate, ensureDbInit, recorrenteCtrl.ger
 
 router.post('/orcamentos', authenticate, ensureDbInit, orcamentoCtrl.criar);
 router.get('/orcamentos', authenticate, ensureDbInit, orcamentoCtrl.listar);
+router.put('/orcamentos/:id', authenticate, ensureDbInit, orcamentoCtrl.atualizar);
 router.delete('/orcamentos/:id', authenticate, ensureDbInit, orcamentoCtrl.deletar);
 router.get('/orcamentos/verificar', authenticate, ensureDbInit, orcamentoCtrl.verificar);
 

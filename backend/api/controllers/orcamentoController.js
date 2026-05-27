@@ -27,6 +27,15 @@ const deletar = async (req, res) => {
   }
 };
 
+const atualizar = async (req, res) => {
+  try {
+    const orcamento = await orcamentoService.atualizarOrcamento(req.params.id, req.user.id, req.body);
+    res.json(orcamento);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
 const verificar = async (req, res) => {
   try {
     const alertas = await orcamentoService.verificarAlertas(req.user.id);
@@ -36,4 +45,4 @@ const verificar = async (req, res) => {
   }
 };
 
-module.exports = { criar, listar, deletar, verificar };
+module.exports = { criar, listar, atualizar, deletar, verificar };

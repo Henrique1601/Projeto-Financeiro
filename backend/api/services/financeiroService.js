@@ -42,16 +42,30 @@ const deletarLancamento = async (userId, id) => {
     throw new Error('ID deve ser um número válido.');
   }
 
-  const result = await pool.query(
-    'DELETE FROM financeiro WHERE id = $1 AND user_id = $2',
+  const { rows: records } = await pool.query(
+    `SELECT id, data, descricao, valor, entradaSaida "entradaSaida", categoria, "metodoPagamento", observacoes FROM financeiro WHERE id = $1 AND user_id = $2`,
     [idNum, userId]
   );
-
-  if (result.rowCount === 0) {
+  if (records.length === 0) {
     throw new Error('Registro não encontrado.');
   }
 
-  return { message: 'Registro deletado com sucesso.' };
+  await pool.query('DELETE FROM financeiro WHERE id = $1 AND user_id = $2', [idNum, userId]);
+
+  return { message: 'Registro deletado com sucesso.', record: records[0] };
+};
+
+const desfazerDelecao = async (userId, record) => {
+  if (!record || !record.data || !record.descricao || record.valor == null) {
+    throw new Error('Dados do lançamento inválidos para desfazer.');
+  }
+  const { data, descricao, valor, entradaSaida, categoria, metodoPagamento, observacoes } = record;
+  const { rows } = await pool.query(
+    `INSERT INTO financeiro (user_id, data, descricao, valor, entradaSaida, categoria, "metodoPagamento", observacoes)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+    [userId, data, descricao, valor, entradaSaida, categoria, metodoPagamento || 'Dinheiro', observacoes || '']
+  );
+  return rows[0];
 };
 
 const editarLancamentos = async (userId, updates) => {
@@ -306,4 +320,4 @@ const exportarXlsx = async (lancamentos) => {
   return XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
 };
 
-module.exports = { salvarLancamento, listarLancamentos, deletarLancamento, editarLancamentos, importarLancamentos, importarAuto, exportarXlsx, parseCSV, parseOFX };
+module.exports = { salvarLancamento, listarLancamentos, deletarLancamento, desfazerDelecao, editarLancamentos, importarLancamentos, importarAuto, exportarXlsx, parseCSV, parseOFX };

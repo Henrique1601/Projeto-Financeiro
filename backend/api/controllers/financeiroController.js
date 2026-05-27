@@ -1,4 +1,4 @@
-const { salvarLancamento, listarLancamentos, deletarLancamento, editarLancamentos, importarLancamentos, importarAuto, exportarXlsx } = require('../services/financeiroService');
+const { salvarLancamento, listarLancamentos, deletarLancamento, desfazerDelecao, editarLancamentos, importarLancamentos, importarAuto, exportarXlsx } = require('../services/financeiroService');
 const { sendReport } = require('../services/emailService');
 
 const salvar = async (req, res, next) => {
@@ -89,4 +89,13 @@ const exportarEmailHandler = async (req, res, next) => {
   }
 };
 
-module.exports = { salvar, listar, deletar, editar, importar, importarAuto: importarAutoHandler, exportarXlsx: exportarXlsxHandler, exportarEmail: exportarEmailHandler };
+const desfazer = async (req, res, next) => {
+  try {
+    const record = await desfazerDelecao(req.user.id, req.body.record);
+    res.status(201).json({ message: 'Exclusão desfeita!', record });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { salvar, listar, deletar, desfazer, editar, importar, importarAuto: importarAutoHandler, exportarXlsx: exportarXlsxHandler, exportarEmail: exportarEmailHandler };

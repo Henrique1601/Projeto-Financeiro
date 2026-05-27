@@ -12,6 +12,25 @@ export function showToast(message, type = 'error') {
   }).showToast();
 }
 
+export function showUndoToast(message, onUndo, duration = 5000) {
+  let timer;
+  const handleClick = () => {
+    clearTimeout(timer);
+    toast.hideToast();
+    onUndo();
+  };
+  const toast = Toastify({
+    text: message + ' (clique para desfazer)',
+    duration,
+    gravity: 'top',
+    position: 'right',
+    stopOnFocus: true,
+    style: { background: '#1e293b', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.25)', cursor: 'pointer' },
+    onClick: handleClick,
+  });
+  toast.showToast();
+}
+
 export function showDashboardSkeleton() {
   const content = document.getElementById('pageContent');
   if (!content) return;

@@ -7,6 +7,9 @@ import Chart from '../chartSetup.js';
 
 let lancamentos = [];
 let chartInstances = {};
+let currentPage = 1;
+let pageSize = 20;
+let dadosFiltrados = [];
 
 export async function render(app) {
   if (!isAuthenticated()) { navigate('/login'); return; }
@@ -65,7 +68,7 @@ export async function render(app) {
 
           <div class="total-records" id="totalRecords">Carregando...</div>
 
-          <div class="card" style="overflow:hidden">
+          <div class="card">
             <div class="table-wrapper">
               <table class="extrato-table">
                 <thead>
@@ -73,6 +76,21 @@ export async function render(app) {
                 </thead>
                 <tbody id="extratoTableBody"></tbody>
               </table>
+            </div>
+            <div class="pagination" id="extratoPagination" style="display:none">
+              <button class="btn btn-ghost btn-sm" id="extratoPrevPage" disabled>
+                <i class="fas fa-chevron-left"></i> Anterior
+              </button>
+              <span class="page-info" id="extratoPageInfo">Página 1 de 1</span>
+              <button class="btn btn-ghost btn-sm" id="extratoNextPage" disabled>
+                Próximo <i class="fas fa-chevron-right"></i>
+              </button>
+              <select id="extratoPageSize" class="page-size-select">
+                <option value="10">10</option>
+                <option value="20" selected>20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
             </div>
           </div>
 
@@ -124,6 +142,23 @@ export async function render(app) {
   document.getElementById('calcularFaturamento')?.addEventListener('click', calcularFaturamento);
   document.getElementById('showResumoAnual')?.addEventListener('click', showResumoAnual);
 
+  document.getElementById('extratoPrevPage')?.addEventListener('click', () => {
+    if (currentPage <= 1) return;
+    currentPage--;
+    exibirTabela();
+  });
+  document.getElementById('extratoNextPage')?.addEventListener('click', () => {
+    const totalPages = Math.ceil(dadosFiltrados.length / pageSize);
+    if (currentPage >= totalPages) return;
+    currentPage++;
+    exibirTabela();
+  });
+  document.getElementById('extratoPageSize')?.addEventListener('change', (e) => {
+    pageSize = parseInt(e.target.value);
+    currentPage = 1;
+    exibirTabela();
+  });
+
   await carregarExtrato();
 }
 
@@ -132,7 +167,9 @@ async function carregarExtrato() {
   try {
     lancamentos = await apiGet('/api/listar');
     preencherAnos();
-    exibirTabela(lancamentos);
+    dadosFiltrados = lancamentos;
+    currentPage = 1;
+    exibirTabela();
     document.getElementById('chartsSection').style.display = 'block';
   } catch (err) {
     showToast('Erro ao carregar extrato: ' + err.message);
@@ -171,28 +208,50 @@ function filtrar() {
   });
 }
 
-function exibirTabela(dados) {
+function exibirTabela() {
   const tbody = document.getElementById('extratoTableBody');
-  if (!dados.length) {
+  const totalPages = Math.max(1, Math.ceil(dadosFiltrados.length / pageSize));
+  if (currentPage > totalPages) currentPage = totalPages;
+  const paginated = dadosFiltrados.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  if (!dadosFiltrados.length) {
     tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum lançamento encontrado</td></tr>';
     document.getElementById('totalRecords').textContent = '0 registros';
-    return;
+  } else {
+    tbody.innerHTML = paginated.map(l => {
+      const saida = isSaida(l);
+      return `<tr>
+        <td>${formatDate(l.data)}</td>
+        <td>${l.descricao || '-'}</td>
+        <td class="${saida ? 'negative' : 'positive'}">${formatCurrency(l.valor)}</td>
+        <td><span class="badge ${saida ? 'saida' : 'entrada'}">${saida ? 'Saída' : 'Entrada'}</span></td>
+      </tr>`;
+    }).join('');
+    document.getElementById('totalRecords').textContent = `${dadosFiltrados.length} registros`;
   }
-  tbody.innerHTML = dados.map(l => {
-    const saida = isSaida(l);
-    return `<tr>
-      <td>${formatDate(l.data)}</td>
-      <td>${l.descricao || '-'}</td>
-      <td class="${saida ? 'negative' : 'positive'}">${formatCurrency(l.valor)}</td>
-      <td><span class="badge ${saida ? 'saida' : 'entrada'}">${saida ? 'Saída' : 'Entrada'}</span></td>
-    </tr>`;
-  }).join('');
-  document.getElementById('totalRecords').textContent = `${dados.length} registros`;
+
+  const pagination = document.getElementById('extratoPagination');
+  const pageInfo = document.getElementById('extratoPageInfo');
+  const prevBtn = document.getElementById('extratoPrevPage');
+  const nextBtn = document.getElementById('extratoNextPage');
+  const pageSizeSelect = document.getElementById('extratoPageSize');
+
+  if (dadosFiltrados.length > pageSize) {
+    pagination.style.display = 'flex';
+    pageInfo.textContent = `Página ${currentPage} de ${totalPages} (${dadosFiltrados.length} registros)`;
+    prevBtn.disabled = currentPage <= 1;
+    nextBtn.disabled = currentPage >= totalPages;
+  } else {
+    pagination.style.display = 'none';
+  }
+
+  if (pageSizeSelect) pageSizeSelect.value = String(pageSize);
 }
 
 function aplicarFiltros() {
-  const filtrados = filtrar();
-  exibirTabela(filtrados);
+  dadosFiltrados = filtrar();
+  currentPage = 1;
+  exibirTabela();
 }
 
 function limparFiltros() {
@@ -200,7 +259,9 @@ function limparFiltros() {
   document.getElementById('filtroDescricao').value = '';
   document.getElementById('filtroTipo').value = '';
   if (document.getElementById('filtroAno')) document.getElementById('filtroAno').value = '';
-  exibirTabela(lancamentos);
+  dadosFiltrados = lancamentos;
+  currentPage = 1;
+  exibirTabela();
 }
 
 function destroyCharts() {

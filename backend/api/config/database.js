@@ -55,6 +55,8 @@ const initDatabase = async () => {
     await pool.query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS primeiro_login BOOLEAN DEFAULT TRUE`).catch(() => {});
     await pool.query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP`).catch(() => {});
     await pool.query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS theme TEXT DEFAULT 'dark'`).catch(() => {});
+    await pool.query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS "customThemes" TEXT DEFAULT '[]'`).catch(() => {});
+    await pool.query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS "dashboardConfig" TEXT DEFAULT '{}'`).catch(() => {});
     
     await pool.query(`
       CREATE TABLE IF NOT EXISTS financeiro (
@@ -145,6 +147,33 @@ const initDatabase = async () => {
       )
     `);
     console.log('Tabela orcamentos OK');
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS user_2fa (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER UNIQUE NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+        methods TEXT[] DEFAULT '{}',
+        totp_secret TEXT,
+        totp_verified BOOLEAN DEFAULT FALSE,
+        email_verified BOOLEAN DEFAULT FALSE,
+        email_code TEXT,
+        email_code_expires TIMESTAMP,
+        email_login_code TEXT,
+        email_login_expires TIMESTAMP,
+        backup_codes TEXT DEFAULT '[]',
+        trust_token TEXT,
+        trust_expires TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Tabela user_2fa OK');
+
+    await pool.query(`
+      ALTER TABLE user_2fa ADD COLUMN IF NOT EXISTS trust_token TEXT
+    `);
+    await pool.query(`
+      ALTER TABLE user_2fa ADD COLUMN IF NOT EXISTS trust_expires TIMESTAMP
+    `);
 
     console.log('Tabelas criadas ou já existem.');
     isInitialized = true;

@@ -48,7 +48,7 @@ const registerUser = async (nome, sobrenome, email, senha) => {
   return { message: 'Usuário registrado com sucesso.', id, token };
 };
 
-const loginUser = async (email, senha) => {
+const loginUser = async (email, senha, trustToken) => {
   if (!email || !senha) {
     throw new Error('Email e senha são obrigatórios.');
   }
@@ -65,6 +65,33 @@ const loginUser = async (email, senha) => {
   const validPassword = await bcrypt.compare(senha, user.senha);
   if (!validPassword) {
     throw new Error('Email ou senha incorretos.');
+  }
+
+  const twoFAService = require('./twoFAService');
+  const has2FA = await twoFAService.has2FA(user.id);
+
+  if (has2FA && await twoFAService.verifyTrustToken(user.id, trustToken)) {
+    const token = jwt.sign(
+      { id: user.id, nome: user.nome, sobrenome: user.sobrenome, email: user.email },
+      secret,
+      { expiresIn }
+    );
+    return { token, nome: user.nome, sobrenome: user.sobrenome, email: user.email };
+  }
+
+  if (has2FA) {
+    const tempToken = twoFAService.generateTempToken(user.id);
+
+    const record = await getOne('SELECT methods FROM user_2fa WHERE user_id = $1', [user.id]);
+    const methods = record?.methods || [];
+
+    if (methods.includes('email')) {
+      twoFAService.sendLoginEmailCode(user.id).catch(err =>
+        console.error('Erro ao enviar email 2FA:', err.message)
+      );
+    }
+
+    return { requires2FA: true, methods, tempToken };
   }
 
   const token = jwt.sign(
@@ -226,7 +253,7 @@ const resetPassword = async (email, code, senha) => {
 
 const getUserProfile = async (userId) => {
   const user = await getOne(
-    'SELECT id, nome, sobrenome, email, foto, provider, theme, created_at FROM usuarios WHERE id = $1',
+    'SELECT id, nome, sobrenome, email, foto, provider, theme, "customThemes", "dashboardConfig", created_at FROM usuarios WHERE id = $1',
     [userId]
   );
   if (!user) {
@@ -236,7 +263,7 @@ const getUserProfile = async (userId) => {
 };
 
 const updateUserProfile = async (userId, dados) => {
-  const { nome, sobrenome, foto, theme } = dados;
+  const { nome, sobrenome, foto, theme, customThemes, dashboardConfig } = dados;
 
   const updates = [];
   const values = [];
@@ -246,6 +273,8 @@ const updateUserProfile = async (userId, dados) => {
   if (sobrenome !== undefined) { updates.push(`sobrenome = $${idx++}`); values.push(sobrenome); }
   if (foto !== undefined) { updates.push(`foto = $${idx++}`); values.push(foto); }
   if (theme !== undefined) { updates.push(`theme = $${idx++}`); values.push(theme); }
+  if (customThemes !== undefined) { updates.push(`"customThemes" = $${idx++}`); values.push(customThemes); }
+  if (dashboardConfig !== undefined) { updates.push(`"dashboardConfig" = $${idx++}`); values.push(dashboardConfig); }
 
   if (!updates.length) {
     throw new Error('Nenhum dado para atualizar.');

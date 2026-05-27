@@ -1,11 +1,12 @@
 import { apiGet, apiPost, apiPut, apiDelete, logout } from '../api.js';
-import { showToast, showSpinner, hideSpinner, showDashboardSkeleton, emptyStateSVG } from '../utils/dom.js';
+import { showToast, showUndoToast, showSpinner, hideSpinner, showDashboardSkeleton, emptyStateSVG } from '../utils/dom.js';
 import { formatDate, formatCurrency, getMonthName, isSaida, getTipo } from '../utils/format.js';
 import { navigate, getRouteParams } from '../router.js';
 import { isAuthenticated, getProfile } from '../auth.js';
 import { CATEGORIAS, API_BASE_URL } from '../config.js';
-import { getThemes, getCurrentTheme, setTheme } from '../theme.js';
+import { getAllThemes, getCurrentTheme, setTheme } from '../theme.js';
 import Chart from '../chartSetup.js';
+import { getWidgetDefs, getActivePreset, updateWidgetConfig, updateWidgetOrder, getNextSize, getSizeLabel, getPresets, setActivePreset, saveCurrentPreset, deletePreset, exportPreset, importPreset, resetToDefaults, initFromBackend } from '../dashboardConfig.js';
 
 let lancamentos = [];
 let filtroAtivo = {};
@@ -57,7 +58,7 @@ export async function render(app) {
           <div class="theme-switcher">
             <label for="themeSelect" class="theme-label"><i class="fas fa-palette"></i> Tema</label>
             <select id="themeSelect" class="theme-select">
-              ${getThemes().map(t =>
+              ${getAllThemes().map(t =>
                 `<option value="${t.id}" ${getCurrentTheme() === t.id ? 'selected' : ''}>${t.label}</option>`
               ).join('')}
             </select>
@@ -96,6 +97,7 @@ export async function render(app) {
 
   const user = await getProfile().catch(() => ({ name: 'Usuário' }));
   document.getElementById('userName').textContent = user.name || 'Usuário';
+  if (user.dashboardConfig) initFromBackend(user.dashboardConfig);
 
   await showDashboard();
 
@@ -266,83 +268,10 @@ async function showDashboard() {
     const _scroll = _scrollToOrcamentos;
     _scrollToOrcamentos = false;
 
+    const widgetGridHtml = renderWidgetGrid(stats, filtrados, categoriasUnicas, _scroll);
     content.innerHTML = `
       <div class="page-enter">
-      <div class="stats-grid">
-        <div class="stat-card item-enter" style="animation-delay:0ms">
-          <div class="stat-icon neutral-bg"><i class="fas fa-wallet"></i></div>
-          <div class="stat-label">Saldo Total</div>
-          <div class="stat-value ${stats.saldo >= 0 ? 'positive' : 'negative'}">${formatCurrency(stats.saldo)}</div>
-        </div>
-        <div class="stat-card item-enter" style="animation-delay:80ms">
-          <div class="stat-icon positive-bg"><i class="fas fa-arrow-up"></i></div>
-          <div class="stat-label">Entradas</div>
-          <div class="stat-value positive">${formatCurrency(stats.entradas)}</div>
-        </div>
-        <div class="stat-card item-enter" style="animation-delay:160ms">
-          <div class="stat-icon negative-bg"><i class="fas fa-arrow-down"></i></div>
-          <div class="stat-label">Saídas</div>
-          <div class="stat-value negative">${formatCurrency(stats.saidas)}</div>
-        </div>
-        <div class="stat-card item-enter" style="animation-delay:240ms">
-          <div class="stat-icon neutral-bg"><i class="fas fa-exchange-alt"></i></div>
-          <div class="stat-label">Transações</div>
-          <div class="stat-value">${filtrados.length}</div>
-        </div>
-      </div>
-
-      <div class="dashboard-charts" id="dashCharts" style="${filtrados.length === 0 ? 'display:none' : ''}">
-        <div class="chart-card item-enter" style="animation-delay:50ms">
-          <h3><i class="fas fa-chart-line"></i> Evolução Mensal</h3>
-          <canvas id="chartEvolucaoDash" class="skeleton skeleton-chart"></canvas>
-        </div>
-        <div class="chart-card item-enter" style="animation-delay:100ms">
-          <h3><i class="fas fa-chart-pie"></i> Categorias</h3>
-          <canvas id="chartCategoriasDash" class="skeleton skeleton-chart"></canvas>
-        </div>
-      </div>
-
-      <div class="insights-grid" id="dashInsights" style="${filtrados.length === 0 ? 'display:none' : ''}">
-        <div class="insight-card item-enter" style="animation-delay:50ms">
-          <div class="insight-header"><i class="fas fa-calendar-compare"></i> Comparativo Mensal</div>
-          <div class="insight-body" id="comparativoBody">Carregando...</div>
-        </div>
-        <div class="insight-card item-enter" style="animation-delay:100ms">
-          <div class="insight-header"><i class="fas fa-piggy-bank"></i> Meta de Economia</div>
-          <div class="insight-body" id="metaBody">
-            <div class="meta-input-row">
-              <input type="number" id="metaValor" placeholder="Meta mensal (R$)" step="0.01" min="0" />
-              <button class="btn btn-primary btn-sm" id="btnDefinirMeta"><i class="fas fa-check"></i></button>
-            </div>
-            <div id="metaProgressContainer" style="display:none">
-              <div class="meta-status"><span class="meta-label" id="metaLabel">Economizado: R$0,00 de R$0,00</span></div>
-              <div class="progress-bar"><div class="progress-fill" id="metaProgressFill" style="width:0%"></div></div>
-            </div>
-          </div>
-        </div>
-        <div class="insight-card item-enter" style="animation-delay:150ms">
-          <div class="insight-header"><i class="fas fa-chart-simple"></i> Projeção de Saldo</div>
-          <div class="insight-body" id="projecaoBody">Carregando...</div>
-        </div>
-      </div>
-
-      <div class="card" id="orcamentosSection">
-        <details class="orcamentos-details" ${_scrollToOrcamentos ? 'open' : ''}>
-          <summary class="orcamentos-summary"><i class="fas fa-chart-pie"></i> Orçamentos do Mês</summary>
-          <div class="orcamentos-body">
-            <div class="orcamento-form-row">
-              <select id="orcCategoria" class="form-input" style="flex:1">
-                <option value="">Selecione a categoria</option>
-                ${categoriasUnicas.map(c => `<option value="${c}">${c}</option>`).join('')}
-              </select>
-              <input type="number" id="orcLimite" class="form-input" placeholder="Limite (R$)" step="0.01" min="0" style="width:150px" />
-              <button class="btn btn-primary btn-sm" id="btnAddOrcamento"><i class="fas fa-plus"></i> Adicionar</button>
-            </div>
-            <div id="orcamentosList"></div>
-          </div>
-        </details>
-      </div>
-
+${widgetGridHtml}
       <div class="filter-bar" id="dashFiltros">
         <div class="filter-fields">
           <div class="form-group">
@@ -487,6 +416,8 @@ async function showDashboard() {
       navigate(`/dashboard?${p.toString()}`);
     });
 
+    document.getElementById('btnManageWidgets')?.addEventListener('click', showManageWidgetsModal);
+    document.getElementById('btnPresets')?.addEventListener('click', showPresetsModal);
     document.getElementById('dashTableBody')?.addEventListener('click', (e) => {
       const btn = e.target.closest('button[data-action]');
       if (!btn) return;
@@ -497,19 +428,10 @@ async function showDashboard() {
       else if (action === 'delete') deleteLancamento(id);
     });
 
-    if (filtrados.length > 0) {
-      initDashboardCharts(filtrados);
-      atualizarComparativo(filtrados);
-      atualizarMeta();
-      atualizarProjecao(filtrados);
-      document.getElementById('btnDefinirMeta')?.addEventListener('click', definirMeta);
-    }
-
-    document.getElementById('btnAddOrcamento')?.addEventListener('click', addOrcamento);
+    initWidgets(filtrados);
     if (_scroll) {
-      setTimeout(() => document.getElementById('orcamentosSection')?.scrollIntoView({ behavior: 'smooth' }), 100);
+      setTimeout(() => document.querySelector('.widget-container')?.scrollIntoView({ behavior: 'smooth' }), 100);
     }
-    await carregarOrcamentos();
 
   } catch (err) {
     content.innerHTML = `<div class="error-page"><h1>Erro ao carregar dados</h1><p>${err.message}</p></div>`;
@@ -563,17 +485,24 @@ async function deleteSelected() {
   if (!ids.length) return;
   if (!confirm(`Excluir ${ids.length} lançamento(s)?`)) return;
   showSpinner('Excluindo…');
+  const records = [];
   try {
     for (const id of ids) {
-      await apiDelete(`/api/deletar?id=${id}`);
+      const res = await apiDelete(`/api/deletar?id=${id}`);
+      if (res && res.record) records.push(res.record);
     }
     selectedIds.clear();
     currentPage = 1;
-    showToast(`${ids.length} excluído(s)!`, 'success');
     showDashboard();
+    hideSpinner();
+    const qtd = ids.length;
+    if (records.length) {
+      showUndoToast(`${qtd} excluído(s)!`, () => desfazerDelete(records));
+    } else {
+      showToast(`${qtd} excluído(s)!`, 'success');
+    }
   } catch (err) {
     showToast(err.message || 'Erro ao excluir');
-  } finally {
     hideSpinner();
   }
 }
@@ -622,71 +551,111 @@ function gerarCores(count) {
   return Array.from({ length: count }, (_, i) => palette[i % palette.length]);
 }
 
-function initDashboardCharts(dados) {
-  destroyCharts();
-
-  const evCanvas = document.getElementById('chartEvolucaoDash');
-  const catCanvas = document.getElementById('chartCategoriasDash');
-  if (!evCanvas || !catCanvas) return;
-
-  document.getElementById('dashCharts').style.display = ''; // hide was inline
-
-  // Evolution chart
-  const meses = {};
-  dados.forEach(l => {
-    if (!l.data) return;
-    const d = new Date(l.data);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-    if (!meses[key]) meses[key] = { entradas: 0, saidas: 0 };
-    const v = Number(l.valor) || 0;
-    if (isSaida(l)) meses[key].saidas += Math.abs(v);
-    else meses[key].entradas += v;
-  });
-  const keys = Object.keys(meses).sort();
-  evCanvas.classList.remove('skeleton', 'skeleton-chart');
-  if (keys.length) {
-    chartInstances.evolucao = new Chart(evCanvas.getContext('2d'), {
-      type: 'line',
-      data: {
-        labels: keys,
-        datasets: [
-          { label: 'Entradas', data: keys.map(k => meses[k].entradas), backgroundColor: 'rgba(16,185,129,0.1)', borderColor: '#10b981', borderWidth: 2, fill: true, tension: 0.3, pointRadius: 3 },
-          { label: 'Saídas', data: keys.map(k => meses[k].saidas), backgroundColor: 'rgba(239,68,68,0.1)', borderColor: '#ef4444', borderWidth: 2, fill: true, tension: 0.3, pointRadius: 3 },
-        ],
-      },
-      options: {
-        responsive: true, maintainAspectRatio: true,
-        plugins: { legend: { position: 'top', labels: { boxWidth: 12, padding: 12 } } },
-        scales: { y: { beginAtZero: true, ticks: { callback: v => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(v) } } },
-      },
+function initWidgets(dados) {
+  const grid = document.getElementById('widgetGrid');
+  if (!grid) return;
+  if (typeof Sortable !== 'undefined') {
+    Sortable.create(grid, {
+      handle: '.widget-header',
+      animation: 200,
+      ghostClass: 'widget-ghost',
+      onEnd: () => {
+        const order = [...grid.querySelectorAll('.widget-container')].map(w => w.dataset.widgetId);
+        updateWidgetOrder(order);
+        saveCurrentPreset();
+      }
     });
   }
-
-  // Category chart (doughnut)
-  const categorias = {};
-  dados.forEach(l => {
-    const cat = l.categoria || 'Sem categoria';
-    const v = Math.abs(Number(l.valor) || 0);
-    categorias[cat] = (categorias[cat] || 0) + v;
+  grid.addEventListener('click', (e) => {
+    const btn = e.target.closest('.widget-btn');
+    if (!btn) return;
+    const container = btn.closest('.widget-container');
+    if (!container) return;
+    const id = container.dataset.widgetId;
+    if (btn.dataset.action === 'hide') {
+      const preset = getActivePreset();
+      if (preset && preset.widgets[id]) { preset.widgets[id].hidden = true; saveCurrentPreset(); }
+      container.style.display = 'none';
+    } else if (btn.dataset.action === 'size') {
+      const sizes = ['sm', 'md', 'lg', 'xl'];
+      const cur = [...container.classList].find(c => c.startsWith('widget-')).replace('widget-', '');
+      const next = sizes[(sizes.indexOf(cur) + 1) % 4];
+      container.className = container.className.replace(/widget-\w+/g, '').trim();
+      container.classList.add('widget-container', `widget-${next}`);
+      if (id) updateWidgetConfig(id, { size: next });
+      saveCurrentPreset();
+    }
   });
-  const catLabels = Object.keys(categorias);
-  const catValues = Object.values(categorias);
-  catCanvas.classList.remove('skeleton', 'skeleton-chart');
-  if (catLabels.length) {
-    chartInstances.categorias = new Chart(catCanvas.getContext('2d'), {
-      type: 'doughnut',
-      data: {
-        labels: catLabels,
-        datasets: [{ data: catValues, backgroundColor: gerarCores(catLabels.length), borderWidth: 0 }],
-      },
-      options: {
-        responsive: true, maintainAspectRatio: true,
-        cutout: '55%',
-        plugins: {
-          legend: { position: 'right', labels: { boxWidth: 12, padding: 8, font: { size: 11 } } },
-        },
-      },
+  _initDashboardCharts(dados);
+  if (dados.length > 0) {
+    if (document.getElementById('comparativoBody')) atualizarComparativo(dados);
+    if (document.getElementById('metaBody')) atualizarMeta();
+    if (document.getElementById('projecaoBody')) atualizarProjecao(dados);
+    document.getElementById('btnDefinirMeta')?.addEventListener('click', definirMeta);
+  }
+  document.getElementById('btnAddOrcamento')?.addEventListener('click', addOrcamento);
+  carregarOrcamentos();
+}
+
+function _initDashboardCharts(dados) {
+  destroyCharts();
+  const evCanvas = document.getElementById('chartEvolucaoDash');
+  const catCanvas = document.getElementById('chartCategoriasDash');
+  if (!evCanvas && !catCanvas) return;
+  if (evCanvas && evCanvas.closest('.widget-container')?.style.display !== 'none') {
+    const meses = {};
+    dados.forEach(l => {
+      if (!l.data) return;
+      const d = new Date(l.data);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      if (!meses[key]) meses[key] = { entradas: 0, saidas: 0 };
+      const v = Number(l.valor) || 0;
+      if (isSaida(l)) meses[key].saidas += Math.abs(v);
+      else meses[key].entradas += v;
     });
+    const keys = Object.keys(meses).sort();
+    evCanvas.classList.remove('skeleton', 'skeleton-chart');
+    if (keys.length) {
+      chartInstances.evolucao = new Chart(evCanvas.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: keys,
+          datasets: [
+            { label: 'Entradas', data: keys.map(k => meses[k].entradas), backgroundColor: 'rgba(16,185,129,0.1)', borderColor: '#10b981', borderWidth: 2, fill: true, tension: 0.3, pointRadius: 3 },
+            { label: 'Saídas', data: keys.map(k => meses[k].saidas), backgroundColor: 'rgba(239,68,68,0.1)', borderColor: '#ef4444', borderWidth: 2, fill: true, tension: 0.3, pointRadius: 3 },
+          ],
+        },
+        options: {
+          responsive: true, maintainAspectRatio: true,
+          plugins: { legend: { position: 'top', labels: { boxWidth: 12, padding: 12 } } },
+          scales: { y: { beginAtZero: true, ticks: { callback: v => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(v) } } },
+        },
+      });
+    }
+  }
+  if (catCanvas && catCanvas.closest('.widget-container')?.style.display !== 'none') {
+    const categorias = {};
+    dados.forEach(l => {
+      const cat = l.categoria || 'Sem categoria';
+      categorias[cat] = (categorias[cat] || 0) + Math.abs(Number(l.valor) || 0);
+    });
+    const catLabels = Object.keys(categorias);
+    const catValues = Object.values(categorias);
+    catCanvas.classList.remove('skeleton', 'skeleton-chart');
+    if (catLabels.length) {
+      chartInstances.categorias = new Chart(catCanvas.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: catLabels,
+          datasets: [{ data: catValues, backgroundColor: gerarCores(catLabels.length), borderWidth: 0 }],
+        },
+        options: {
+          responsive: true, maintainAspectRatio: true,
+          cutout: '55%',
+          plugins: { legend: { position: 'right', labels: { boxWidth: 12, padding: 8, font: { size: 11 } } } },
+        },
+      });
+    }
   }
 }
 
@@ -781,6 +750,7 @@ function atualizarMeta() {
 
 function atualizarProjecao(dados) {
   const body = document.getElementById('projecaoBody');
+  if (!body) return;
   if (!dados.length) { body.innerHTML = '<span style="color:var(--text-muted)">Sem dados para projeção</span>'; return; }
 
   const hoje = new Date();
@@ -1005,13 +975,30 @@ async function deleteLancamento(id) {
   if (!confirm('Excluir este lançamento?')) return;
   showSpinner('Excluindo…');
   try {
-    await apiDelete(`/api/deletar?id=${parseInt(id)}`);
-    showToast('Excluído!', 'success');
+    const res = await apiDelete(`/api/deletar?id=${parseInt(id)}`);
     showDashboard();
+    hideSpinner();
+    if (res && res.record) {
+      showUndoToast('Excluído!', () => desfazerDelete(res.record));
+    } else {
+      showToast('Excluído!', 'success');
+    }
   } catch (err) {
     showToast(err.message || 'Erro ao excluir');
-  } finally {
     hideSpinner();
+  }
+}
+
+async function desfazerDelete(records) {
+  const arr = Array.isArray(records) ? records : [records];
+  try {
+    for (const record of arr) {
+      await apiPost('/api/desfazer', { record });
+    }
+    showToast(arr.length > 1 ? `${arr.length} exclusões desfeitas!` : 'Exclusão desfeita!', 'success');
+    showDashboard();
+  } catch (err) {
+    showToast(err.message || 'Erro ao desfazer');
   }
 }
 
@@ -1377,6 +1364,201 @@ async function addOrcamento() {
     document.getElementById('orcLimite').value = '';
     await carregarOrcamentos();
   } catch (err) { showToast(err.message); }
+}
+
+function renderWidgetGrid(stats, dados, categoriasUnicas, _scroll) {
+  const preset = getActivePreset();
+  if (!preset) return '<div class="widget-grid-empty"><p>Nenhum widget disponível</p></div>';
+  const visibleWidgets = Object.entries(preset.widgets).filter(([, cfg]) => !cfg.hidden);
+  if (!visibleWidgets.length) {
+    return '<div class="widget-grid-empty"><p>Nenhum widget visível.</p></div>';
+  }
+  const widgetsHtml = visibleWidgets.map(([id, cfg]) => {
+    const size = cfg.size || 'lg';
+    let title, bodyHtml;
+    switch (id) {
+      case 'saldo':
+        title = 'Saldo Total';
+        bodyHtml = `<div class="stat-card"><div class="stat-icon neutral-bg"><i class="fas fa-wallet"></i></div><div class="stat-label">Saldo Total</div><div class="stat-value ${stats.saldo >= 0 ? 'positive' : 'negative'}">${formatCurrency(stats.saldo)}</div></div>`;
+        break;
+      case 'entradas':
+        title = 'Entradas';
+        bodyHtml = `<div class="stat-card"><div class="stat-icon positive-bg"><i class="fas fa-arrow-up"></i></div><div class="stat-label">Entradas</div><div class="stat-value positive">${formatCurrency(stats.entradas)}</div></div>`;
+        break;
+      case 'saidas':
+        title = 'Saídas';
+        bodyHtml = `<div class="stat-card"><div class="stat-icon negative-bg"><i class="fas fa-arrow-down"></i></div><div class="stat-label">Saídas</div><div class="stat-value negative">${formatCurrency(stats.saidas)}</div></div>`;
+        break;
+      case 'transacoes':
+        title = 'Transações';
+        bodyHtml = `<div class="stat-card"><div class="stat-icon neutral-bg"><i class="fas fa-exchange-alt"></i></div><div class="stat-label">Transações</div><div class="stat-value">${dados.length}</div></div>`;
+        break;
+      case 'evolucao':
+        title = 'Evolução Mensal';
+        bodyHtml = `<h3><i class="fas fa-chart-line"></i> Evolução Mensal</h3><canvas id="chartEvolucaoDash" class="skeleton skeleton-chart"></canvas>`;
+        break;
+      case 'categorias':
+        title = 'Categorias';
+        bodyHtml = `<h3><i class="fas fa-chart-pie"></i> Categorias</h3><canvas id="chartCategoriasDash" class="skeleton skeleton-chart"></canvas>`;
+        break;
+      case 'comparativo':
+        title = 'Comparativo Mensal';
+        bodyHtml = `<div class="insight-header"><i class="fas fa-calendar-compare"></i> Comparativo Mensal</div><div class="insight-body" id="comparativoBody">Carregando...</div>`;
+        break;
+      case 'meta':
+        title = 'Meta de Economia';
+        bodyHtml = `<div class="insight-header"><i class="fas fa-piggy-bank"></i> Meta de Economia</div><div class="insight-body" id="metaBody"><div class="meta-input-row"><input type="number" id="metaValor" placeholder="Meta mensal (R$)" step="0.01" min="0" /><button class="btn btn-primary btn-sm" id="btnDefinirMeta"><i class="fas fa-check"></i></button></div><div id="metaProgressContainer" style="display:none"><div class="meta-status"><span class="meta-label" id="metaLabel">Economizado: R$0,00 de R$0,00</span></div><div class="progress-bar"><div class="progress-fill" id="metaProgressFill" style="width:0%"></div></div></div></div>`;
+        break;
+      case 'projecao':
+        title = 'Projeção de Saldo';
+        bodyHtml = `<div class="insight-header"><i class="fas fa-chart-simple"></i> Projeção de Saldo</div><div class="insight-body" id="projecaoBody">Carregando...</div>`;
+        break;
+      case 'orcamentos':
+        title = 'Orçamentos do Mês';
+        bodyHtml = `<details class="orcamentos-details" ${_scroll ? 'open' : ''}><summary class="orcamentos-summary"><i class="fas fa-chart-pie"></i> Orçamentos do Mês</summary><div class="orcamentos-body"><div class="orcamento-form-row"><select id="orcCategoria" class="form-input" style="flex:1"><option value="">Selecione a categoria</option>${categoriasUnicas.map(c => `<option value="${c}">${c}</option>`).join('')}</select><input type="number" id="orcLimite" class="form-input" placeholder="Limite (R$)" step="0.01" min="0" style="width:150px" /><button class="btn btn-primary btn-sm" id="btnAddOrcamento"><i class="fas fa-plus"></i> Adicionar</button></div><div id="orcamentosList"></div></div></details>`;
+        break;
+      default:
+        return '';
+    }
+    const type = id === 'orcamentos' ? 'orcamentos' : ['evolucao-mensal', 'categorias'].includes(id) ? 'chart' : ['comparativo', 'meta', 'projecao'].includes(id) ? 'insight' : 'stat';
+    return `<div class="widget-container widget-${size}" data-widget-id="${id}" data-widget-type="${type}">
+      <div class="widget-header">
+        <span class="widget-title">${title}</span>
+        <div class="widget-tools">
+          <button class="widget-btn" data-action="size" title="Alternar tamanho"><i class="fas fa-expand"></i></button>
+          <button class="widget-btn" data-action="hide" title="Ocultar"><i class="fas fa-eye-slash"></i></button>
+        </div>
+      </div>
+      <div class="widget-body">${bodyHtml}</div>
+    </div>`;
+  }).filter(Boolean).join('');
+  return `<div class="widget-grid" id="widgetGrid">
+    <div class="widget-grid-toolbar">
+      <button class="btn btn-ghost btn-sm" id="btnManageWidgets"><i class="fas fa-cog"></i> Widgets</button>
+      <button class="btn btn-ghost btn-sm" id="btnPresets"><i class="fas fa-palette"></i> Presets</button>
+    </div>
+    ${widgetsHtml}
+  </div>`;
+}
+
+function showManageWidgetsModal() {
+  const preset = getActivePreset();
+  if (!preset) return;
+  const labelMap = { saldo: 'Saldo Total', entradas: 'Entradas', saidas: 'Saídas', transacoes: 'Transações', 'evolucao-mensal': 'Evolução Mensal', categorias: 'Categorias', comparativo: 'Comparativo Mensal', meta: 'Meta de Economia', projecao: 'Projeção de Saldo', orcamentos: 'Orçamentos' };
+  const toggles = Object.entries(preset.widgets).map(([id, cfg]) =>
+    `<label style="display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer">
+      <input type="checkbox" ${cfg.hidden ? '' : 'checked'} data-widget="${id}" />
+      <span>${labelMap[id] || id}</span>
+      <span class="badge" style="margin-left:auto;font-size:11px">${cfg.size || 'lg'}</span>
+    </label>`
+  ).join('');
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal" style="max-width:400px">
+    <div class="modal-header"><h2>Gerenciar Widgets</h2><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div>
+    <div class="modal-body">${toggles}</div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" id="btnApplyWidgets">Aplicar</button>
+      <button class="btn btn-ghost" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+  overlay.querySelector('#btnApplyWidgets').addEventListener('click', () => {
+    overlay.querySelectorAll('input[data-widget]').forEach(el => {
+      const id = el.dataset.widget;
+      if (preset.widgets[id]) preset.widgets[id].hidden = !el.checked;
+    });
+    saveCurrentPreset();
+    overlay.remove();
+    showDashboard();
+  });
+}
+
+function showPresetsModal() {
+  const presets = getPresets();
+  const renderList = () => presets.map(p => `<div style="display:flex;align-items:center;gap:8px;padding:6px 0">
+    <label style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer">
+      <input type="radio" name="presetRadio" value="${p.id}" ${p._active ? 'checked' : ''} />
+      <span>${p.name} ${p._active ? '(ativo)' : ''}</span>
+    </label>
+    <button class="btn btn-danger btn-xs btnDeletePreset" data-id="${p.id}" title="Excluir preset"><i class="fas fa-trash"></i></button>
+  </div>`).join('') || '<p>Nenhum preset salvo</p>';
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal" style="max-width:500px">
+    <div class="modal-header"><h2>Presets do Dashboard</h2><button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button></div>
+    <div class="modal-body" style="max-height:400px;overflow-y:auto">
+      <div style="margin-bottom:16px"><h4>Selecionar Preset</h4><div id="presetList">${renderList()}</div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="text" id="presetNameInput" placeholder="Nome do novo preset" style="flex:1;min-width:120px" />
+        <button class="btn btn-primary btn-sm" id="btnSavePreset"><i class="fas fa-save"></i> Salvar</button>
+        <button class="btn btn-success btn-sm" id="btnExportPreset"><i class="fas fa-file-export"></i> Exportar</button>
+        <button class="btn btn-warning btn-sm" id="btnImportPreset"><i class="fas fa-file-import"></i> Importar</button>
+        <button class="btn btn-danger btn-sm" id="btnResetPreset"><i class="fas fa-undo"></i> Resetar</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" id="btnApplyPreset">Aplicar</button>
+      <button class="btn btn-ghost" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+  overlay.querySelector('#btnApplyPreset')?.addEventListener('click', () => {
+    const sel = overlay.querySelector('input[name="presetRadio"]:checked');
+    if (sel) { setActivePreset(sel.value); overlay.remove(); showDashboard(); }
+  });
+  overlay.querySelector('#btnSavePreset')?.addEventListener('click', () => {
+    const name = overlay.querySelector('#presetNameInput').value.trim();
+    if (!name) { showToast('Digite um nome para o preset', 'warning'); return; }
+    saveCurrentPreset(name);
+    showToast(`Preset "${name}" salvo!`, 'success');
+    overlay.remove();
+  });
+  overlay.querySelector('#btnExportPreset')?.addEventListener('click', () => {
+    const json = exportPreset();
+    if (!json) { showToast('Nenhum preset ativo para exportar', 'warning'); return; }
+    const blob = new Blob([json], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'dashboard-preset.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+  overlay.querySelector('#btnImportPreset')?.addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const text = await file.text();
+      if (importPreset(text)) { showToast('Preset importado!', 'success'); overlay.remove(); showDashboard(); }
+      else showToast('Erro ao importar preset. Verifique o formato.', 'error');
+    };
+    input.click();
+  });
+  overlay.querySelector('#btnResetPreset')?.addEventListener('click', () => {
+    if (confirm('Resetar para o layout padrão?')) { resetToDefaults(); showToast('Preset resetado!', 'success'); overlay.remove(); showDashboard(); }
+  });
+  overlay.addEventListener('click', (e) => {
+    const btn = e.target.closest('.btnDeletePreset');
+    if (!btn) return;
+    const id = btn.dataset.id;
+    if (!confirm('Excluir este preset?')) return;
+    deletePreset(id);
+    showToast('Preset excluído!', 'success');
+    const listEl = overlay.querySelector('#presetList');
+    if (listEl) {
+      const presets = getPresets();
+      listEl.innerHTML = presets.map(p => `<div style="display:flex;align-items:center;gap:8px;padding:6px 0">
+        <label style="display:flex;align-items:center;gap:8px;flex:1;cursor:pointer">
+          <input type="radio" name="presetRadio" value="${p.id}" ${p._active ? 'checked' : ''} />
+          <span>${p.name} ${p._active ? '(ativo)' : ''}</span>
+        </label>
+        <button class="btn btn-danger btn-xs btnDeletePreset" data-id="${p.id}" title="Excluir preset"><i class="fas fa-trash"></i></button>
+      </div>`).join('') || '<p>Nenhum preset salvo</p>';
+    }
+  });
 }
 
 function showExtrato() {

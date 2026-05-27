@@ -24,6 +24,27 @@ const listarOrcamentos = async (userId, mes) => {
   return rows;
 };
 
+const atualizarOrcamento = async (id, userId, data) => {
+  const { categoria, limite, mes } = data;
+  const fields = [];
+  const values = [];
+  let idx = 1;
+
+  if (categoria !== undefined) { fields.push(`categoria = $${idx++}`); values.push(categoria); }
+  if (limite !== undefined) { fields.push(`limite = $${idx++}`); values.push(Math.abs(limite)); }
+  if (mes !== undefined) { fields.push(`mes = $${idx++}`); values.push(mes); }
+
+  if (fields.length === 0) throw new Error('Nenhum campo para atualizar.');
+
+  values.push(id, userId);
+  const { rows, rowCount } = await pool.query(
+    `UPDATE orcamentos SET ${fields.join(', ')} WHERE id = $${idx++} AND user_id = $${idx} RETURNING *`,
+    values
+  );
+  if (rowCount === 0) throw new Error('Orçamento não encontrado.');
+  return rows[0];
+};
+
 const deletarOrcamento = async (id, userId) => {
   const { rowCount } = await pool.query(
     'DELETE FROM orcamentos WHERE id = $1 AND user_id = $2',
