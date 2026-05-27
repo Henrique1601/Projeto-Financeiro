@@ -1,0 +1,168 @@
+
+  <div id="app" class="app-root">
+    <div class="offline-indicator" id="offlineIndicator">
+      <i class="fas fa-wifi-slash"></i> Sem conexão com a internet
+    </div>
+    <div class="dashboard-layout">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <h2><i class="fas fa-wallet"></i> Gestor</h2>
+          <button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Fechar sidebar"><i class="fas fa-times"></i></button>
+        </div>
+        <nav class="sidebar-nav">
+          <button class="nav-item" data-page="dashboard">
+            <i class="fas fa-chart-bar"></i> Dashboard
+          </button>
+          <button class="nav-item" data-page="extrato">
+            <i class="fas fa-list"></i> Extrato
+          </button>
+          <button class="nav-item" data-page="perfil">
+            <i class="fas fa-user"></i> Perfil
+          </button>
+          <button class="nav-item" data-page="recorrentes">
+            <i class="fas fa-redo"></i> Recorrentes
+          </button>
+          <button class="nav-item" data-page="orcamentos">
+            <i class="fas fa-chart-pie"></i> Orçamentos
+          </button>
+          <button class="nav-item active" data-page="nova-transacao">
+            <i class="fas fa-plus-circle"></i> Nova Transação
+          </button>
+          <button class="nav-item" data-page="importar">
+            <i class="fas fa-file-import"></i> Importar
+          </button>
+        </nav>
+        <div class="sidebar-footer">
+          <div class="user-info"><i class="fas fa-user"></i> <span id="userName">Usuário</span></div>
+          <div class="theme-switcher">
+            <label for="themeSelect" class="theme-label"><i class="fas fa-palette"></i> Tema</label>
+            <select id="themeSelect" class="theme-select">
+              <option value="dark" selected="">Escuro (Padrão)</option><option value="dracula">Dracula</option><option value="nord">Nord</option><option value="tokyo-night">Tóquio Noite</option><option value="gruvbox">Gruvbox</option><option value="rose-pine">Rose Pine</option><option value="light">Claro</option>
+            </select>
+          </div>
+          <button class="btn btn-ghost btn-sm btn-full" id="btnChangePassword" style="margin-bottom:4px">
+            <i class="fas fa-key"></i> Alterar Senha
+          </button>
+          <button class="btn btn-ghost btn-sm btn-full" id="btnLogout">
+            <i class="fas fa-sign-out-alt"></i> Sair
+          </button>
+        </div>
+      </aside>
+
+      <main class="main-content" id="mainContent">
+        <div class="top-bar">
+          <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Abrir menu">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h1 id="pageTitle">Dashboard</h1>
+          <div class="top-bar-actions">
+            <button class="btn btn-primary btn-sm" id="btnNovaTransacao">
+              <i class="fas fa-plus"></i> Nova
+            </button>
+            <button class="btn btn-ghost btn-sm" id="btnExportCSV">
+              <i class="fas fa-download"></i> Exportar
+            </button>
+          </div>
+        </div>
+        <div id="pageContent"><div class="page-enter"><div class="dashboard-empty"><svg viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="8" y="60" width="24" height="48" rx="4" fill="currentColor" opacity=".08"></rect>
+      <rect x="40" y="40" width="24" height="68" rx="4" fill="currentColor" opacity=".12"></rect>
+      <rect x="72" y="20" width="24" height="88" rx="4" fill="currentColor" opacity=".06"></rect>
+      <rect x="104" y="45" width="24" height="63" rx="4" fill="currentColor" opacity=".12"></rect>
+      <rect x="136" y="55" width="16" height="53" rx="4" fill="currentColor" opacity=".06"></rect>
+      <circle cx="128" cy="18" r="20" fill="currentColor" opacity=".04"></circle>
+      <path d="M118 18l6 8 10-12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".15"></path>
+    </svg><h2 class="empty-state-title">Bem-vindo ao Gestor Financeiro</h2><p class="empty-state-subtitle">Adicione sua primeira transação para começar a acompanhar suas finanças</p><button class="btn btn-primary" id="emptyCtaBtn"><i class="fas fa-plus"></i> Nova Transação</button></div></div></div>
+      </main>
+    </div>
+  </div>
+
+
+
+    <div class="modal-overlay" id="formModal">
+      <div class="modal-content">
+        <h2>Nova Transação</h2>
+        <form id="lancamentoForm">
+          <div class="form-group">
+            <label for="formData">Data</label>
+            <input type="date" id="formData" required="" value="2026-05-25">
+          </div>
+          <div class="form-group">
+            <label for="formDescricao">Descrição</label>
+            <input type="text" id="formDescricao" required="" placeholder="Ex: Salário mensal" value="">
+          </div>
+          <div class="form-group">
+            <label for="formValor">Valor (R$)</label>
+            <input type="number" id="formValor" step="0.01" required="" placeholder="0,00" value="">
+          </div>
+          <div class="form-group">
+            <label for="formTipo">Tipo</label>
+            <select id="formTipo">
+              <option value="entrada">Entrada</option>
+              <option value="saida">Saída</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="formCategoria">Categoria</label>
+            <select id="formCategoria">
+              <option value="">Automática</option>
+              <option value="Alimentação">Alimentação</option><option value="Transporte">Transporte</option><option value="Moradia">Moradia</option><option value="Saúde">Saúde</option><option value="Educação">Educação</option><option value="Lazer">Lazer</option><option value="Vestuário">Vestuário</option><option value="Serviços">Serviços</option><option value="Salário">Salário</option><option value="Investimentos">Investimentos</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="formPagamento">Método de Pagamento</label>
+            <select id="formPagamento">
+              <option value="">Selecione</option>
+              <option value="Dinheiro">Dinheiro</option>
+              <option value="PIX">PIX</option>
+              <option value="Débito">Débito</option>
+              <option value="Crédito">Crédito</option>
+              <option value="Boleto">Boleto</option>
+              <option value="Transferência">Transferência</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="formObservacoes">Observações</label>
+            <textarea id="formObservacoes" rows="2" placeholder="Observações opcionais…"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="formRepetir">
+              <span>Repetir</span>
+            </label>
+          </div>
+          <div id="recorrenteFields" class="recorrente-fields" style="display:none">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="formFrequencia">Frequência</label>
+                <select id="formFrequencia">
+                  <option value="semanal">Semanal</option>
+                  <option value="quinzenal">Quinzenal</option>
+                  <option value="mensal" selected="">Mensal</option>
+                  <option value="anual">Anual</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="formProximaData">Próxima ocorrência</label>
+                <input type="date" id="formProximaData">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="formDataFim">Data fim <span class="field-note">(opcional)</span></label>
+                <input type="date" id="formDataFim">
+              </div>
+              <div class="form-group">
+                <label for="formMaxOcorrencias">Máx. ocorrências <span class="field-note">(opcional)</span></label>
+                <input type="number" id="formMaxOcorrencias" min="1" placeholder="Ex: 12">
+              </div>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-ghost" id="cancelForm">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Adicionar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  

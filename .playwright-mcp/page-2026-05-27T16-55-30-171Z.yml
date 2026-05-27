@@ -1,0 +1,71 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e48] [cursor=pointer]: Conta criada com sucesso!
+  - generic [ref=e49]:
+    - complementary [ref=e50]:
+      - generic [ref=e51]:
+        - heading " Gestor" [level=2] [ref=e52]:
+          - generic [ref=e53]: 
+          - text: Gestor
+        - text: 
+      - navigation [ref=e54]:
+        - button " Dashboard" [ref=e55] [cursor=pointer]:
+          - generic [ref=e56]: 
+          - text: Dashboard
+        - button " Extrato" [ref=e57] [cursor=pointer]:
+          - generic [ref=e58]: 
+          - text: Extrato
+        - button " Perfil" [ref=e59] [cursor=pointer]:
+          - generic [ref=e60]: 
+          - text: Perfil
+        - button " Recorrentes" [ref=e61] [cursor=pointer]:
+          - generic [ref=e62]: 
+          - text: Recorrentes
+        - button " Orçamentos" [ref=e63] [cursor=pointer]:
+          - generic [ref=e64]: 
+          - text: Orçamentos
+        - button " Nova Transação" [ref=e65] [cursor=pointer]:
+          - generic [ref=e66]: 
+          - text: Nova Transação
+        - button " Importar" [ref=e67] [cursor=pointer]:
+          - generic [ref=e68]: 
+          - text: Importar
+      - generic [ref=e69]:
+        - generic [ref=e70]:
+          - generic [ref=e71]: 
+          - text: Usuário
+        - generic [ref=e72]:
+          - generic [ref=e73]:
+            - generic [ref=e74]: 
+            - text: Tema
+          - combobox " Tema" [ref=e75] [cursor=pointer]:
+            - option "Escuro (Padrão)" [selected]
+            - option "Dracula"
+            - option "Nord"
+            - option "Tóquio Noite"
+            - option "Gruvbox"
+            - option "Rose Pine"
+            - option "Claro"
+        - button " Alterar Senha" [ref=e76] [cursor=pointer]:
+          - generic [ref=e77]: 
+          - text: Alterar Senha
+        - button " Sair" [ref=e78] [cursor=pointer]:
+          - generic [ref=e79]: 
+          - text: Sair
+    - main [ref=e80]:
+      - generic [ref=e81]:
+        - text: 
+        - heading "Dashboard" [level=1] [ref=e82]
+        - generic [ref=e83]:
+          - button "+ Nova" [ref=e84] [cursor=pointer]:
+            - generic [ref=e85]: +
+            - text: Nova
+          - button " Exportar" [ref=e86] [cursor=pointer]:
+            - generic [ref=e87]: 
+            - text: Exportar
+      - generic [ref=e90]:
+        - img [ref=e91]
+        - heading "Bem-vindo ao Gestor Financeiro" [level=2] [ref=e99]
+        - paragraph [ref=e100]: Adicione sua primeira transação para começar a acompanhar suas finanças
+        - button "+ Nova Transação" [ref=e101] [cursor=pointer]:
+          - generic [ref=e102]: +
+          - text: Nova Transação

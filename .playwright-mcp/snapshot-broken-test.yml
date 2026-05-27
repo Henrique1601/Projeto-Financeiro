@@ -1,0 +1,350 @@
+- generic [ref=e127]:
+  - complementary [ref=e128]:
+    - generic [ref=e129]:
+      - heading " Gestor" [level=2] [ref=e130]:
+        - generic [ref=e131]: 
+        - text: Gestor
+      - text: 
+    - navigation [ref=e132]:
+      - button " Dashboard" [ref=e133] [cursor=pointer]:
+        - generic [ref=e134]: 
+        - text: Dashboard
+      - button " Extrato" [ref=e135] [cursor=pointer]:
+        - generic [ref=e136]: 
+        - text: Extrato
+      - button " Perfil" [ref=e137] [cursor=pointer]:
+        - generic [ref=e138]: 
+        - text: Perfil
+      - button " Recorrentes" [ref=e139] [cursor=pointer]:
+        - generic [ref=e140]: 
+        - text: Recorrentes
+      - button " Orçamentos" [ref=e141] [cursor=pointer]:
+        - generic [ref=e142]: 
+        - text: Orçamentos
+      - button " Nova Transação" [ref=e143] [cursor=pointer]:
+        - generic [ref=e144]: 
+        - text: Nova Transação
+      - button " Importar" [ref=e145] [cursor=pointer]:
+        - generic [ref=e146]: 
+        - text: Importar
+    - generic [ref=e147]:
+      - generic [ref=e148]:
+        - generic [ref=e149]: 
+        - text: Usuário
+      - generic [ref=e150]:
+        - generic [ref=e151]:
+          - generic [ref=e152]: 
+          - text: Tema
+        - combobox " Tema" [ref=e153] [cursor=pointer]:
+          - option "Escuro (Padrão)" [selected]
+          - option "Dracula"
+          - option "Nord"
+          - option "Tóquio Noite"
+          - option "Gruvbox"
+          - option "Rose Pine"
+          - option "Claro"
+      - button " Alterar Senha" [ref=e154] [cursor=pointer]:
+        - generic [ref=e155]: 
+        - text: Alterar Senha
+      - button " Sair" [ref=e156] [cursor=pointer]:
+        - generic [ref=e157]: 
+        - text: Sair
+  - main [ref=e158]:
+    - generic [ref=e159]:
+      - text: 
+      - heading "Dashboard" [level=1] [ref=e160]
+      - generic [ref=e161]:
+        - button "+ Nova" [ref=e162] [cursor=pointer]:
+          - generic [ref=e163]: +
+          - text: Nova
+        - button " Exportar" [ref=e164] [cursor=pointer]:
+          - generic [ref=e165]: 
+          - text: Exportar
+    - generic [ref=e451]:
+      - generic [ref=e452]:
+        - generic [ref=e453]:
+          - button " Widgets" [ref=e454] [cursor=pointer]:
+            - generic [ref=e455]: 
+            - text: Widgets
+          - button " Presets" [ref=e456] [cursor=pointer]:
+            - generic [ref=e457]: 
+            - text: Presets
+        - generic [ref=e458]:
+          - generic [ref=e459]:
+            - generic [ref=e460]: Saldo Total
+            - generic [ref=e461]:
+              - button "" [ref=e462] [cursor=pointer]:
+                - generic [ref=e463]: 
+              - button "" [ref=e464] [cursor=pointer]:
+                - generic [ref=e465]: 
+          - generic [ref=e467]:
+            - generic [ref=e469]: 
+            - generic [ref=e470]: Saldo Total
+            - generic [ref=e471]: R$ 5.650,00
+        - generic [ref=e472]:
+          - generic [ref=e473]:
+            - generic [ref=e474]: Entradas
+            - generic [ref=e475]:
+              - button "" [ref=e476] [cursor=pointer]:
+                - generic [ref=e477]: 
+              - button "" [ref=e478] [cursor=pointer]:
+                - generic [ref=e479]: 
+          - generic [ref=e481]:
+            - generic [ref=e483]: 
+            - generic [ref=e484]: Entradas
+            - generic [ref=e485]: R$ 7.000,00
+        - generic [ref=e486]:
+          - generic [ref=e487]:
+            - generic [ref=e488]: Categorias
+            - generic [ref=e489]:
+              - button "" [ref=e490] [cursor=pointer]:
+                - generic [ref=e491]: 
+              - button "" [ref=e492] [cursor=pointer]:
+                - generic [ref=e493]: 
+          - heading " Categorias" [level=3] [ref=e495]:
+            - generic [ref=e496]: 
+            - text: Categorias
+        - generic [ref=e498]:
+          - generic [ref=e499]:
+            - generic [ref=e500]: Saídas
+            - generic [ref=e501]:
+              - button "" [ref=e502] [cursor=pointer]:
+                - generic [ref=e503]: 
+              - button "" [ref=e504] [cursor=pointer]:
+                - generic [ref=e505]: 
+          - generic [ref=e507]:
+            - generic [ref=e509]: 
+            - generic [ref=e510]: Saídas
+            - generic [ref=e511]: R$ 1.350,00
+        - generic [ref=e512]:
+          - generic [ref=e513]:
+            - generic [ref=e514]: Transações
+            - generic [ref=e515]:
+              - button "" [ref=e516] [cursor=pointer]:
+                - generic [ref=e517]: 
+              - button "" [ref=e518] [cursor=pointer]:
+                - generic [ref=e519]: 
+          - generic [ref=e521]:
+            - generic [ref=e523]: 
+            - generic [ref=e524]: Transações
+            - generic [ref=e525]: "5"
+        - text:   
+        - generic [ref=e526]:
+          - generic [ref=e527]:
+            - generic [ref=e528]: Comparativo Mensal
+            - generic [ref=e529]:
+              - button "" [ref=e530] [cursor=pointer]:
+                - generic [ref=e531]: 
+              - button "" [ref=e532] [cursor=pointer]:
+                - generic [ref=e533]: 
+          - generic [ref=e534]:
+            - generic [ref=e535]: Comparativo Mensal
+            - generic [ref=e537]:
+              - generic [ref=e538]:
+                - generic [ref=e539]: Mês Atual (Mai)
+                - generic [ref=e540]: R$ 5.650,00
+                - generic [ref=e541]: "E: R$ 7.000,00 / S: R$ 1.350,00"
+              - generic [ref=e542]:
+                - generic [ref=e543]: Mês Anterior (Abr)
+                - generic [ref=e544]: R$ 0,00
+                - generic [ref=e545]: "E: R$ 0,00 / S: R$ 0,00"
+              - generic [ref=e546]:
+                - generic [ref=e547]: Diferença
+                - generic [ref=e548]: +R$ 5.650,00
+                - generic [ref=e549]: ∞% em relação ao mês anterior
+        - generic [ref=e550]:
+          - generic [ref=e551]:
+            - generic [ref=e552]: Meta de Economia
+            - generic [ref=e553]:
+              - button "" [ref=e554] [cursor=pointer]:
+                - generic [ref=e555]: 
+              - button "" [ref=e556] [cursor=pointer]:
+                - generic [ref=e557]: 
+          - generic [ref=e558]:
+            - generic [ref=e559]:
+              - generic [ref=e560]: 
+              - text: Meta de Economia
+            - generic [ref=e562]:
+              - spinbutton [ref=e563]
+              - button "" [ref=e564] [cursor=pointer]:
+                - generic [ref=e565]: 
+        - generic [ref=e566]:
+          - generic [ref=e567]:
+            - generic [ref=e568]: Projeção de Saldo
+            - generic [ref=e569]:
+              - button "" [ref=e570] [cursor=pointer]:
+                - generic [ref=e571]: 
+              - button "" [ref=e572] [cursor=pointer]:
+                - generic [ref=e573]: 
+          - generic [ref=e574]:
+            - generic [ref=e575]:
+              - generic [ref=e576]: 
+              - text: Projeção de Saldo
+            - generic [ref=e578]:
+              - generic [ref=e579]:
+                - generic [ref=e580]: Saldo Atual (mês)
+                - generic [ref=e581]: R$ 5.650,00
+              - generic [ref=e582]:
+                - generic [ref=e583]: Projeção Final do Mês
+                - generic [ref=e584]: R$ 10.170,00
+                - generic [ref=e585]: "4 dias restantes · Média dia: R$ 1.130,00/dia"
+        - generic [ref=e586]:
+          - generic [ref=e587]:
+            - generic [ref=e588]: Orçamentos do Mês
+            - generic [ref=e589]:
+              - button "" [ref=e590] [cursor=pointer]:
+                - generic [ref=e591]: 
+              - button "" [ref=e592] [cursor=pointer]:
+                - generic [ref=e593]: 
+          - group [ref=e595]:
+            - generic " Orçamentos do Mês" [ref=e596] [cursor=pointer]:
+              - generic [ref=e597]: 
+              - text: Orçamentos do Mês
+            - option "Selecione a categoria" [selected]
+            - option "Salário"
+            - option "Serviços"
+            - option "Moradia"
+            - option "Alimentação"
+            - option "Transporte"
+            - text: +
+      - generic [ref=e598]:
+        - generic [ref=e599]:
+          - generic [ref=e600]:
+            - generic [ref=e601]: Buscar
+            - textbox "Buscar" [ref=e602]:
+              - /placeholder: Descrição…
+          - generic [ref=e603]:
+            - generic [ref=e604]: Tipo
+            - combobox "Tipo" [ref=e605]:
+              - option "Todos" [selected]
+              - option "Entradas"
+              - option "Saídas"
+          - generic [ref=e606]:
+            - generic [ref=e607]: Categoria
+            - combobox "Categoria" [ref=e608]:
+              - option "Todas" [selected]
+              - option "Salário"
+              - option "Serviços"
+              - option "Moradia"
+              - option "Alimentação"
+              - option "Transporte"
+          - generic [ref=e609]:
+            - generic [ref=e610]: Pagamento
+            - combobox "Pagamento" [ref=e611]:
+              - option "Todos" [selected]
+              - option "Dinheiro"
+          - generic [ref=e612]:
+            - generic [ref=e613]: Data início
+            - textbox "Data início" [ref=e614]
+          - generic [ref=e615]:
+            - generic [ref=e616]: Data fim
+            - textbox "Data fim" [ref=e617]
+        - generic [ref=e618]:
+          - button "+ Nova" [ref=e619] [cursor=pointer]:
+            - generic [ref=e620]: +
+            - text: Nova
+          - button " Importar" [ref=e621] [cursor=pointer]:
+            - generic [ref=e622]: 
+            - text: Importar
+          - button " Filtrar" [ref=e623] [cursor=pointer]:
+            - generic [ref=e624]: 
+            - text: Filtrar
+          - button " Limpar" [ref=e625] [cursor=pointer]:
+            - generic [ref=e626]: 
+            - text: Limpar
+          - text: 
+      - generic [ref=e627]:
+        - generic [ref=e629] [cursor=pointer]:
+          - checkbox "Selecionar todos (5 registros)" [ref=e630]
+          - text: Selecionar todos (5 registros)
+        - table [ref=e632]:
+          - rowgroup [ref=e633]:
+            - row "Data ▼ Descrição Categoria Valor Tipo Ações" [ref=e634]:
+              - columnheader [ref=e635]
+              - columnheader "Data ▼" [ref=e636] [cursor=pointer]
+              - columnheader "Descrição" [ref=e637] [cursor=pointer]
+              - columnheader "Categoria" [ref=e638] [cursor=pointer]
+              - columnheader "Valor" [ref=e639] [cursor=pointer]
+              - columnheader "Tipo" [ref=e640] [cursor=pointer]
+              - columnheader "Ações" [ref=e641]
+          - rowgroup [ref=e642]:
+            - row "27/05/2026 Salário Salário R$ 5.000,00 Entrada   " [ref=e643]:
+              - cell [ref=e644]:
+                - checkbox [ref=e645]
+              - cell "27/05/2026" [ref=e646]
+              - cell "Salário" [ref=e647]
+              - cell "Salário" [ref=e648]
+              - cell "R$ 5.000,00" [ref=e649]
+              - cell "Entrada" [ref=e650]:
+                - generic [ref=e651]: Entrada
+              - cell "  " [ref=e652]:
+                - button "" [ref=e653] [cursor=pointer]:
+                  - generic [ref=e654]: 
+                - button "" [ref=e655] [cursor=pointer]:
+                  - generic [ref=e656]: 
+                - button "" [ref=e657] [cursor=pointer]:
+                  - generic [ref=e658]: 
+            - row "27/05/2026 Freelance Serviços R$ 2.000,00 Entrada   " [ref=e659]:
+              - cell [ref=e660]:
+                - checkbox [ref=e661]
+              - cell "27/05/2026" [ref=e662]
+              - cell "Freelance" [ref=e663]
+              - cell "Serviços" [ref=e664]
+              - cell "R$ 2.000,00" [ref=e665]
+              - cell "Entrada" [ref=e666]:
+                - generic [ref=e667]: Entrada
+              - cell "  " [ref=e668]:
+                - button "" [ref=e669] [cursor=pointer]:
+                  - generic [ref=e670]: 
+                - button "" [ref=e671] [cursor=pointer]:
+                  - generic [ref=e672]: 
+                - button "" [ref=e673] [cursor=pointer]:
+                  - generic [ref=e674]: 
+            - row "27/05/2026 Aluguel Moradia -R$ 800,00 Saída   " [ref=e675]:
+              - cell [ref=e676]:
+                - checkbox [ref=e677]
+              - cell "27/05/2026" [ref=e678]
+              - cell "Aluguel" [ref=e679]
+              - cell "Moradia" [ref=e680]
+              - cell "-R$ 800,00" [ref=e681]
+              - cell "Saída" [ref=e682]:
+                - generic [ref=e683]: Saída
+              - cell "  " [ref=e684]:
+                - button "" [ref=e685] [cursor=pointer]:
+                  - generic [ref=e686]: 
+                - button "" [ref=e687] [cursor=pointer]:
+                  - generic [ref=e688]: 
+                - button "" [ref=e689] [cursor=pointer]:
+                  - generic [ref=e690]: 
+            - row "27/05/2026 Mercado Alimentação -R$ 350,00 Saída   " [ref=e691]:
+              - cell [ref=e692]:
+                - checkbox [ref=e693]
+              - cell "27/05/2026" [ref=e694]
+              - cell "Mercado" [ref=e695]
+              - cell "Alimentação" [ref=e696]
+              - cell "-R$ 350,00" [ref=e697]
+              - cell "Saída" [ref=e698]:
+                - generic [ref=e699]: Saída
+              - cell "  " [ref=e700]:
+                - button "" [ref=e701] [cursor=pointer]:
+                  - generic [ref=e702]: 
+                - button "" [ref=e703] [cursor=pointer]:
+                  - generic [ref=e704]: 
+                - button "" [ref=e705] [cursor=pointer]:
+                  - generic [ref=e706]: 
+            - row "27/05/2026 Gasolina Transporte -R$ 200,00 Saída   " [ref=e707]:
+              - cell [ref=e708]:
+                - checkbox [ref=e709]
+              - cell "27/05/2026" [ref=e710]
+              - cell "Gasolina" [ref=e711]
+              - cell "Transporte" [ref=e712]
+              - cell "-R$ 200,00" [ref=e713]
+              - cell "Saída" [ref=e714]:
+                - generic [ref=e715]: Saída
+              - cell "  " [ref=e716]:
+                - button "" [ref=e717] [cursor=pointer]:
+                  - generic [ref=e718]: 
+                - button "" [ref=e719] [cursor=pointer]:
+                  - generic [ref=e720]: 
+                - button "" [ref=e721] [cursor=pointer]:
+                  - generic [ref=e722]: 

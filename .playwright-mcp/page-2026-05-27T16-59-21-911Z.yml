@@ -1,0 +1,29 @@
+- generic [ref=e6]:
+  - heading "Gestor Financeiro" [level=1] [ref=e7]
+  - paragraph [ref=e8]: Faça login para continuar
+  - generic [ref=e9]:
+    - generic [ref=e10]:
+      - generic [ref=e11]: E-mail
+      - textbox "E-mail" [ref=e12]:
+        - /placeholder: seu@email.com
+        - text: teste@teste.com
+    - generic [ref=e13]:
+      - generic [ref=e14]: Senha
+      - textbox "Senha" [active] [ref=e15]:
+        - /placeholder: Sua senha
+        - text: "123456"
+    - button "Entrar" [ref=e16] [cursor=pointer]
+  - generic [ref=e17]: ou
+  - generic [ref=e18]:
+    - button " Entrar com Google" [ref=e19] [cursor=pointer]:
+      - generic [ref=e20]: 
+      - text: Entrar com Google
+    - button " Entrar com GitHub" [ref=e21] [cursor=pointer]:
+      - generic [ref=e22]: 
+      - text: Entrar com GitHub
+  - generic [ref=e23]:
+    - link "Esqueci minha senha" [ref=e24] [cursor=pointer]:
+      - /url: "#/esqueci-senha"
+    - text: Não tem conta?
+    - link "Cadastre-se" [ref=e25] [cursor=pointer]:
+      - /url: "#/register"
