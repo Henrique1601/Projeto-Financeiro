@@ -68,6 +68,11 @@ jobs:
           cd ../backend
           DATABASE_URL="${{ secrets.DATABASE_URL }}" JWT_SECRET="${{ secrets.JWT_SECRET }}" node api/index.js &
           sleep 3
+      - name: Start frontend dev server
+        working-directory: front-end
+        run: |
+          npx vite --port 5173 &
+          npx wait-on http://localhost:5173 --timeout 30000
       - name: Run E2E tests
         working-directory: front-end
         run: npx playwright test
