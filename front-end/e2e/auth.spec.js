@@ -9,13 +9,12 @@ test.describe('Authentication Flow', () => {
   test('REGISTER - creates account and redirects to dashboard', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    await page.click('text=Criar Conta');
+    await page.click('a[href="#/register"]');
     await page.waitForSelector('#registerForm', { timeout: 5000 });
-    await page.fill('input[name="nome"]', TEST_NOME);
-    await page.fill('input[name="sobrenome"]', TEST_SOBRENOME);
-    await page.fill('input[name="email"]', TEST_EMAIL);
-    await page.fill('input[name="senha"]', TEST_PASS);
-    await page.fill('input[name="confirmarSenha"]', TEST_PASS);
+    await page.fill('#name', TEST_NOME);
+    await page.fill('#surname', TEST_SOBRENOME);
+    await page.fill('#email', TEST_EMAIL);
+    await page.fill('#password', TEST_PASS);
     await page.click('button[type="submit"]');
     await page.waitForURL(/\/dashboard/, { timeout: 10000 });
     await expect(page.locator('#pageTitle')).toHaveText('Dashboard');
@@ -24,8 +23,8 @@ test.describe('Authentication Flow', () => {
   test('LOGIN - authenticates existing user', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    await page.fill('input[name="email"]', TEST_EMAIL);
-    await page.fill('input[name="senha"]', TEST_PASS);
+    await page.fill('#email', TEST_EMAIL);
+    await page.fill('#password', TEST_PASS);
     await page.click('button[type="submit"]');
     await page.waitForURL(/\/dashboard/, { timeout: 10000 });
     await expect(page.locator('#pageTitle')).toHaveText('Dashboard');
@@ -43,8 +42,8 @@ test.describe('Authentication Flow', () => {
   test('LOGOUT - redirects to login page', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    await page.fill('input[name="email"]', TEST_EMAIL);
-    await page.fill('input[name="senha"]', TEST_PASS);
+    await page.fill('#email', TEST_EMAIL);
+    await page.fill('#password', TEST_PASS);
     await page.click('button[type="submit"]');
     await page.waitForURL(/\/dashboard/, { timeout: 10000 });
     const profileLink = page.locator('.nav-item[data-page="profile"], a[href*="perfil"]').first();

@@ -5,20 +5,19 @@ test.describe('Sidebar Navigation', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     const email = `e2e_sb_${Date.now()}@test.com`;
-    await page.fill('input[name="email"]', email);
-    await page.fill('input[name="senha"]', 'Teste123!');
+    await page.fill('#email', email);
+    await page.fill('#password', 'Teste123!');
     await page.click('button[type="submit"]');
     const visible = await page.locator('#pageTitle').isVisible().catch(() => false);
     if (!visible) {
       await page.goto('/');
       await page.waitForLoadState('networkidle');
-      await page.click('text=Criar Conta');
+      await page.click('a[href="#/register"]');
       await page.waitForSelector('#registerForm', { timeout: 5000 });
-      await page.fill('input[name="nome"]', 'Sidebar');
-      await page.fill('input[name="sobrenome"]', 'Test');
-      await page.fill('input[name="email"]', email);
-      await page.fill('input[name="senha"]', 'Teste123!');
-      await page.fill('input[name="confirmarSenha"]', 'Teste123!');
+      await page.fill('#name', 'Sidebar');
+      await page.fill('#surname', 'Test');
+      await page.fill('#email', email);
+      await page.fill('#password', 'Teste123!');
       await page.click('button[type="submit"]');
     }
     await page.waitForURL(/\/dashboard/, { timeout: 10000 });
