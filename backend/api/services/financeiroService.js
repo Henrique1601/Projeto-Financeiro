@@ -2,13 +2,15 @@ const { pool } = require('../config/database');
 const { withTransaction } = require('../utils/queryHelpers');
 const { validateFinanceiroInput } = require('../utils/validators');
 const { autoCategorize } = require('./authService');
+const { autoCategorizeWithUser } = require('./categoriaService');
 
-const salvarLancamento = async (userId, { data, descricao, valor, entradaSaida, categoria, metodoPagamento, observacoes }) => {
+const salvarLancamento = async (userId, { data, descricao, valor, entradaSaida, categoria, metodoPagamento, observacoes, tags, moeda, cambio }) => {
   entradaSaida = parseFloat(valor) < 0 ? 'Saída' : 'Entrada';
 
-  const categoriaFinal = categoria || autoCategorize(descricao);
+  const categoriaFinal = categoria || await autoCategorizeWithUser(userId, descricao);
   const metodoFinal = metodoPagamento || 'Dinheiro';
   const observacoesFinal = observacoes || '';
+  const tagsFinal = Array.isArray(tags) ? tags : [];
 
   const errors = validateFinanceiroInput(data, descricao, valor, entradaSaida);
   if (errors.length > 0) {
@@ -17,8 +19,8 @@ const salvarLancamento = async (userId, { data, descricao, valor, entradaSaida, 
 
   return await withTransaction(async (client) => {
     const { rows } = await client.query(
-      'INSERT INTO financeiro (user_id, data, descricao, valor, entradaSaida, categoria, "metodoPagamento", observacoes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
-      [userId, data, descricao, valor, entradaSaida, categoriaFinal, metodoFinal, observacoesFinal]
+      'INSERT INTO financeiro (user_id, data, descricao, valor, entradaSaida, categoria, "metodoPagamento", observacoes, tags, moeda, cambio) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id',
+      [userId, data, descricao, valor, entradaSaida, categoriaFinal, metodoFinal, observacoesFinal, tagsFinal, moeda || 'BRL', cambio || 1]
     );
     return { id: rows[0].id, message: 'Dados salvos com sucesso.', categoria: categoriaFinal };
   });
@@ -30,7 +32,11 @@ const listarLancamentos = async (userId) => {
   const orcamentoService = require('./orcamentoService');
   orcamentoService.verificarAlertas(userId).catch(() => {});
   const { rows } = await pool.query(
-    'SELECT * FROM financeiro WHERE user_id = $1 ORDER BY data DESC',
+    `SELECT f.*,
+      (SELECT COUNT(*)::int FROM comprovantes c WHERE c.lancamento_id = f.id) as comprovante_count
+     FROM financeiro f
+     WHERE f.user_id = $1
+     ORDER BY f.data DESC`,
     [userId]
   );
   return rows;
@@ -43,7 +49,7 @@ const deletarLancamento = async (userId, id) => {
   }
 
   const { rows: records } = await pool.query(
-    `SELECT id, data, descricao, valor, entradaSaida "entradaSaida", categoria, "metodoPagamento", observacoes FROM financeiro WHERE id = $1 AND user_id = $2`,
+    `SELECT id, data, descricao, valor, entradaSaida "entradaSaida", categoria, "metodoPagamento", observacoes, tags FROM financeiro WHERE id = $1 AND user_id = $2`,
     [idNum, userId]
   );
   if (records.length === 0) {
@@ -59,11 +65,11 @@ const desfazerDelecao = async (userId, record) => {
   if (!record || !record.data || !record.descricao || record.valor == null) {
     throw new Error('Dados do lançamento inválidos para desfazer.');
   }
-  const { data, descricao, valor, entradaSaida, categoria, metodoPagamento, observacoes } = record;
+  const { data, descricao, valor, entradaSaida, categoria, metodoPagamento, observacoes, tags, moeda, cambio } = record;
   const { rows } = await pool.query(
-    `INSERT INTO financeiro (user_id, data, descricao, valor, entradaSaida, categoria, "metodoPagamento", observacoes)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-    [userId, data, descricao, valor, entradaSaida, categoria, metodoPagamento || 'Dinheiro', observacoes || '']
+    `INSERT INTO financeiro (user_id, data, descricao, valor, entradaSaida, categoria, "metodoPagamento", observacoes, tags, moeda, cambio)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+    [userId, data, descricao, valor, entradaSaida, categoria, metodoPagamento || 'Dinheiro', observacoes || '', Array.isArray(tags) ? tags : [], moeda || 'BRL', cambio || 1]
   );
   return rows[0];
 };
@@ -77,7 +83,7 @@ const editarLancamentos = async (userId, updates) => {
     throw new Error('Máximo 50 edições por vez.');
   }
 
-  const allowedFields = ['data', 'descricao', 'valor', 'entradaSaida', 'categoria', 'metodoPagamento', 'observacoes'];
+  const allowedFields = ['data', 'descricao', 'valor', 'entradaSaida', 'categoria', 'metodoPagamento', 'observacoes', 'tags', 'moeda', 'cambio'];
 
   return await withTransaction(async (client) => {
     let total = 0;
@@ -110,7 +116,7 @@ const importarLancamentos = async (userId, lancamentos) => {
   const updatedIds = [];
 
   for (const item of lancamentos) {
-    const { data, descricao, valor, entradaSaida, categoria, metodoPagamento, observacoes } = item;
+    const { data, descricao, valor, entradaSaida, categoria, metodoPagamento, observacoes, tags, moeda, cambio } = item;
 
     if (!data || !descricao || isNaN(valor)) {
       throw new Error('Campos inválidos em um dos lançamentos.');
@@ -119,7 +125,8 @@ const importarLancamentos = async (userId, lancamentos) => {
     const tipoFinal = entradaSaida || (parseFloat(valor) < 0 ? 'Saída' : 'Entrada');
     const metodoFinal = metodoPagamento || 'Outro';
     const observacoesFinal = observacoes || '';
-    const categoriaFinal = categoria || autoCategorize(descricao);
+    const tagsFinal = Array.isArray(tags) ? tags : [];
+    const categoriaFinal = categoria || await autoCategorizeWithUser(userId, descricao);
 
     const existing = await pool.query(
       'SELECT id FROM financeiro WHERE user_id = $1 AND data = $2 AND descricao = $3 AND valor = $4 AND entradaSaida = $5',
@@ -132,8 +139,8 @@ const importarLancamentos = async (userId, lancamentos) => {
     }
 
     const result = await pool.query(
-      'INSERT INTO financeiro (user_id, data, descricao, valor, entradaSaida, categoria, "metodoPagamento", observacoes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
-      [userId, data, descricao, valor, tipoFinal, categoriaFinal, metodoFinal, observacoesFinal]
+      'INSERT INTO financeiro (user_id, data, descricao, valor, entradaSaida, categoria, "metodoPagamento", observacoes, tags, moeda, cambio) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id',
+      [userId, data, descricao, valor, tipoFinal, categoriaFinal, metodoFinal, observacoesFinal, tagsFinal, moeda || 'BRL', cambio || 1]
     );
     insertedIds.push(result.rows[0].id);
   }
@@ -277,7 +284,10 @@ const importarAuto = async (userId, fileType, content) => {
             valor: ehSaida ? -Math.abs(rawValor) : Math.abs(rawValor),
             entradaSaida: ehSaida ? 'Saída' : 'Entrada',
             categoria: item.categoria || autoCategorize(item.descricao || ''),
-            metodoPagamento: item.metodoPagamento || 'Outro'
+            metodoPagamento: item.metodoPagamento || 'Outro',
+            tags: Array.isArray(item.tags) ? item.tags : [],
+            moeda: item.moeda || 'BRL',
+            cambio: item.cambio || 1
           };
         });
       }
@@ -293,7 +303,7 @@ const importarAuto = async (userId, fileType, content) => {
   const result = await importarLancamentos(userId, lancamentos);
   result.debug = {
     totalParsed: lancamentos.length,
-    sample: lancamentos.slice(0, 3).map(l => ({ data: l.data, descricao: l.descricao, valor: l.valor, categoria: l.categoria }))
+    sample: lancamentos.slice(0, 3).map(l => ({ data: l.data, descricao: l.descricao, valor: l.valor, categoria: l.categoria, moeda: l.moeda, cambio: l.cambio }))
   };
   return result;
 };
@@ -307,12 +317,15 @@ const exportarXlsx = async (lancamentos) => {
     Tipo: (parseFloat(l.valor) < 0) ? 'Saída' : 'Entrada',
     Categoria: l.categoria || '',
     'Método Pagamento': l.metodoPagamento || '',
+    Tags: Array.isArray(l.tags) ? l.tags.join(', ') : '',
+    Moeda: l.moeda || 'BRL',
+    Câmbio: l.cambio || 1,
     Observações: l.observacoes || ''
   }));
   const ws = XLSX.utils.json_to_sheet(rows);
   const colWidths = [
     { wch: 12 }, { wch: 40 }, { wch: 14 },
-    { wch: 8 }, { wch: 16 }, { wch: 18 }, { wch: 30 }
+    { wch: 8 }, { wch: 16 }, { wch: 18 }, { wch: 20 }, { wch: 8 }, { wch: 10 }, { wch: 30 }
   ];
   ws['!cols'] = colWidths;
   const wb = XLSX.utils.book_new();

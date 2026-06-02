@@ -14,6 +14,12 @@ const WIDGET_DEFS = [
   { id: 'meta', label: 'Meta de Economia', type: 'insight', defaultSize: 'md' },
   { id: 'projecao', label: 'Projeção de Saldo', type: 'insight', defaultSize: 'md' },
   { id: 'orcamentos', label: 'Orçamentos do Mês', type: 'orcamentos', defaultSize: 'xl' },
+  { id: 'metas-categoria', label: 'Metas por Categoria', type: 'metas-categoria', defaultSize: 'lg' },
+  { id: 'desafios', label: 'Desafios de Economia', type: 'desafios', defaultSize: 'lg' },
+  { id: 'pagamentos', label: 'Por Método de Pagamento', type: 'chart', defaultSize: 'md' },
+  { id: 'recorrentes-vs-pontuais', label: 'Recorrentes vs Pontuais', type: 'chart', defaultSize: 'md' },
+  { id: 'comparativo-mensal', label: 'Comparativo Mensal', type: 'insight', defaultSize: 'md' },
+  { id: 'investimento', label: 'Regra de Investimento', type: 'insight', defaultSize: 'sm' },
 ];
 
 const DEFAULT_ORDER = WIDGET_DEFS.map(w => w.id);
@@ -73,6 +79,9 @@ export function getActivePreset() {
 export function setActivePreset(id) {
   const config = loadConfig();
   config.activePresetId = id;
+  if (id === DEFAULT_PRESET_ID) {
+    config.presets = (config.presets || []).filter(p => p.id !== DEFAULT_PRESET_ID);
+  }
   saveConfigSilent(config);
   syncToBackend(config);
 }

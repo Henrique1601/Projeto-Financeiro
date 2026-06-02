@@ -94,7 +94,7 @@ function renderRow(r, i) {
       </td>
       <td>${r.ocorrencias_geradas}${r.max_ocorrencias ? `/${r.max_ocorrencias}` : ''}</td>
       <td>
-        <button class="btn-icon btn-deletar-rec" data-id="${r.id}" title="Excluir">
+        <button class="btn-icon btn-deletar-rec" data-id="${r.id}" title="Excluir" aria-label="Excluir recorrente">
           <i class="fas fa-trash"></i>
         </button>
       </td>

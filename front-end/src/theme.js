@@ -8,6 +8,7 @@ const THEMES = [
   { id: 'gruvbox', label: 'Gruvbox', icon: 'fa-brush' },
   { id: 'rose-pine', label: 'Rose Pine', icon: 'fa-tree' },
   { id: 'light', label: 'Claro', icon: 'fa-sun' },
+  { id: 'system', label: 'Sistema', icon: 'fa-desktop' },
 ];
 
 const CUSTOM_THEMES_KEY = 'custom-themes';
@@ -38,11 +39,41 @@ export function getAllThemes() {
   return [...THEMES, ...getCustomThemes().map(t => ({ ...t, label: t.label || t.name }))];
 }
 
+let systemThemeListener = null;
+
+function getSystemTheme() {
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function startSystemThemeListener() {
+  stopSystemThemeListener();
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  systemThemeListener = (e) => {
+    applyTheme(e.matches ? 'dark' : 'light');
+  };
+  mq.addEventListener('change', systemThemeListener);
+}
+
+function stopSystemThemeListener() {
+  if (systemThemeListener) {
+    window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', systemThemeListener);
+    systemThemeListener = null;
+  }
+}
+
+export function resolveTheme(id) {
+  if (id === 'system') {
+    return getSystemTheme() === 'dark' ? 'dark' : 'light';
+  }
+  return id;
+}
+
 export function getCurrentTheme() {
   return localStorage.getItem('theme') || 'dark';
 }
 
 export function applyTheme(id) {
+  id = resolveTheme(id);
   if (id && id.startsWith('custom-')) {
     const themes = getCustomThemes();
     const theme = themes.find(t => t.id === id);
@@ -58,6 +89,11 @@ export function applyTheme(id) {
 
 export function setTheme(id) {
   localStorage.setItem('theme', id);
+  if (id === 'system') {
+    startSystemThemeListener();
+  } else {
+    stopSystemThemeListener();
+  }
   applyTheme(id);
   syncThemeToBackend(id);
 }
@@ -76,7 +112,11 @@ export function initTheme(serverTheme) {
   if (serverTheme) {
     localStorage.setItem('theme', serverTheme);
   }
-  applyTheme(getCurrentTheme());
+  const saved = getCurrentTheme();
+  if (saved === 'system') {
+    startSystemThemeListener();
+  }
+  applyTheme(saved);
 }
 
 export function getCustomThemes() {

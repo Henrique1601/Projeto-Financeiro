@@ -13,3 +13,7 @@ skills-lock.backup.json
 screenshots/
 __pycache__/
 *.pyc
+.superpowers
+docs/
+mockup-categorias.html
+mockup-categorias.png

@@ -92,3 +92,7 @@ export async function apiPut(path, body) {
 export async function apiDelete(path, body) {
   return apiFetch(path, { method: 'DELETE', body: body ? JSON.stringify(body) : undefined });
 }
+
+export async function apiPatch(path, body) {
+  return apiFetch(path, { method: 'PATCH', body: JSON.stringify(body) });
+}

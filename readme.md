@@ -42,12 +42,15 @@ O **Gestor de Despesas** é uma aplicação web completa para controle financeir
 
 ### ✨ Principais Características
 
-- **Interface moderna** com 7 temas (Dark, Dracula, Nord, Tokyo Night, Gruvbox, Rose Pine, Claro) e design responsivo (mobile-first)
+- **Interface moderna** com 8 temas (Sistema, Dark, Dracula, Nord, Tokyo Night, Gruvbox, Rose Pine, Claro) + **temas customizáveis** (editor visual com 20 variáveis CSS)
+- **Sidebar collapsível** com overlay hover-expand (Notion-like), mini mode persistente e grupos de navegação
 - **PWA** com service worker, cache offline e notificações push
-- **Exportação** CSV, JSON e PDF com período e filtros
-- **Dashboard avançado** com gráficos Chart.js (tree-shaked), comparativo mensal, meta de economia, projeção de saldo e orçamentos por categoria
+- **Exportação** CSV, JSON, XLSX, PDF e envio por email com período e filtros
+- **Dashboard customizável** com widget grid (drag & drop, redimensionar, ocultar/mostrar, presets)
+- **Gráficos Chart.js** (tree-shaked, ~90KB), comparativo mensal, meta de economia, projeção de saldo e orçamentos por categoria
 - **Transações recorrentes** com geração automática e notificação de vencimento
 - **Orçamentos mensais** por categoria com alertas push (>80% e >100%)
+- **Autenticação em dois fatores (2FA)** via TOTP (Google Authenticator) + código email + códigos de backup (8, uso único) + dispositivo confiável (30 dias)
 - **Sistema de autenticação** com JWT + refresh token
 - **Login social** (Google, GitHub) com fluxo redirect
 - **Recuperação de senha** por código (SMTP ou dev mode)
@@ -55,8 +58,9 @@ O **Gestor de Despesas** é uma aplicação web completa para controle financeir
 - **Importação automática** de extratos (OFX, CSV, JSON) com detecção de duplicatas
 - **Seleção em massa**, duplicação, ordenação por coluna e paginação
 - **Atalhos de teclado** para navegação rápida
-- **Página de perfil** com edição de nome/foto, tema sincronizado e push notifications
+- **Página de perfil** com edição de nome/foto, tema sincronizado, tema customizado, push notifications e 2FA
 - **CI/CD automático** — GitHub Actions → Testes → Deploy Vercel
+- **Undo após deletar** com toast de 5s para desfazer (individual e bulk)
 
 ---
 
@@ -132,9 +136,11 @@ O **Gestor de Despesas** é uma aplicação web completa para controle financeir
 - [x] Envio por email do relatório (.xlsx)
 
 ### Interface
-- [x] 7 temas (Dark, Dracula, Nord, Tokyo Night, Gruvbox, Rose Pine, Claro)
+- [x] 8 temas (Sistema, Dark, Dracula, Nord, Tokyo Night, Gruvbox, Rose Pine, Claro)
 - [x] Seletor de tema no sidebar
 - [x] Tema sincronizado com o backend
+- [x] Tema "Sistema" segue `prefers-color-scheme` do SO com listener ao vivo
+- [x] Sidebar collapsível com overlay hover-expand (Notion-like), footer icon buttons, backdrop overlay, indicador de grupo ativo, smooth margin-left transition e mini mode persistente
 - [x] Responsivo mobile-first
 - [x] Menu hamburger para mobile
 - [x] Animações: page enter (fade + translateY), staggered reveal em cards/tabela/gráficos
@@ -158,7 +164,7 @@ O **Gestor de Despesas** é uma aplicação web completa para controle financeir
 | Tecnologia | Descrição |
 |------------|-----------|
 | Vite 6 | Build tool e dev server (ES Modules) |
-| CSS3 | Estilização moderna com variáveis CSS + 7 temas |
+| CSS3 | Estilização moderna com variáveis CSS + 8 temas (+ "Sistema") |
 | JavaScript (Vanilla) | SPA com hash routing |
 | Chart.js (tree-shaked) | Gráficos (~90KB vs 240KB) |
 | Service Worker | PWA offline + push notifications |
@@ -248,9 +254,9 @@ postgre/
 │   │   │   ├── ResetPasswordPage.js
 │   │   │   └── ChangePasswordPage.js
 │   │   ├── styles/
-│   │   │   ├── variables.css        # Variáveis CSS + 7 temas
+│   │   │   ├── variables.css        # Variáveis CSS + 8 temas (+ "Sistema")
 │   │   │   ├── global.css           # Animações, skeletons, estilos globais
-│   │   │   ├── dashboard.css        # Dashboard + sidebar + sort/pagination
+│   │   │   ├── dashboard.css        # Dashboard + sidebar collapsível/overlay + sort/pagination
 │   │   │   ├── extrato.css
 │   │   │   └── login.css
 │   │   ├── utils/
@@ -263,7 +269,7 @@ postgre/
 │   │   ├── main.js                  # App init + router + shortcuts
 │   │   ├── router.js                # Hash-based SPA router
 │   │   ├── store.js                 # Estado reativo
-│   │   └── theme.js                 # 7 temas + sync backend
+│   │   └── theme.js                 # 8 temas (+ "Sistema") + sync backend + custom themes
 │   ├── tests/
 │   │   └── format.test.js           # Testes unitários
 │   ├── index.html
@@ -295,20 +301,21 @@ git clone https://github.com/Henrique1601/Projeto-Financeiro.git
 cd Projeto-Financeiro
 ```
 
-### Backend
+### Desenvolvimento local (raiz)
 
 ```bash
-cd backend
-npm install
-npm run dev
+npm run install:all   # Instala dependências de backend + frontend
+npm run dev           # Inicia ambos simultaneamente (via concurrently)
 ```
 
-### Front-end (desenvolvimento local)
+### Ou individualmente
 
 ```bash
-cd front-end
-npm install
-npm run dev
+# Apenas backend
+cd backend && npm install && npm run dev
+
+# Apenas front-end
+cd front-end && npm install && npm run dev
 ```
 
 O frontend em dev aponta para `localhost:3000` automaticamente.
@@ -497,6 +504,7 @@ jobs:
 | provider | TEXT | Provedor (google, github) |
 | foto | TEXT | URL da foto |
 | theme | TEXT | Tema salvo (sincronizado) |
+| sidebarCollapsed | BOOLEAN | Sidebar recolhida (sync) |
 | primeiro_login | BOOLEAN | Primeiro login |
 | created_at | TIMESTAMP | Data de criação |
 
@@ -617,25 +625,24 @@ O sistema categoriza automaticamente transações baseado em palavras-chave:
 
 O projeto usa `node:test` (nativo do Node.js) — sem dependências externas de test runner.
 
-### Backend
+### Todos os testes (raiz)
 
 ```bash
-cd backend
-npm test
+npm test              # Backend + frontend sequenciais
+npm run test:backend  # Apenas backend
+npm run test:frontend # Apenas frontend
 ```
 
-**54 testes no total:**
-- **31 unitários**: autoCategorize (15), parseCSV (6), parseOFX (4), calcularProximaData (6)
-- **23 integração**: health, auth (5), financeiro (6), recorrentes (3), orçamentos (3), profile (2), error handling (3)
-
-### Frontend
+### Ou individualmente
 
 ```bash
-cd front-end
-npm test
+cd backend && npm test     # Backend: 54 testes (31 unit + 23 integração)
+cd front-end && npm test   # Frontend: 37 testes (format + theme + sidebar)
 ```
 
-**Testes unitários**: format.js (formatação de data, moeda, tipo)
+**54 testes backend**: autoCategorize (15), parseCSV (6), parseOFX (4), calcularProximaData (6), integração (23)
+
+**37 testes frontend**: `format.test.js` (9) + `theme.test.js` (14) + `sidebar.test.js` (14)
 
 ### E2E (Playwright)
 
@@ -643,7 +650,7 @@ npm test
 npm run test:e2e
 ```
 
-**7 testes**: register, login, dashboard, create transaction, perfil, recorrentes, health
+**14 testes**: auth (6), dashboard (5), sidebar (3)
 
 ### CI/CD
 

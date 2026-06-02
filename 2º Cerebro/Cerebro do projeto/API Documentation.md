@@ -17,15 +17,16 @@ cssclasses:
 
 # API Documentation
 
-> Base URL: `https://projeto-financeiro-vert.vercel.app/api`  
-> Local: `http://localhost:3000/api`
+> **Base URL (prod):** `https://gestor-financeiro-api-proj.vercel.app/api`  
+> **Base URL (local):** `http://localhost:3000/api`
 >
-> Local: 'http://localhost:3000/api/auth/github/callback'
-   vercel: https://projeto-financeiro-vert.vercel.app/api/auth/github/callback
-   local: http://localhost:3000/api/auth/google/callback
-   vercel: https://projeto-financeiro-vert.vercel.app/api/auth/google/callback
-
-%%自动生成 - mantida sincronizada com o código-fonte%%
+> **OAuth callbacks (prod):**
+> - `https://gestor-financeiro-api-proj.vercel.app/api/auth/google/callback`
+> - `https://gestor-financeiro-api-proj.vercel.app/api/auth/github/callback`
+>
+> **OAuth callbacks (local):**
+> - `http://localhost:3000/api/auth/google/callback`
+> - `http://localhost:3000/api/auth/github/callback`
 
 ---
 
@@ -35,7 +36,7 @@ Todas as rotas protegidas usam `Authorization: Bearer <token>` no header.
 
 > [!info] Token JWT
 > O token é obtido via [[API Documentation#Registro|/api/register]] ou [[API Documentation#Login|/api/login]].  
-> Expira em 7 dias. Renove com `POST /api/refresh-token`.
+> Expira em 24h. Renove com `POST /api/refresh-token`.
 
 ---
 
@@ -111,9 +112,14 @@ Content-Type: application/json
 { "email": "joao@email.com", "senha": "123456" }
 ```
 
-> [!success] 200 OK
+> [!success] 200 OK (sem 2FA)
 > ```json
 > { "token": "jwt...", "nome": "João", "sobrenome": "Silva", "email": "joao@email.com" }
+> ```
+>
+> [!warning] 200 OK (com 2FA ativo — requer segunda etapa)
+> ```json
+> { "requires2FA": true, "tempToken": "jwt_5min...", "methods": ["totp", "email"] }
 > ```
 
 ---
@@ -161,6 +167,102 @@ Content-Type: application/json
 > [!warning] Requer autenticação JWT
 > Esta rota espera que o cliente já tenha o token social e passa o profile do usuário.  
 > Usado para integração mobile ou fluxos onde o OAuth é feito no frontend.
+
+---
+
+### Autenticação em 2 Fatores (2FA)
+
+#### Status
+
+```http
+GET /api/auth/2fa/status
+Authorization: Bearer <token>
+```
+
+> [!success] 200 OK
+> ```json
+> { "enabled": false, "methods": [], "totpVerified": false, "emailVerified": false }
+> ```
+
+#### Setup TOTP
+
+```http
+POST /api/auth/2fa/setup
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{ "method": "totp" }
+```
+
+> [!success] 200 OK
+> ```json
+> { "secret": "JBSWY3DPEHPK3PXP", "otpauth": "otpauth://totp/Gestor%20Financeiro:joao@email.com?secret=...&issuer=Gestor+Financeiro" }
+> ```
+
+#### Setup Email
+
+```http
+POST /api/auth/2fa/setup
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{ "method": "email" }
+```
+
+> [!success] 200 OK — código de 6 dígitos enviado ao email do usuário
+
+#### Verificar e Ativar
+
+```http
+POST /api/auth/2fa/verify
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{ "method": "totp", "code": "123456" }
+```
+
+> [!success] 200 OK
+> ```json
+> { "message": "TOTP ativado com sucesso!", "backupCodes": ["ABC123", "DEF456", ...] }
+> ```
+> Os 8 backup codes são exibidos **uma única vez** após ativação.
+
+#### Desativar 2FA
+
+```http
+DELETE /api/auth/2fa
+Authorization: Bearer <token>
+```
+
+#### Login — Segunda Etapa
+
+```http
+POST /api/login/2fa
+Content-Type: application/json
+
+{ "tempToken": "jwt_5min...", "code": "123456", "method": "totp" }
+```
+
+> [!success] 200 OK
+> ```json
+> { "token": "jwt_final...", "nome": "João", "trustToken": "abc...", "trustExpires": "..." }
+> ```
+
+#### Reenviar Código Email
+
+```http
+POST /api/login/2fa/resend
+Content-Type: application/json
+
+{ "tempToken": "jwt_5min..." }
+```
+
+> [!tip] Fluxo 2FA
+> 1. Login → se 2FA ativo, retorna `requires2FA: true` + `tempToken` (5min) + `methods`
+> 2. Frontend pergunta qual método (TOTP/Email) e aguarda código
+> 3. `POST /api/login/2fa` com tempToken + code + method
+> 4. Opcional: `trustDevice: true` → gera trust token (30 dias, SHA256)
+> 5. Backup codes: 8 códigos de uso único
 
 ---
 
@@ -230,7 +332,7 @@ Authorization: Bearer <token>
 
 > [!success] 200 OK
 > ```json
-> { "id": 1, "nome": "João", "sobrenome": "Silva", "email": "joao@email.com", "foto": null, "provider": null, "created_at": "2026-01-01T00:00:00.000Z" }
+> { "id": 1, "nome": "João", "sobrenome": "Silva", "email": "joao@email.com", "foto": null, "provider": null, "theme": "dracula", "sidebarCollapsed": false, "dashboardConfig": {...}, "customTheme": {...}, "pushEnabled": true, "has2FA": false, "created_at": "2026-01-01T00:00:00.000Z" }
 > ```
 
 ```http
@@ -238,11 +340,11 @@ PUT /api/profile
 Authorization: Bearer <token>
 Content-Type: application/json
 
-{ "nome": "João Updated", "sobrenome": "Silva" }
+{ "nome": "João Updated", "sobrenome": "Silva", "theme": "nord", "sidebarCollapsed": true, "dashboardConfig": {...}, "customTheme": {...}, "pushEnabled": true }
 ```
 
 ```http
-PUT /api/change-password
+POST /api/change-password
 Authorization: Bearer <token>
 Content-Type: application/json
 
@@ -329,6 +431,38 @@ Authorization: Bearer <token>
 
 O backend lê o ID de `req.query.id` (também aceita `req.body.id` como fallback).
 
+#### Desfazer (Undo)
+
+```http
+POST /api/desfazer
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{ "record": { "data": "2026-03-01", "descricao": "Mercado", "valor": 200.00, "entradaSaida": "Saída", "categoria": "Alimentação" } }
+```
+
+> [!tip] Undo com toast
+> Frontend exibe toast de 5s com "clique para desfazer" após deletar.
+> Chama `POST /api/desfazer` com o record completo salvo antes da deleção.
+
+#### Exportar
+
+```http
+POST /api/exportar/xlsx
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{ "lancamentos": [...] }
+```
+
+```http
+POST /api/exportar/email
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{ "lancamentos": [...], "email": "user@email.com", "periodo": "2026-03", "filtros": {...} }
+```
+
 > [!warning] Exclusão em lote
 > O frontend faz requisições individuais em loop. O backend **não** aceita `{ ids: [...] }`.
 
@@ -382,6 +516,37 @@ Content-Type: application/json
 
 > [!tip] Debug da Importação
 > A resposta de `POST /api/importar/auto` agora inclui `debug.sample` com os 3 primeiros registros parseados, útil para diagnóstico.
+
+---
+
+### Metas por Categoria
+
+```http
+POST   /api/metas-categoria             # Criar/atualizar meta (upsert por user_id+categoria+mes)
+GET    /api/metas-categoria             # Listar (com progresso: economizado, progresso %)
+PUT    /api/metas-categoria/:id         # Atualizar
+DELETE /api/metas-categoria/:id         # Deletar
+```
+
+> [!tip] Progresso
+> Calculado como `(receitas - gastos) / valor_meta * 100`, clamped 0-100%.
+> Se `mes` não for informado, usa o mês atual (`YYYY-MM`).
+
+---
+
+### Desafios de Economia
+
+```http
+POST   /api/desafios                 # Criar desafio { descricao, categoria?, valor_meta?, prazo_dias? }
+GET    /api/desafios                 # Listar (com streak, progresso, economizado)
+PUT    /api/desafios/:id             # Atualizar
+DELETE /api/desafios/:id             # Deletar
+POST   /api/desafios/verificar       # Recalcular streaks + enviar push nos milestones
+```
+
+> [!tip] Streaks
+> O streak é calculado percorrendo dias consecutivos sem `Saída` na categoria (ou geral, se sem categoria).
+> Milestones (7/14/21/30 dias): notificação push ao atingir cada marco (uma única vez).
 
 ---
 

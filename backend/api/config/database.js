@@ -57,6 +57,8 @@ const initDatabase = async () => {
     await pool.query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS theme TEXT DEFAULT 'dark'`).catch(() => {});
     await pool.query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS "customThemes" TEXT DEFAULT '[]'`).catch(() => {});
     await pool.query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS "dashboardConfig" TEXT DEFAULT '{}'`).catch(() => {});
+    await pool.query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS "sidebarCollapsed" BOOLEAN DEFAULT FALSE`).catch(() => {});
+    await pool.query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS investimento_percentual NUMERIC DEFAULT 0`).catch(() => {});
     
     await pool.query(`
       CREATE TABLE IF NOT EXISTS financeiro (
@@ -69,6 +71,9 @@ const initDatabase = async () => {
         categoria TEXT DEFAULT 'Outros',
         "metodoPagamento" TEXT DEFAULT 'Dinheiro',
         observacoes TEXT DEFAULT '',
+        tags TEXT[] DEFAULT '{}',
+        moeda TEXT DEFAULT 'BRL',
+        cambio NUMERIC DEFAULT 1,
         FOREIGN KEY (user_id) REFERENCES usuarios(id) ON DELETE CASCADE
       )
     `);
@@ -82,6 +87,25 @@ const initDatabase = async () => {
     `).catch(() => {});
     await pool.query(`
       ALTER TABLE financeiro ADD COLUMN IF NOT EXISTS observacoes TEXT DEFAULT ''
+    `).catch(() => {});
+    await pool.query(`
+      ALTER TABLE financeiro ADD COLUMN IF NOT EXISTS moeda TEXT DEFAULT 'BRL'
+    `).catch(() => {});
+    await pool.query(`
+      ALTER TABLE financeiro ADD COLUMN IF NOT EXISTS cambio NUMERIC DEFAULT 1
+    `).catch(() => {});
+    await pool.query(`
+      ALTER TABLE financeiro ADD COLUMN IF NOT EXISTS tags TEXT[] DEFAULT '{}'
+    `).catch(() => {});
+    await pool.query(`
+      ALTER TABLE financeiro ADD COLUMN IF NOT EXISTS recorrente_id INTEGER DEFAULT NULL
+    `).catch(() => {});
+    await pool.query(`
+      DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_recorrente_id') THEN
+          ALTER TABLE financeiro ADD CONSTRAINT fk_recorrente_id FOREIGN KEY (recorrente_id) REFERENCES recorrentes(id) ON DELETE SET NULL;
+        END IF;
+      END $$;
     `).catch(() => {});
     
     await pool.query(`
@@ -121,6 +145,8 @@ const initDatabase = async () => {
         categoria TEXT DEFAULT 'Outros',
         metodoPagamento TEXT DEFAULT 'Dinheiro',
         observacoes TEXT DEFAULT '',
+        moeda TEXT DEFAULT 'BRL',
+        cambio NUMERIC DEFAULT 1,
         frequencia TEXT NOT NULL,
         dia_vencimento INTEGER,
         proxima_data DATE NOT NULL,
@@ -149,6 +175,20 @@ const initDatabase = async () => {
     console.log('Tabela orcamentos OK');
 
     await pool.query(`
+      CREATE TABLE IF NOT EXISTS categorias (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+        nome TEXT NOT NULL,
+        cor TEXT DEFAULT '#6b7280',
+        keywords TEXT[] DEFAULT '{}',
+        ordem INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, nome)
+      )
+    `);
+    console.log('Tabela categorias OK');
+
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS user_2fa (
         id SERIAL PRIMARY KEY,
         user_id INTEGER UNIQUE NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
@@ -169,11 +209,78 @@ const initDatabase = async () => {
     console.log('Tabela user_2fa OK');
 
     await pool.query(`
+      CREATE TABLE IF NOT EXISTS metas_categoria (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+        categoria TEXT NOT NULL,
+        valor_meta NUMERIC NOT NULL,
+        mes TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, categoria, mes)
+      )
+    `);
+    console.log('Tabela metas_categoria OK');
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS desafios_economia (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+        descricao TEXT NOT NULL,
+        categoria TEXT,
+        valor_meta NUMERIC DEFAULT 0,
+        prazo_dias INTEGER DEFAULT 30,
+        streak_atual INTEGER DEFAULT 0,
+        melhor_streak INTEGER DEFAULT 0,
+        ultima_data DATE,
+        inicio_data DATE DEFAULT CURRENT_DATE,
+        ativo BOOLEAN DEFAULT TRUE,
+        notificado_7 BOOLEAN DEFAULT FALSE,
+        notificado_14 BOOLEAN DEFAULT FALSE,
+        notificado_21 BOOLEAN DEFAULT FALSE,
+        notificado_30 BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Tabela desafios_economia OK');
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS comprovantes (
+        id SERIAL PRIMARY KEY,
+        lancamento_id INTEGER NOT NULL REFERENCES financeiro(id) ON DELETE CASCADE,
+        user_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+        url TEXT NOT NULL,
+        public_id TEXT NOT NULL,
+        nome_arquivo TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Tabela comprovantes OK');
+
+    await pool.query(`
       ALTER TABLE user_2fa ADD COLUMN IF NOT EXISTS trust_token TEXT
     `);
     await pool.query(`
       ALTER TABLE user_2fa ADD COLUMN IF NOT EXISTS trust_expires TIMESTAMP
     `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS resumos_compartilhados (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+        token VARCHAR(64) UNIQUE NOT NULL,
+        dados JSONB NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        expires_at TIMESTAMPTZ NOT NULL
+      )
+    `);
+    console.log('Tabela resumos_compartilhados OK');
+
+    await pool.query(`
+      ALTER TABLE recorrentes ADD COLUMN IF NOT EXISTS moeda TEXT DEFAULT 'BRL'
+    `).catch(() => {});
+    await pool.query(`
+      ALTER TABLE recorrentes ADD COLUMN IF NOT EXISTS cambio NUMERIC DEFAULT 1
+    `).catch(() => {});
 
     console.log('Tabelas criadas ou já existem.');
     isInitialized = true;

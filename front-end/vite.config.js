@@ -18,6 +18,7 @@ export default defineConfig({
       srcDir: 'src',
       filename: 'sw.js',
       registerType: 'autoUpdate',
+      devOptions: { enabled: true, type: 'module' },
       manifest: {
         name: 'Gestor Financeiro',
         short_name: 'Gestor',
@@ -30,6 +31,11 @@ export default defineConfig({
           { src: '/favicon.svg', sizes: '192x192', type: 'image/svg+xml' },
           { src: '/favicon.svg', sizes: '512x512', type: 'image/svg+xml' },
         ],
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,svg,png,jpg,woff2}'],
+        navigateFallback: '/',
+        navigateFallbackAllowlist: [/^(?!\/api\/)/],
       },
     }),
     visualizer({

@@ -1,6 +1,6 @@
 const { pool } = require('../config/database');
 const { withTransaction } = require('../utils/queryHelpers');
-const { autoCategorize } = require('./authService');
+const { autoCategorizeWithUser } = require('./categoriaService');
 
 function calcularProximaData(dataAtual, frequencia) {
   const d = new Date(dataAtual);
@@ -15,7 +15,7 @@ function calcularProximaData(dataAtual, frequencia) {
 
 const criarRecorrente = async (userId, data) => {
   const { descricao, valor, entradaSaida, categoria, metodoPagamento, observacoes, frequencia, proxima_data, data_fim, max_ocorrencias } = data;
-  const categoriaFinal = categoria || autoCategorize(descricao);
+  const categoriaFinal = categoria || await autoCategorizeWithUser(userId, descricao);
   const { rows } = await pool.query(
     `INSERT INTO recorrentes (user_id, descricao, valor, entradaSaida, categoria, "metodoPagamento", observacoes, frequencia, proxima_data, data_fim, max_ocorrencias)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
@@ -101,9 +101,9 @@ const gerarLancamentos = async (userId) => {
       let qtdRec = 0;
       while (dataGerar <= hoje) {
         await client.query(
-          `INSERT INTO financeiro (user_id, data, descricao, valor, entradaSaida, categoria, "metodoPagamento", observacoes)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-          [userId, dataGerar, rec.descricao, rec.valor, rec.entradaSaida, rec.categoria, rec.metodoPagamento, rec.observacoes]
+          `INSERT INTO financeiro (user_id, data, descricao, valor, entradaSaida, categoria, "metodoPagamento", observacoes, recorrente_id)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+          [userId, dataGerar, rec.descricao, rec.valor, rec.entradaSaida, rec.categoria, rec.metodoPagamento, rec.observacoes, rec.id]
         );
         gerados++;
         qtdRec++;

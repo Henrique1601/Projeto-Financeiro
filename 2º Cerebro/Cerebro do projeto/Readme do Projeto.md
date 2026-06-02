@@ -17,7 +17,7 @@ cssclasses:
 
 # Readme do Projeto
 
-> **Gestor Financeiro** — Sistema completo de gerenciamento financeiro pessoal com PWA, categorização automática, login social, transações recorrentes, orçamentos e CI/CD automático.
+> **Gestor Financeiro** — Sistema completo de gerenciamento financeiro pessoal com PWA, categorização automática, login social, transações recorrentes, orçamentos, metas por categoria, desafios de economia, assistente IA e CI/CD automático.
 
 ---
 
@@ -40,6 +40,7 @@ graph LR
 | Database | PostgreSQL (Neon Serverless) | Neon |
 | PWA | Service Worker v3, Cache API, web-push | Vercel |
 | Auth | JWT + OAuth2 (Google/GitHub) | Vercel env vars |
+| IA | OpenAI GPT-4o-mini (streaming) | backend env var |
 | CI/CD | GitHub Actions | test → build → deploy |
 
 ---
@@ -63,12 +64,12 @@ postgre/
 │   ├── api/
 │   │   ├── index.js            # Express app
 │   │   ├── config/
-│   │   │   ├── database.js     # Pool pg + init tabelas (6 tabelas)
+│   │   │   ├── database.js     # Pool pg + init tabelas (9 tabelas)
 │   │   │   └── jwt.js          # Config JWT
-│   │   ├── controllers/        # auth, financeiro, orcamento
+│   │   ├── controllers/        # auth, financeiro, orcamento, metaCategoria, desafio
 │   │   ├── middleware/auth.js  # Verify JWT
 │   │   ├── routes/index.js     # Todas as rotas + OAuth
-│   │   ├── services/           # auth, financeiro, email, notification, recorrente, passport
+│   │   ├── services/           # auth, financeiro, email, notification, recorrente, metaCategoria, desafio, passport, **ai**
 │   │   ├── tests/              # 31 unit + 23 integração
 │   │   └── docs/index.html     # Documentação interativa
 │   ├── .env
@@ -87,10 +88,11 @@ postgre/
 │   │   ├── pages/
 │   │   │   ├── LoginPage.js
 │   │   │   ├── RegisterPage.js
-│   │   │   ├── DashboardPage.js    # ~1131 linhas
+│   │   │   ├── DashboardPage.js    # ~1200 linhas + metas widget + desafios widget
 │   │   │   ├── ExtratoPage.js
 │   │   │   ├── ProfilePage.js
 │   │   │   ├── RecorrentesPage.js
+│   │   │   ├── DesafiosPage.js     # Desafios de Economia (card grid, streaks)
 │   │   │   ├── CallbackPage.js
 │   │   │   ├── ForgotPasswordPage.js
 │   │   │   ├── ResetPasswordPage.js
@@ -98,16 +100,21 @@ postgre/
 │   │   ├── utils/
 │   │   │   ├── dom.js          # Toast, Spinner, empty states, skeletons
 │   │   │   ├── format.js       # Data, Moeda, Tipo
-│   │   │   └── chartSetup.js   # Chart.js tree-shaked
+│   │   │   ├── sidebar.js      # Sidebar state + nav groups
+│   │   │   ├── dashboardConfig.js # Widget grid + presets config
+│   │   │   ├── chartSetup.js   # Chart.js tree-shaked
+│   │   │   ├── chat.js         # Assistente IA (streaming SSE)
+│   │   │   └── keybindings.js  # Atalhos de teclado centralizados
 │   │   └── styles/
 │   │       ├── variables.css   # 7 temas (dark, dracula, nord, tokyo, gruvbox, rose-pine, light)
 │   │       ├── global.css      # Animações, skeletons, item-enter, page-enter
 │   │       ├── login.css
-│   │       ├── dashboard.css   # + sort, pagination, checkbox, recorrentes, orçamentos
-│   │       └── extrato.css
+│   │       ├── dashboard.css
+│   │       ├── extrato.css
+│   │       ├── desafios.css    # Card grid, streaks, fire colors
+│   │       └── chat.css        # Glassmorphism, animações
 │   ├── public/
-│   │   ├── sw.js               # Service Worker v3
-│   │   └── manifest.json
+│   │   └── sw.js               # Fallback SW (vite-plugin-pwa gera o principal)
 │   ├── package.json
 │   └── vercel.json
 │
@@ -178,14 +185,14 @@ VAPID_SUBJECT=mailto:seuemail@example.com
 ## Testes
 
 ```bash
-# Backend (54 testes)
+# Backend (54 testes: 31 unit + 23 integração)
 cd backend && npm test
 
-# Frontend
+# Frontend (37 testes: 9 format + 14 theme + 14 sidebar)
 cd front-end && npm test
 
-# E2E Playwright
-npm run test:e2e
+# E2E Playwright (14 testes: auth 6 + dashboard 5 + sidebar 3)
+npm run test:e2e    # Requer backend + frontend rodando
 ```
 
 ---
@@ -196,7 +203,8 @@ O workflow em `.github/workflows/test.yml`:
 
 1. **test-backend**: `npm test` (54 testes, 31 unit + 23 integração)
 2. **test-frontend**: `npm test` + `vite build`
-3. **deploy** (só na main): deploy Vercel automático
+3. **test-e2e**: Playwright (14 testes, Chromium, with_server.py)
+4. **deploy** (só na main, após todos os testes): deploy Vercel automático
 
 ### Secrets no GitHub
 
@@ -229,7 +237,7 @@ vercel --prod
 
 ## Banco de Dados
 
-### Tabelas (6)
+### Tabelas (9)
 
 ```mermaid
 erDiagram
@@ -238,6 +246,8 @@ erDiagram
     usuarios ||--o{ recorrentes : "user_id"
     usuarios ||--o{ orcamentos : "user_id"
     usuarios ||--o{ push_subscriptions : "user_id"
+    usuarios ||--o{ metas_categoria : "user_id"
+    usuarios ||--o{ desafios_economia : "user_id"
 
     usuarios {
         int id PK
@@ -302,9 +312,48 @@ erDiagram
         jsonb keys
         timestamp created_at
     }
+    metas_categoria {
+        int id PK
+        int user_id FK
+        text categoria
+        numeric valor_meta
+        text mes "YYYY-MM"
+        timestamp created_at
+    }
+    desafios_economia {
+        int id PK
+        int user_id FK
+        text descricao
+        text categoria
+        numeric valor_meta
+        int prazo_dias
+        int streak_atual
+        int melhor_streak
+        date ultima_data
+        date inicio_data
+        boolean ativo
+        boolean notificado_7
+        boolean notificado_14
+        boolean notificado_21
+        boolean notificado_30
+        timestamp created_at
+    }
 ```
 
 ---
+
+## Assistente IA
+
+O assistente usa **OpenAI GPT-4o-mini** para processar perguntas em linguagem natural sobre os dados financeiros.
+
+- **Backend**: `backend/api/services/aiService.js` — agrega dados mensais, detecta padrões de variação entre meses, envia prompt com dados agregados (nunca transações individuais) para a OpenAI via streaming.
+- **Endpoint**: `POST /api/ai/ask` — streaming SSE com chunks `{ content }` e sinal `{ done, fullContent }`.
+- **Frontend**: Bolha flutuante 56px (canto inferior direito) + painel lateral 480px com glassmorphism. Streaming via `ReadableStream` + `TextDecoder`.
+- **Atalho**: `Ctrl+I`.
+
+### Pré-requisito
+
+Adicionar `OPENAI_API_KEY` no `.env` do backend e nas env vars da Vercel.
 
 ## Variáveis de Ambiente (Vercel)
 
