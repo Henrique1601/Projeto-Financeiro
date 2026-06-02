@@ -33,8 +33,8 @@ test.describe('Authentication Flow', () => {
   test('LOGIN - shows error for wrong password', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    await page.fill('input[name="email"]', TEST_EMAIL);
-    await page.fill('input[name="senha"]', 'WrongPass1!');
+    await page.fill('#email', TEST_EMAIL);
+    await page.fill('#password', 'WrongPass1!');
     await page.click('button[type="submit"]');
     await expect(page.locator('.toast, .error-message, [class*="error"]').first()).toBeVisible({ timeout: 5000 });
   });
