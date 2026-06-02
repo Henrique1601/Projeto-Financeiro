@@ -10,14 +10,21 @@ export function formatDate(iso) {
   }
 }
 
-export function formatCurrency(value) {
+export function formatCurrency(value, moeda = 'BRL') {
   try {
     const num = Number(value);
     if (isNaN(num)) return value;
-    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(num);
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: moeda }).format(num);
   } catch {
     return value;
   }
+}
+
+export function formatCurrencyWithCambio(value, moeda, cambio) {
+  const formatted = formatCurrency(value, moeda);
+  if (!moeda || moeda === 'BRL' || !cambio || cambio === 1) return formatted;
+  const brl = Number(value) * Number(cambio);
+  return `${formatted} (≈ ${formatCurrency(brl)})`;
 }
 
 export function getMonthName(monthIndex) {
@@ -44,4 +51,11 @@ export function isSaida(item) {
 
 export function getTipo(item) {
   return isSaida(item) ? 'Saída' : 'Entrada';
+}
+
+export function formatMonthBR(mes) {
+  if (!mes) return '';
+  const [ano, mesNum] = mes.split('-');
+  const mesesNome = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  return `${mesesNome[parseInt(mesNum, 10) - 1]} ${ano}`;
 }

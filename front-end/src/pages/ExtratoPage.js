@@ -1,8 +1,10 @@
 import { apiGet, logout } from '../api.js';
 import { showToast, showSpinner, hideSpinner } from '../utils/dom.js';
-import { formatDate, formatCurrency, getMonthName, isSaida } from '../utils/format.js';
+import { formatDate, formatCurrency, getMonthName, isSaida, formatCurrencyWithCambio } from '../utils/format.js';
+import { CURRENCIES } from '../config.js';
 import { navigate } from '../router.js';
 import { isAuthenticated } from '../auth.js';
+import { initSidebarState, setSidebarCollapsed, syncSidebarState, getSidebarCompactMode, updateSidebarNavGroup } from '../utils/sidebar.js';
 import Chart from '../chartSetup.js';
 
 let lancamentos = [];
@@ -16,13 +18,24 @@ export async function render(app) {
 
   app.innerHTML = `
     <div class="dashboard-layout page-enter">
-      <aside class="sidebar">
+      <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-          <h2><i class="fas fa-wallet"></i> Gestor</h2>
+          <h2><i class="fas fa-wallet"></i> <span class="sidebar-title">Gestor</span></h2>
+          <button class="sidebar-toggle-btn" id="extratoSidebarToggle" aria-label="Recolher sidebar">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button class="sidebar-close-btn" id="extratoSidebarClose" aria-label="Fechar sidebar"><i class="fas fa-times"></i></button>
         </div>
-        <nav class="sidebar-nav">
-          <button class="nav-item" data-page="dashboard"><i class="fas fa-chart-bar"></i> Dashboard</button>
-          <button class="nav-item active" data-page="extrato"><i class="fas fa-list"></i> Extrato</button>
+        <nav class="sidebar-nav" id="extratoSidebarNav">
+          <div class="nav-group-header">Principal</div>
+          <button class="nav-item" data-page="dashboard" style="animation-delay:0ms"><i class="fas fa-chart-bar"></i> <span class="nav-label">Dashboard</span></button>
+          <div class="nav-group-header">Financeiro</div>
+          <button class="nav-item active" data-page="extrato" style="animation-delay:40ms"><i class="fas fa-list"></i> <span class="nav-label">Extrato</span></button>
+          <button class="nav-item" data-page="recorrentes" style="animation-delay:80ms"><i class="fas fa-redo"></i> <span class="nav-label">Recorrentes</span></button>
+          <button class="nav-item" data-page="desafios" style="animation-delay:90ms"><i class="fas fa-trophy"></i> <span class="nav-label">Desafios</span></button>
+          <button class="nav-item" data-page="comparativo" style="animation-delay:100ms"><i class="fas fa-calendar-compare"></i> <span class="nav-label">Comparativo</span></button>
+          <div class="nav-group-header">Conta</div>
+          <button class="nav-item" data-page="perfil" style="animation-delay:120ms"><i class="fas fa-user"></i> <span class="nav-label">Perfil</span></button>
         </nav>
         <div class="sidebar-footer">
           <button class="btn btn-ghost btn-sm btn-full" id="extratoLogout"><i class="fas fa-sign-out-alt"></i> Sair</button>
@@ -72,7 +85,7 @@ export async function render(app) {
             <div class="table-wrapper">
               <table class="extrato-table">
                 <thead>
-                  <tr><th>Data</th><th>Descrição</th><th>Valor</th><th>Tipo</th></tr>
+                  <tr><th>Data</th><th>Descrição</th><th>Valor</th><th>Moeda</th><th>Tipo</th></tr>
                 </thead>
                 <tbody id="extratoTableBody"></tbody>
               </table>
@@ -105,9 +118,10 @@ export async function render(app) {
               </select>
               <button class="btn btn-ghost btn-sm" id="exportChartBtn"><i class="fas fa-download"></i> Exportar Gráfico</button>
             </div>
-            <div class="charts-grid">
+            <div class="charts-grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
               <div class="chart-card" id="chartCard1"><h3>Categorias</h3><canvas id="chartCategorias"></canvas></div>
               <div class="chart-card" id="chartCard2"><h3>Evolução Mensal</h3><canvas id="chartEvolucao"></canvas></div>
+              <div class="chart-card" id="chartCard3"><h3>Despesas por Pagamento</h3><canvas id="chartPagamento"></canvas></div>
             </div>
           </div>
 
@@ -132,8 +146,48 @@ export async function render(app) {
     </div>
   `;
 
+  initSidebarState();
+  updateSidebarNavGroup('extrato');
+  document.querySelectorAll('#extratoSidebarNav .nav-item').forEach(el => el.classList.add('item-enter'));
+
   document.getElementById('extratoVoltar')?.addEventListener('click', () => navigate('/dashboard'));
   document.getElementById('extratoLogout')?.addEventListener('click', logout);
+
+  // Sidebar navigation
+  document.querySelectorAll('#extratoSidebarNav .nav-item[data-page]').forEach(item => {
+    item.addEventListener('click', () => {
+      const page = item.dataset.page;
+      if (page === 'dashboard') navigate('/dashboard');
+      else if (page === 'extrato') return;
+      else if (page === 'recorrentes') navigate('/recorrentes');
+      else if (page === 'desafios') navigate('/desafios');
+      else if (page === 'perfil') navigate('/perfil');
+    });
+  });
+
+  // Sidebar toggle (collapse)
+  document.getElementById('extratoSidebarToggle')?.addEventListener('click', () => {
+    const wasCollapsed = document.body.classList.contains('sidebar-collapsed');
+    setSidebarCollapsed(!wasCollapsed);
+    if (!wasCollapsed) document.body.classList.remove('sidebar-hover-expand');
+    syncSidebarState(!wasCollapsed);
+  });
+
+  // Sidebar hover-expand
+  const sidebar = document.getElementById('sidebar');
+  sidebar.addEventListener('mouseenter', () => {
+    if (document.body.classList.contains('sidebar-collapsed') && !getSidebarCompactMode()) {
+      document.body.classList.add('sidebar-hover-expand');
+    }
+  });
+  sidebar.addEventListener('mouseleave', () => {
+    document.body.classList.remove('sidebar-hover-expand');
+  });
+
+  // Mobile close
+  document.getElementById('extratoSidebarClose')?.addEventListener('click', () => {
+    document.getElementById('sidebar').classList.remove('open');
+  });
   document.getElementById('aplicarFiltros')?.addEventListener('click', aplicarFiltros);
   document.getElementById('limparFiltros')?.addEventListener('click', limparFiltros);
   document.getElementById('gerarGraficos')?.addEventListener('click', gerarGraficos);
@@ -146,6 +200,17 @@ export async function render(app) {
     if (currentPage <= 1) return;
     currentPage--;
     exibirTabela();
+  });
+  document.getElementById('extratoNextPage')?.addEventListener('click', () => {
+    if (currentPage >= totalPages) return;
+    currentPage++;
+    exibirTabela();
+  });
+  document.getElementById('extratoTableBody')?.addEventListener('click', (e) => {
+    const indicator = e.target.closest('.comprovante-indicator');
+    if (indicator) {
+      navigate('/dashboard');
+    }
   });
   document.getElementById('extratoNextPage')?.addEventListener('click', () => {
     const totalPages = Math.ceil(dadosFiltrados.length / pageSize);
@@ -215,15 +280,20 @@ function exibirTabela() {
   const paginated = dadosFiltrados.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   if (!dadosFiltrados.length) {
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum lançamento encontrado</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted)">Nenhum lançamento encontrado</td></tr>';
     document.getElementById('totalRecords').textContent = '0 registros';
   } else {
     tbody.innerHTML = paginated.map(l => {
       const saida = isSaida(l);
+      const moedaInfo = CURRENCIES.find(c => c.code === (l.moeda || 'BRL'));
+      const valorDisplay = l.moeda && l.moeda !== 'BRL' && l.cambio
+        ? formatCurrencyWithCambio(l.valor, l.moeda, l.cambio)
+        : formatCurrency(l.valor);
       return `<tr>
         <td>${formatDate(l.data)}</td>
-        <td>${l.descricao || '-'}</td>
-        <td class="${saida ? 'negative' : 'positive'}">${formatCurrency(l.valor)}</td>
+        <td>${l.descricao || '-'}${Array.isArray(l.tags) && l.tags.length ? ' <span class="tag-list">' + l.tags.map(t => '<span class="tag-badge">' + t + '</span>').join('') + '</span>' : ''}${l.comprovante_count > 0 ? `<span class="comprovante-indicator" data-lancamento-id="${l.id}" title="${l.comprovante_count} comprovante(s)"><i class="fas fa-paperclip"></i><span class="comprovante-badge">${l.comprovante_count}</span></span>` : ''}</td>
+        <td class="${saida ? 'negative' : 'positive'}" title="${l.moeda && l.moeda !== 'BRL' && l.cambio ? 'Taxa: ' + l.cambio : ''}">${valorDisplay}</td>
+        <td>${moedaInfo ? moedaInfo.symbol : 'R$'}</td>
         <td><span class="badge ${saida ? 'saida' : 'entrada'}">${saida ? 'Saída' : 'Entrada'}</span></td>
       </tr>`;
     }).join('');
@@ -275,6 +345,7 @@ function gerarGraficos() {
   destroyCharts();
   gerarGraficoCatgorias(filtrados, type);
   gerarGraficoEvolucao(filtrados, type);
+  gerarGraficoPagamento(filtrados, type);
   document.getElementById('chartsSection').style.display = 'block';
 }
 
@@ -325,6 +396,30 @@ function gerarGraficoEvolucao(dados, type) {
         { label: 'Entradas', data: keys.map(k => meses[k].entradas), backgroundColor: 'rgba(16,185,129,0.7)', borderColor: '#10b981', borderWidth: 2, fill: false, tension: 0.3 },
         { label: 'Saídas', data: keys.map(k => meses[k].saidas), backgroundColor: 'rgba(239,68,68,0.7)', borderColor: '#ef4444', borderWidth: 2, fill: false, tension: 0.3 },
       ],
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom' } } },
+  });
+}
+
+function gerarGraficoPagamento(dados, type) {
+  const canvas = document.getElementById('chartPagamento');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const grupos = {};
+  dados.forEach(l => {
+    if (!isSaida(l)) return;
+    const pag = l.metodoPagamento || 'Outro';
+    const v = Math.abs(Number(l.valor) || 0);
+    grupos[pag] = (grupos[pag] || 0) + v;
+  });
+  const labels = Object.keys(grupos);
+  const values = Object.values(grupos);
+  if (!labels.length) return;
+  chartInstances.pagamento = new Chart(ctx, {
+    type: ['pie', 'doughnut'].includes(type) ? type : 'bar',
+    data: {
+      labels,
+      datasets: [{ data: values, backgroundColor: gerarCores(labels.length) }],
     },
     options: { responsive: true, plugins: { legend: { position: 'bottom' } } },
   });

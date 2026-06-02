@@ -253,7 +253,7 @@ const resetPassword = async (email, code, senha) => {
 
 const getUserProfile = async (userId) => {
   const user = await getOne(
-    'SELECT id, nome, sobrenome, email, foto, provider, theme, "customThemes", "dashboardConfig", created_at FROM usuarios WHERE id = $1',
+    'SELECT id, nome, sobrenome, email, foto, provider, theme, "customThemes", "dashboardConfig", "sidebarCollapsed", investimento_percentual, created_at FROM usuarios WHERE id = $1',
     [userId]
   );
   if (!user) {
@@ -263,7 +263,7 @@ const getUserProfile = async (userId) => {
 };
 
 const updateUserProfile = async (userId, dados) => {
-  const { nome, sobrenome, foto, theme, customThemes, dashboardConfig } = dados;
+  const { nome, sobrenome, foto, theme, customThemes, dashboardConfig, sidebarCollapsed, investimento_percentual } = dados;
 
   const updates = [];
   const values = [];
@@ -275,6 +275,8 @@ const updateUserProfile = async (userId, dados) => {
   if (theme !== undefined) { updates.push(`theme = $${idx++}`); values.push(theme); }
   if (customThemes !== undefined) { updates.push(`"customThemes" = $${idx++}`); values.push(customThemes); }
   if (dashboardConfig !== undefined) { updates.push(`"dashboardConfig" = $${idx++}`); values.push(dashboardConfig); }
+  if (sidebarCollapsed !== undefined) { updates.push(`"sidebarCollapsed" = $${idx++}`); values.push(sidebarCollapsed); }
+  if (investimento_percentual !== undefined) { updates.push(`investimento_percentual = $${idx++}`); values.push(investimento_percentual); }
 
   if (!updates.length) {
     throw new Error('Nenhum dado para atualizar.');

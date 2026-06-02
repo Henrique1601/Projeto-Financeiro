@@ -1,7 +1,7 @@
 .profile-page {
   max-width: 640px;
   margin: 0 auto;
-  padding: 32px 24px;
+  padding: 80px 24px 32px;
   position: relative;
 }
 
@@ -22,7 +22,7 @@
   color: var(--text-secondary);
   font-size: 0.85rem;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background 0.25s, color 0.25s, border-color 0.25s, box-shadow 0.25s, gap 0.25s, padding 0.25s, transform 0.25s;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   box-shadow: 0 1px 3px rgba(0,0,0,0.06);
@@ -340,21 +340,6 @@
 
 /* ---- Theme Editor Modal ---- */
 
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
-
-.modal-overlay.hidden {
-  display: none;
-}
-
 .theme-editor-modal {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -490,4 +475,221 @@
   border-color: var(--primary);
   outline: none;
   box-shadow: 0 0 0 2px var(--primary-light);
+}
+
+/* ---- Categorias ---- */
+
+.categorias-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 8px;
+}
+
+.categoria-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 0;
+  background: var(--surface-secondary);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  cursor: grab;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.categoria-card:active {
+  cursor: grabbing;
+}
+
+.categoria-card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary-light);
+}
+
+.categoria-ghost {
+  opacity: 0.3;
+  border-style: dashed;
+}
+
+.categoria-accent {
+  width: 4px;
+  align-self: stretch;
+  flex-shrink: 0;
+}
+
+.categoria-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  margin-top: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  transition: transform 0.2s;
+}
+
+.categoria-card:hover .categoria-icon-wrapper {
+  transform: scale(1.05);
+}
+
+.categoria-info {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 0;
+}
+
+.categoria-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.categoria-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.categoria-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 0.62rem;
+  font-weight: 500;
+  line-height: 1.4;
+  border-radius: 100px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  letter-spacing: 0.01em;
+}
+
+.categoria-actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+  padding: 8px 8px 0 0;
+}
+
+.categoria-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.categoria-input-row select {
+  flex: 1;
+}
+
+.categoria-select {
+  min-width: 0;
+}
+
+.quick-category-modal {
+  max-width: 400px;
+}
+
+.categoria-editor-modal {
+  max-width: 480px;
+}
+
+/* Fix color input rendering */
+.categoria-editor-modal input[type="color"],
+.quick-category-modal input[type="color"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 42px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  cursor: pointer;
+}
+
+.categoria-editor-modal input[type="color"]::-webkit-color-swatch-wrapper,
+.quick-category-modal input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 2px;
+}
+
+.categoria-editor-modal input[type="color"]::-webkit-color-swatch,
+.quick-category-modal input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 3px;
+}
+
+.categoria-editor-modal input[type="color"]::-moz-color-swatch,
+.quick-category-modal input[type="color"]::-moz-color-swatch {
+  border: none;
+  border-radius: 3px;
+}
+
+/* Shortcuts */
+.shortcuts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.shortcut-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--bg-input);
+  border-radius: 8px;
+}
+
+.shortcut-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.shortcut-label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.shortcut-desc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.shortcut-keys {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.8rem;
+  background: var(--bg);
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.shortcut-recorder {
+  width: 200px;
+  height: 60px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-input);
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+}
+
+.shortcut-recorder-display {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 1.2rem;
+  color: var(--primary);
+}
+
+.shortcut-modal .modal {
+  max-width: 400px;
 }

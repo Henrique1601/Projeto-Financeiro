@@ -41,6 +41,13 @@ async function onHashChange() {
   const app = document.getElementById('app');
   if (!app) return;
 
+  // Fade out current page content before transition
+  const exiting = app.querySelector('.page-enter, .dashboard-layout, .extrato-page');
+  if (exiting) {
+    exiting.classList.add('page-exit');
+    await new Promise(r => setTimeout(r, 200));
+  }
+
   app.innerHTML = '<div class="page-transition"><div class="spinner"></div></div>';
 
   let handler = ROUTES.get(path);

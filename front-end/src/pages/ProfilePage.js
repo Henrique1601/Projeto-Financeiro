@@ -1,8 +1,27 @@
-import { apiPut, apiPost, apiGet, apiDelete } from '../api.js';
+import { apiPut, apiPost, apiGet, apiDelete, apiPatch } from '../api.js';
+import { store } from '../store.js';
 import { getProfile } from '../auth.js';
 import { showToast, showSpinner, hideSpinner } from '../utils/dom.js';
-import { navigate } from '../router.js';
+import { navigate, getRouteParams } from '../router.js';
 import { getThemes, getAllThemes, getCustomThemes, getCurrentTheme, applyTheme, setTheme, saveCustomTheme, deleteCustomTheme, exportCustomTheme, importCustomTheme, applyCustomTheme } from '../theme.js';
+import { getBindings, getBinding, setBinding, resetBindings, formatBinding, DEFAULT_BINDINGS } from '../utils/keybindings.js';
+
+const CATEGORIA_ICONS = {
+  'Alimentação': 'fa-utensils',
+  'Transporte': 'fa-car',
+  'Lazer': 'fa-gamepad',
+  'Saúde': 'fa-heartbeat',
+  'Educação': 'fa-graduation-cap',
+  'Moradia': 'fa-home',
+  'Salário': 'fa-money-bill-wave',
+  'Investimento': 'fa-chart-line',
+  'Serviços': 'fa-cogs',
+  'Outros': 'fa-tag'
+};
+
+function getCategoryIcon(name) {
+  return CATEGORIA_ICONS[name] || 'fa-tag';
+}
 
 let userProfile = null;
 let _keyHandler = null;
@@ -13,6 +32,15 @@ export async function render(app) {
   try {
     userProfile = await getProfile();
     renderProfile(app);
+    const params = getRouteParams();
+    if (params.section === 'categorias') {
+      loadCategorias().then(() => {
+        requestAnimationFrame(() => {
+          const el = document.getElementById('categoriasContainer');
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+    }
   } catch (err) {
     app.innerHTML = `<div class="profile-page"><div class="error-page"><h1>Erro ao carregar perfil</h1><p>${err.message}</p></div></div>`;
   } finally {
@@ -36,9 +64,9 @@ function renderCustomThemeCards() {
         <strong>${t.name}</strong>
       </div>
       <div class="custom-theme-actions">
-        <button class="btn btn-ghost btn-xs" onclick="document._editTheme('${t.id}')" title="Editar"><i class="fas fa-pen"></i></button>
-        <button class="btn btn-ghost btn-xs" onclick="document._exportTheme('${t.id}')" title="Exportar"><i class="fas fa-file-export"></i></button>
-        <button class="btn btn-ghost btn-xs" onclick="document._deleteTheme('${t.id}')" title="Excluir"><i class="fas fa-trash"></i></button>
+        <button class="btn btn-ghost btn-xs" onclick="document._editTheme('${t.id}')" title="Editar" aria-label="Editar tema"><i class="fas fa-pen"></i></button>
+        <button class="btn btn-ghost btn-xs" onclick="document._exportTheme('${t.id}')" title="Exportar" aria-label="Exportar tema"><i class="fas fa-file-export"></i></button>
+        <button class="btn btn-ghost btn-xs" onclick="document._deleteTheme('${t.id}')" title="Excluir" aria-label="Excluir tema"><i class="fas fa-trash"></i></button>
       </div>
     </div>
   `).join('');
@@ -125,6 +153,54 @@ function renderProfile(app) {
       </div>
 
       <div class="profile-section">
+        <h3>Sidebar</h3>
+        <div class="notification-toggle">
+          <div class="toggle-label">
+            <i class="fas fa-compress-alt"></i>
+            <span>Sidebar compacta (sempre recolhida)</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="sidebarCompactToggle" ${localStorage.getItem('sidebarCompactMode') === 'true' ? 'checked' : ''} />
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <h3>Regra de Investimento</h3>
+        <div style="font-size:0.85rem">
+          <p style="margin:0 0 8px;color:var(--text-muted)">Defina um percentual da sua receita mensal para investir.</p>
+          <div style="display:flex;align-items:center;gap:12px">
+            <input type="range" id="investimentoSlider" min="0" max="50" value="${u.investimento_percentual || 0}" style="flex:1" />
+            <span id="investimentoLabel" style="font-weight:600;min-width:48px;text-align:right">${u.investimento_percentual || 0}%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <h3>Atalhos de Teclado</h3>
+        <div id="shortcutsContainer">
+          <div class="shortcuts-list" id="shortcutsList">
+            ${Object.entries(getBindings()).map(([action, b]) => `
+              <div class="shortcut-item" data-action="${action}">
+                <div class="shortcut-info">
+                  <span class="shortcut-label">${DEFAULT_BINDINGS[action]?.label || action}</span>
+                  <span class="shortcut-desc">${DEFAULT_BINDINGS[action]?.desc || ''}</span>
+                </div>
+                <button class="btn btn-ghost btn-xs shortcut-edit-btn" data-action="${action}">
+                  <span class="shortcut-keys">${formatBinding(b)}</span>
+                  <i class="fas fa-pen" style="margin-left:6px;font-size:0.7rem"></i>
+                </button>
+              </div>
+            `).join('')}
+          </div>
+          <button class="btn btn-ghost btn-sm" id="resetShortcutsBtn" style="margin-top:8px">
+            <i class="fas fa-undo"></i> Restaurar padrões
+          </button>
+        </div>
+      </div>
+
+      <div class="profile-section">
         <h3>Notificações</h3>
         <div class="notification-toggle">
           <div class="toggle-label">
@@ -158,6 +234,16 @@ function renderProfile(app) {
       </div>
 
       <div class="profile-section">
+        <h3>Categorias</h3>
+        <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:12px">
+          <i class="fas fa-tags"></i> Gerencie suas categorias personalizadas. As palavras-chave têm prioridade sobre o dicionário global na auto-categorização.
+        </p>
+        <div id="categoriasContainer">
+          <p style="font-size:0.85rem;color:var(--text-muted)"><i class="fas fa-spinner fa-spin"></i> Carregando...</p>
+        </div>
+      </div>
+
+      <div class="profile-section">
         <p style="font-size:0.8rem;color:var(--text-muted)">
           <i class="fas fa-calendar-alt"></i> Membro desde ${new Date(u.created_at).toLocaleDateString('pt-BR')}
         </p>
@@ -168,7 +254,7 @@ function renderProfile(app) {
       <div class="modal theme-editor-modal" id="themeEditorModal">
         <div class="modal-header">
           <h3 id="themeEditorTitle">Novo Tema</h3>
-          <button class="modal-close" id="themeEditorClose">&times;</button>
+          <button class="modal-close" id="themeEditorClose" aria-label="Fechar">&times;</button>
         </div>
         <div class="modal-body">
           <div class="form-group">
@@ -183,12 +269,49 @@ function renderProfile(app) {
           <button class="btn btn-primary" id="themeEditorSave">Salvar</button>
         </div>
       </div>
+    <div class="modal-overlay hidden" id="shortcutModalOverlay">
+      <div class="modal shortcut-modal">
+        <div class="modal-header">
+          <h3>Alterar atalho</h3>
+          <button class="modal-close" id="shortcutModalClose" aria-label="Fechar">&times;</button>
+        </div>
+        <div class="modal-body" style="text-align:center">
+          <p style="margin-bottom:16px;color:var(--text-secondary)" id="shortcutModalLabel">Pressione a combinação desejada</p>
+          <div class="shortcut-recorder" id="shortcutRecorder">
+            <span class="shortcut-recorder-display" id="shortcutRecorderDisplay">...</span>
+          </div>
+          <p style="font-size:0.75rem;color:var(--text-muted);margin-top:12px">Não use Ctrl+W (fecha aba) ou F12 (devtools)</p>
+        </div>
+        <div class="modal-footer" style="justify-content:center">
+          <button class="btn btn-ghost" id="shortcutModalClear">Limpar</button>
+          <button class="btn btn-primary" id="shortcutModalSave" disabled>Salvar</button>
+        </div>
+      </div>
     </div>
   `;
 
   document.getElementById('profileBackBtn').addEventListener('click', () => navigate('/dashboard'));
   document.getElementById('profileForm').addEventListener('submit', saveProfile);
   document.getElementById('pfTheme').addEventListener('change', changeTheme);
+  document.getElementById('sidebarCompactToggle').addEventListener('change', toggleSidebarCompact);
+
+  const investSlider = document.getElementById('investimentoSlider');
+  const investLabel = document.getElementById('investimentoLabel');
+  if (investSlider) {
+    investSlider.addEventListener('input', () => {
+      investLabel.textContent = investSlider.value + '%';
+    });
+    investSlider.addEventListener('change', async () => {
+      const val = parseFloat(investSlider.value) || 0;
+      try {
+        await apiPut('/api/profile', { investimento_percentual: val });
+        localStorage.setItem('investimento_percentual', val);
+        showToast('Percentual de investimento salvo!', 'success');
+      } catch (err) {
+        showToast(err.message || 'Erro ao salvar');
+      }
+    });
+  }
   document.getElementById('pushToggle').addEventListener('change', togglePush);
   document.getElementById('newThemeBtn').addEventListener('click', () => openThemeEditor(null));
   document.getElementById('importThemeBtn').addEventListener('click', () => document.getElementById('importThemeInput').click());
@@ -198,6 +321,29 @@ function renderProfile(app) {
   document.getElementById('themeEditorCancel').addEventListener('click', closeThemeEditor);
   document.getElementById('themeEditorSave').addEventListener('click', saveThemeEditor);
   document.getElementById('themeEditorReset').addEventListener('click', resetThemeEditor);
+
+  // Shortcuts
+  document.getElementById('shortcutsList').addEventListener('click', (e) => {
+    const btn = e.target.closest('.shortcut-edit-btn');
+    if (btn) openShortcutEditor(btn.dataset.action);
+  });
+  document.getElementById('resetShortcutsBtn').addEventListener('click', () => {
+    if (!confirm('Restaurar todos os atalhos para os padrões?')) return;
+    resetBindings();
+    refreshShortcutsUI();
+    showToast('Atalhos restaurados!', 'success');
+  });
+  document.getElementById('shortcutModalClose').addEventListener('click', closeShortcutEditor);
+  document.getElementById('shortcutModalOverlay').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeShortcutEditor();
+  });
+  document.getElementById('shortcutModalClear').addEventListener('click', () => {
+    document.getElementById('shortcutRecorderDisplay').textContent = 'Nenhum';
+    document.getElementById('shortcutModalSave').disabled = false;
+    _capturedCombo = null;
+  });
+
+  loadCategorias();
 
   document._editTheme = (id) => {
     const themes = getCustomThemes();
@@ -216,6 +362,69 @@ function renderProfile(app) {
 
   _keyHandler = (e) => { if (e.key === 'Escape') navigate('/dashboard'); };
   document.addEventListener('keydown', _keyHandler);
+}
+
+let _capturedCombo = null;
+let _editingAction = null;
+
+function refreshShortcutsUI() {
+  const list = document.getElementById('shortcutsList');
+  if (!list) return;
+  list.innerHTML = Object.entries(getBindings()).map(([action, b]) => `
+    <div class="shortcut-item" data-action="${action}">
+      <div class="shortcut-info">
+        <span class="shortcut-label">${DEFAULT_BINDINGS[action]?.label || action}</span>
+        <span class="shortcut-desc">${DEFAULT_BINDINGS[action]?.desc || ''}</span>
+      </div>
+      <button class="btn btn-ghost btn-xs shortcut-edit-btn" data-action="${action}">
+        <span class="shortcut-keys">${formatBinding(b)}</span>
+        <i class="fas fa-pen" style="margin-left:6px;font-size:0.7rem"></i>
+      </button>
+    </div>
+  `).join('');
+}
+
+function openShortcutEditor(action) {
+  _editingAction = action;
+  _capturedCombo = null;
+  const overlay = document.getElementById('shortcutModalOverlay');
+  const label = document.getElementById('shortcutModalLabel');
+  const display = document.getElementById('shortcutRecorderDisplay');
+  const saveBtn = document.getElementById('shortcutModalSave');
+  label.textContent = `Atalho para "${DEFAULT_BINDINGS[action]?.label || action}"`;
+  display.textContent = formatBinding(getBinding(action)) || 'Nenhum';
+  saveBtn.disabled = true;
+  window.__capturingShortcut = true;
+  overlay.classList.remove('hidden');
+
+  const handler = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.key === 'Escape') { closeShortcutEditor(); return; }
+    const combo = { key: e.key, ctrl: e.ctrlKey, shift: e.shiftKey, alt: e.altKey };
+    if (!combo.ctrl && !combo.alt && combo.key !== 'Escape') return;
+    _capturedCombo = combo;
+    display.textContent = formatBinding(combo);
+    saveBtn.disabled = false;
+    document.removeEventListener('keydown', handler);
+  };
+  document.addEventListener('keydown', handler);
+  document.getElementById('shortcutModalSave').onclick = () => {
+    if (_editingAction) {
+      setBinding(_editingAction, _capturedCombo || { key: '', ctrl: false, shift: false, alt: false });
+      refreshShortcutsUI();
+      showToast('Atalho atualizado!', 'success');
+    }
+    closeShortcutEditor();
+  };
+}
+
+function closeShortcutEditor() {
+  window.__capturingShortcut = false;
+  const overlay = document.getElementById('shortcutModalOverlay');
+  overlay.classList.add('hidden');
+  _editingAction = null;
+  _capturedCombo = null;
 }
 
 async function saveProfile(e) {
@@ -425,6 +634,18 @@ function refreshThemeUI() {
   ].join('');
 }
 
+async function toggleSidebarCompact(e) {
+  const enabled = e.target.checked;
+  localStorage.setItem('sidebarCompactMode', enabled);
+  if (enabled) {
+    localStorage.setItem('sidebarCollapsed', 'true');
+  }
+  try {
+    await apiPut('/api/profile', { sidebarCollapsed: enabled });
+  } catch {}
+  showToast(enabled ? 'Sidebar compacta ativada' : 'Sidebar compacta desativada', 'info');
+}
+
 async function togglePush(e) {
   const enabled = e.target.checked;
   if (!('Notification' in window)) return;
@@ -614,4 +835,148 @@ async function disable2FA() {
   } finally {
     hideSpinner();
   }
+}
+
+/* ---- Categorias ---- */
+
+async function loadCategorias() {
+  const container = document.getElementById('categoriasContainer');
+  if (!container) return;
+  try {
+    const cats = await apiGet('/api/categorias');
+    renderCategorias(container, cats);
+    return true;
+  } catch (err) {
+    container.innerHTML = `<p style="font-size:0.85rem;color:var(--text-muted)">Erro ao carregar categorias.</p>`;
+  }
+}
+
+function renderCategorias(container, cats) {
+  if (!cats.length) {
+    container.innerHTML = `<p style="font-size:0.85rem;color:var(--text-muted)">Nenhuma categoria encontrada.</p>`;
+    return;
+  }
+  container.innerHTML = `
+    <div class="categorias-grid" id="categoriasGrid">
+      ${cats.map(c => `
+        <div class="categoria-card" data-id="${c.id}">
+          <div class="categoria-accent" style="background:${c.cor || '#6366f1'}"></div>
+          <div class="categoria-icon-wrapper" style="color:${c.cor || '#6366f1'}">
+            <i class="fas ${getCategoryIcon(c.nome)}"></i>
+          </div>
+          <div class="categoria-info">
+            <div class="categoria-name">${c.nome}</div>
+            ${c.keywords && c.keywords.length ? `<div class="categoria-tags">${c.keywords.map(k => `<span class="categoria-tag">${k}</span>`).join('')}</div>` : ''}
+          </div>
+          <div class="categoria-actions">
+            <button class="btn btn-ghost btn-xs edit-cat-btn" data-id="${c.id}" title="Editar" aria-label="Editar categoria"><i class="fas fa-pen"></i></button>
+            <button class="btn btn-ghost btn-xs delete-cat-btn" data-id="${c.id}" title="Excluir" aria-label="Excluir categoria" ${c.nome === 'Outros' ? 'disabled' : ''}><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    <button class="btn btn-ghost btn-sm" id="addCategoriaBtn" style="margin-top:12px"><i class="fas fa-plus"></i> Nova Categoria</button>
+  `;
+
+  container.querySelectorAll('.edit-cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cat = cats.find(c => String(c.id) === btn.dataset.id);
+      if (cat) openCategoriaEditor(cat);
+    });
+  });
+
+  container.querySelectorAll('.delete-cat-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const cat = cats.find(c => String(c.id) === btn.dataset.id);
+      if (!cat) return;
+      if (!confirm(`Excluir categoria "${cat.nome}"? Os lançamentos existentes não serão afetados.`)) return;
+      try {
+        await apiDelete(`/api/categorias/${cat.id}`);
+        showToast('Categoria excluída', 'info');
+        store.invalidateCategorias();
+        loadCategorias();
+      } catch (err) {
+        showToast(err.message || 'Erro ao excluir', 'warning');
+      }
+    });
+  });
+
+  const addBtn = container.querySelector('#addCategoriaBtn');
+  if (addBtn) addBtn.addEventListener('click', () => openCategoriaEditor(null, cats));
+
+  if (typeof Sortable !== 'undefined' && cats.length > 1) {
+    const grid = container.querySelector('#categoriasGrid');
+    Sortable.create(grid, {
+      animation: 200,
+      ghostClass: 'categoria-ghost',
+      handle: '.categoria-card',
+      onEnd: async () => {
+        const order = [...grid.querySelectorAll('.categoria-card')].map(el => Number(el.dataset.id));
+        try {
+          await apiPatch('/api/categorias/reorder', { order });
+        } catch (err) {
+          showToast('Erro ao salvar ordem', 'warning');
+        }
+      }
+    });
+  }
+}
+
+function openCategoriaEditor(cat, allCats) {
+  const isEdit = !!cat;
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'catEditorOverlay';
+  overlay.innerHTML = `
+    <div class="modal-content categoria-editor-modal">
+      <div class="modal-header">
+        <h3>${isEdit ? 'Editar' : 'Nova'} Categoria</h3>
+        <button class="modal-close" id="catEditorClose" aria-label="Fechar">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="catEditorNome">Nome</label>
+          <input type="text" id="catEditorNome" value="${isEdit ? cat.nome : ''}" placeholder="Ex: Assinaturas" maxlength="40" />
+        </div>
+        <div class="form-group">
+          <label for="catEditorCor">Cor</label>
+          <input type="color" id="catEditorCor" value="${isEdit && cat.cor ? cat.cor : '#6366f1'}" />
+        </div>
+        <div class="form-group">
+          <label for="catEditorKeywords">Palavras-chave <span class="field-note">(separadas por vírgula)</span></label>
+          <input type="text" id="catEditorKeywords" value="${isEdit && cat.keywords ? cat.keywords.join(', ') : ''}" placeholder="ex: netflix, spotify, amazon" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="catEditorCancel">Cancelar</button>
+        <button class="btn btn-primary" id="catEditorSave">${isEdit ? 'Salvar' : 'Criar'}</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const close = () => { overlay.classList.add('closing'); overlay.addEventListener('animationend', () => overlay.remove(), { once: true }); };
+  document.getElementById('catEditorClose').onclick = close;
+  document.getElementById('catEditorCancel').onclick = close;
+  overlay.onclick = (e) => { if (e.target === overlay) close(); };
+
+  document.getElementById('catEditorSave').onclick = async () => {
+    const nome = document.getElementById('catEditorNome').value.trim();
+    const cor = document.getElementById('catEditorCor').value;
+    const kw = document.getElementById('catEditorKeywords').value.split(',').map(s => s.trim()).filter(Boolean);
+    if (!nome) { showToast('Nome é obrigatório', 'warning'); return; }
+    try {
+      if (isEdit) {
+        await apiPut(`/api/categorias/${cat.id}`, { nome, cor, keywords: kw });
+      } else {
+        await apiPost('/api/categorias', { nome, cor, keywords: kw });
+      }
+      store.invalidateCategorias();
+      close();
+      showToast(isEdit ? 'Categoria atualizada!' : 'Categoria criada!', 'success');
+      loadCategorias();
+    } catch (err) {
+      showToast(err.message || 'Erro ao salvar categoria', 'warning');
+    }
+  };
 }

@@ -4,6 +4,12 @@ const authCtrl = require('../controllers/authController');
 const financeiroCtrl = require('../controllers/financeiroController');
 const recorrenteCtrl = require('../controllers/recorrenteController');
 const orcamentoCtrl = require('../controllers/orcamentoController');
+const metaCategoriaCtrl = require('../controllers/metaCategoriaController');
+const desafioCtrl = require('../controllers/desafioController');
+const categoriaCtrl = require('../controllers/categoriaController');
+const comprovanteCtrl = require('../controllers/comprovanteController');
+const compartilharCtrl = require('../controllers/compartilharController');
+const aiCtrl = require('../controllers/aiController');
 const express = require('express');
 const { createPassport } = require('../services/passportConfig');
 const router = express.Router();
@@ -69,6 +75,47 @@ router.get('/orcamentos', authenticate, ensureDbInit, orcamentoCtrl.listar);
 router.put('/orcamentos/:id', authenticate, ensureDbInit, orcamentoCtrl.atualizar);
 router.delete('/orcamentos/:id', authenticate, ensureDbInit, orcamentoCtrl.deletar);
 router.get('/orcamentos/verificar', authenticate, ensureDbInit, orcamentoCtrl.verificar);
+
+router.post('/metas-categoria', authenticate, ensureDbInit, metaCategoriaCtrl.criar);
+router.get('/metas-categoria', authenticate, ensureDbInit, metaCategoriaCtrl.listar);
+router.put('/metas-categoria/:id', authenticate, ensureDbInit, metaCategoriaCtrl.atualizar);
+router.delete('/metas-categoria/:id', authenticate, ensureDbInit, metaCategoriaCtrl.deletar);
+
+router.post('/desafios', authenticate, ensureDbInit, desafioCtrl.criar);
+router.get('/desafios', authenticate, ensureDbInit, desafioCtrl.listar);
+router.put('/desafios/:id', authenticate, ensureDbInit, desafioCtrl.atualizar);
+router.delete('/desafios/:id', authenticate, ensureDbInit, desafioCtrl.deletar);
+router.post('/desafios/verificar', authenticate, ensureDbInit, desafioCtrl.verificar);
+
+router.post('/comprovantes/signature', authenticate, ensureDbInit, comprovanteCtrl.signature);
+router.post('/comprovantes', authenticate, ensureDbInit, comprovanteCtrl.criar);
+router.get('/comprovantes/:lancamento_id', authenticate, ensureDbInit, comprovanteCtrl.listar);
+router.delete('/comprovantes/:id', authenticate, ensureDbInit, comprovanteCtrl.deletar);
+
+router.get('/categorias', authenticate, ensureDbInit, categoriaCtrl.listar);
+router.post('/categorias', authenticate, ensureDbInit, categoriaCtrl.criar);
+router.put('/categorias/:id', authenticate, ensureDbInit, categoriaCtrl.atualizar);
+router.delete('/categorias/:id', authenticate, ensureDbInit, categoriaCtrl.deletar);
+router.patch('/categorias/reorder', authenticate, ensureDbInit, categoriaCtrl.reordenar);
+
+router.get('/cambio', authenticate, ensureDbInit, async (req, res, next) => {
+  try {
+    const { getCambio } = require('../services/cambioService');
+    const moedasParam = req.query.moedas || 'USD,EUR,GBP,JPY,ARS';
+    const moedas = moedasParam.split(',').map(m => m.trim().toUpperCase()).filter(Boolean);
+    const result = await getCambio(moedas);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/compartilhar', authenticate, ensureDbInit, compartilharCtrl.criar);
+router.get('/compartilhar/:token', ensureDbInit, compartilharCtrl.buscar);
+router.get('/compartilhar', authenticate, ensureDbInit, compartilharCtrl.listar);
+router.delete('/compartilhar/:token', authenticate, ensureDbInit, compartilharCtrl.deletar);
+
+router.post('/ai/ask', authenticate, ensureDbInit, aiCtrl.ask);
 
 router.get('/categorias/palavras', authenticate, ensureDbInit, (req, res) => {
   const authService = require('../services/authService');

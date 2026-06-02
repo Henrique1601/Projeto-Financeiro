@@ -1,9 +1,73 @@
-const { generateSecret, verify, generateURI } = require('otplib');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { getOne, run } = require('../utils/queryHelpers');
 const { secret } = require('../config/jwt');
 const { sendResetCode } = require('./emailService');
+
+/* ---- TOTP nativo (RFC 6238/4226, sem otplib) ---- */
+
+function base32Encode(buf) {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  let bits = '';
+  for (let i = 0; i < buf.length; i++) {
+    bits += buf[i].toString(2).padStart(8, '0');
+  }
+  let result = '';
+  for (let i = 0; i < bits.length; i += 5) {
+    const chunk = bits.slice(i, i + 5).padEnd(5, '0');
+    result += alphabet[parseInt(chunk, 2)];
+  }
+  return result;
+}
+
+function generateTOTPSecret() {
+  return base32Encode(crypto.randomBytes(20));
+}
+
+function totpVerify(secret, token) {
+  const epoch = Math.floor(Date.now() / 1000);
+  let counter = Math.floor(epoch / 30);
+  const key = Buffer.from(decodeBase32(secret), 'base64');
+  const counterBuf = Buffer.alloc(8);
+  for (let i = 7; i >= 0; i--) {
+    counterBuf[i] = counter & 0xff;
+    counter >>>= 8;
+  }
+  const hmac = crypto.createHmac('sha1', key).update(counterBuf).digest();
+  const offset = hmac[hmac.length - 1] & 0xf;
+  const code = ((hmac[offset] & 0x7f) << 24) |
+               ((hmac[offset + 1] & 0xff) << 16) |
+               ((hmac[offset + 2] & 0xff) << 8) |
+               (hmac[offset + 3] & 0xff);
+  const totp = String(code % 1000000).padStart(6, '0');
+  return totp === String(token).padStart(6, '0');
+}
+
+function decodeBase32(str) {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  let bits = '';
+  for (const ch of str.toUpperCase()) {
+    const idx = alphabet.indexOf(ch);
+    if (idx === -1) continue;
+    bits += idx.toString(2).padStart(5, '0');
+  }
+  const bytes = [];
+  for (let i = 0; i + 7 < bits.length; i += 8) {
+    bytes.push(parseInt(bits.slice(i, i + 8), 2));
+  }
+  return Buffer.from(bytes).toString('base64');
+}
+
+function generateTOTPURI(secret, email) {
+  const params = new URLSearchParams({
+    secret,
+    issuer: 'Gestor Financeiro',
+    algorithm: 'SHA1',
+    digits: '6',
+    period: '30'
+  });
+  return `otpauth://totp/Gestor%20Financeiro:${encodeURIComponent(email)}?${params.toString()}`;
+}
 
 async function getOrCreate2FA(userId) {
   let record = await getOne('SELECT * FROM user_2fa WHERE user_id = $1', [userId]);
@@ -28,8 +92,8 @@ async function get2FAStatus(userId) {
 }
 
 async function setupTOTP(userId, email) {
-  const totpSecret = generateSecret();
-  const otpauth = generateURI({ type: 'totp', issuer: 'Gestor Financeiro', label: email, secret: totpSecret });
+  const totpSecret = generateTOTPSecret();
+  const otpauth = generateTOTPURI(totpSecret, email);
 
   await run('UPDATE user_2fa SET totp_secret = $1, totp_verified = FALSE WHERE user_id = $2', [totpSecret, userId]);
 
@@ -40,7 +104,7 @@ async function verifyAndEnableTOTP(userId, code) {
   const record = await getOne('SELECT * FROM user_2fa WHERE user_id = $1', [userId]);
   if (!record || !record.totp_secret) throw new Error('Configure TOTP primeiro.');
 
-  const isValid = (await verify({ secret: record.totp_secret, token: code })).valid;
+  const isValid = totpVerify(record.totp_secret, code);
   if (!isValid) throw new Error('Código inválido.');
 
   let methods = record.methods || [];
@@ -142,7 +206,7 @@ async function verifyLogin2FA(tempToken, code, method) {
   let valid = false;
 
   if (method === 'totp') {
-    valid = (await verify({ secret: record.totp_secret, token: code })).valid;
+    valid = totpVerify(record.totp_secret, code);
   } else if (method === 'email') {
     valid = record.email_login_code === code && new Date(record.email_login_expires) > new Date();
     if (valid) {

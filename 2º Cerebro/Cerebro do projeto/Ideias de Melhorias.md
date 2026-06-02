@@ -1,24 +1,104 @@
----
-title: Ideias de Melhorias
-description: Roadmap, features futuras e ideias para o Gestor Financeiro
-date: 2026-05-25
-tags:
-  - roadmap
-  - ideias
-  - features
-  - todo
-aliases:
-  - Roadmap
-  - Melhorias Futuras
-  - TODOs
-cssclasses:
-  - clean-embeds
----
+## ✅ Últimas Implementações (01/06/2026)
 
+### 📊 Dashboard & Relatórios — 5 Features
+- [x] **Gráfico por método de pagamento** — doughnut chart widget `pagamentos` no dashboard, agrupa gastos por `metodoPagamento`
+- [x] **Gastos recorrentes vs pontuais** — coluna `recorrente_id` na tabela `financeiro` com FK → `recorrentes(id) ON DELETE SET NULL`; doughnut chart widget `recorrentes-vs-pontuais` separando gastos com e sem `recorrente_id`
+- [x] **Comparativo mensal (widget)** — insight widget `comparativo-mensal` mostrando últimos 3 meses com variação percentual mês a mês
+- [x] **Comparativo mensal (página dedicada)** — rota `#/comparativo`, tabela com todos os meses, sidebar + atalho Ctrl+M, CSS próprio
+- [x] **Regra de investimento** — coluna `investimento_percentual NUMERIC DEFAULT 0` na `usuarios`; slider 0–50% no perfil; insight widget `investimento` calculando `receitas_mes * percentual / 100`
+- [x] **Export por categoria** — filtro `<select>` no modal de export com todas as categorias únicas
+- [x] **Backend**: migrações DB, `recorrenteService.js` seta `recorrente_id`, `authService.js` retorna/salva `investimento_percentual`
+- [x] **Frontend**: 4 novos widgets em `dashboardConfig.js`, 4 cases + charts no `DashboardPage.js`, slider no `ProfilePage.js`, ComparativoPage.js
+- [x] **Testes**: 37 frontend + 31 backend — todos passando; build Vite OK
+
+### 🎯 Metas por Categoria
+- [x] **Tabela `metas_categoria`** no banco (id, user_id, categoria, valor_meta, mes, UNIQUE(user_id, categoria, mes))
+- [x] **Service** (`metaCategoriaService.js`): CRUD + progress calculation (receita_categoria - gasto_categoria, clamped 0-100%)
+- [x] **Controller + 4 rotas**: `POST/GET/PUT/DELETE /api/metas-categoria`
+- [x] **Frontend widget** tipo `metas-categoria` no dashboard — add/delete com progress bars
+- [x] **Upsert semantics**: `ON CONFLICT DO UPDATE` — recriar meta pro mesmo mês atualiza em vez de duplicar
+
+### 🏆 Desafios de Economia
+- [x] **Tabela `desafios_economia`** no banco (descricao, categoria, valor_meta, prazo_dias, streak_atual, melhor_streak, notificações milestone 7/14/21/30)
+- [x] **Service** (`desafioService.js`): streak calculation percorrendo `financeiro` por dias consecutivos sem Saída; push notifications nos milestones
+- [x] **Controller + 5 rotas**: `POST/GET/PUT/DELETE /api/desafios` + `/api/desafios/verificar`
+- [x] **Página `#/desafios`** (`DesafiosPage.js`) — card grid com streak counter (fire colors: 7d=warning, 21d=danger), progress bars, create modal
+- [x] **Frontend widget** tipo `desafios` no dashboard (top-3 streak cards)
+- [x] **Sidebar + Nav**: botão no grupo Financeiro, atalho `Ctrl+D`, rota no `main.js`
+
+### 🧪 Testes E2E Playwright (substitui anotação ❌)
+- [x] **Instalado** `@playwright/test` + Chromium
+- [x] **`playwright.config.js`** (ESM, chromium, 1280×720)
+- [x] **3 spec files**: `auth.spec.js` (register/login/logout), `dashboard.spec.js` (CRUD, filter, sort, pagination, stats), `sidebar.spec.js` (navigation, collapse)
+- [x] **CI/CD**: job `test-e2e` rodando backend + Playwright; deploy depende de test-e2e
+
+### ⚡ vite-plugin-pwa (substitui anotação ❌)
+- [x] **Configurado** em `vite.config.js` com `devOptions.enabled: true`, `workbox` (globPatterns, navigateFallback)
+- [x] **SW atualizado** (`src/sw.js`): CDN assets com StaleWhileRevalidate, route fix para /api/ não ser interceptado como static
+- [x] **Legados removidos**: `public/sw.js`, `public/manifest.json`, `<link rel="manifest">` do index.html
+
+## ✅ Últimas Implementações (30/05/2026)
+
+### 🏷️ Tags nos Lançamentos
+- [x] **Coluna `tags TEXT[]`** no banco de dados PostgreSQL (auto-create + migration)
+- [x] **Backend CRUD** atualizado: `salvarLancamento`, `editarLancamentos`, `deletarLancamento`, `desfazerDelecao`, `importarLancamentos`, `importarAuto`, `exportarXlsx` — tudo com suporte a tags
+- [x] **Formulário do Dashboard** — campo de texto com autocomplete (`<datalist>`) alimentado por todas as tags existentes
+- [x] **Tags no envio** — valor separado por vírgula, normalizado (trim + filter empty)
+- [x] **Display em badges** — tags como `<span class="tag-badge">` coloridas na linha da transação (Dashboard + Extrato)
+- [x] **Filtro por tag** — `<select>` no filtro com todas as tags únicas existentes, sincronizado via URL params
+- [x] **CSS**: `.tag-badge`, `.tag-list`, `.field-note` em `dashboard.css`
+- [x] **Exportação XLSX** — coluna `Tags` incluída
+- [x] **Testes**: 37 frontend + 31 backend unit — todos passando
+
+## ✅ Últimas Implementações (28/05/2026)
+
+### ✨ Micro-Interações e Motion Design (6 melhorias)
+- [x] **Pulse no FAB** — botão `+` fixo no canto inferior direito com `@keyframes fabPulse` (box-shadow pulsante); hover gira 90°, active escala 0.95. Atalho: mesma action de `showFormModal()`.
+- [x] **Modal com scale animado (entrada + saída)** — `@keyframes modalOut` (scale(1)→0.95 + opacity 1→0); classe `.modal-overlay.closing` dispara animação antes de remover o DOM. Helper `closeModal()` em DashboardPage.js, `closeTopModal()` em main.js, e `close()` em ProfilePage.js.
+- [x] **Hover lift nos cards** — `.chart-card:hover`, `.insight-card:hover`, `.card:hover` (global.css): `translateY(-2px)` + `box-shadow: var(--shadow-lg)` + `border-color: var(--primary)`. `.widget-container:hover` agora também sobe 2px.
+- [x] **Contadores animados** — `runStatCounters()` lê `data-target` dos `.stat-value`, anima de 0 até o valor com ease-out quad (800ms). Rendering em `renderWidgetGrid` agora inclui `data-target` com o número cru.
+- [x] **Sinal +/- animado** — `@keyframes valuePop` (scale 0.85→1.06→1 + opacity 0→1) aplicado a todos `.stat-value` ao entrar no DOM. 0.5s com ease-spring.
+- [x] **Gradiente animado no header** — `.top-bar h1` com `background: linear-gradient(90deg, var(--text), var(--primary), var(--text))` + `background-clip: text` + `@keyframes gradientShift` (4s infinite).
+
+---
 # Ideias de Melhorias
 
 > [!quote] "O software nunca está pronto."  
 > Lista organizada de próximos passos, organizada por prioridade e esforço.
+
+---
+
+## ✅ Últimas Implementações (28/05/2026)
+
+### 🧪 Testes Automatizados (28 novos)
+- [x] **`theme.test.js`** (14 testes): `resolveTheme`, `getCurrentTheme`, `setTheme` com start/stop listener, `initTheme`, `applyTheme` com body classes
+- [x] **`sidebar.test.js`** (14 testes): `getSidebarCompactMode`, `setSidebarCollapsed`, `initSidebarState`, `syncSidebarState`, `getPageGroup`
+- [x] **Total frontend**: 37 testes (9 format + 14 theme + 14 sidebar) — todos passando
+- [x] **Refatoração**: funções de estado da sidebar extraídas para `src/utils/sidebar.js` (testável, importado por DashboardPage, ExtratoPage, main.js)
+- [x] `resolveTheme` agora é exportado publicamente
+
+### 🎨 Sidebar Melhorada v3 (Backdrop + Grupo Ativo + Smooth Transition)
+- [x] **Backdrop overlay**: `.main-content::before` com `rgba(0,0,0,0.15)` fade in 0.25s durante hover-expand
+- [x] **Smooth margin-left**: `.main-content` com `transition: margin-left var(--sidebar-transition)` para animar recolhimento/expansão
+- [x] **Indicador de grupo ativo**: `.nav-group-header.group-active` ganha cor primária + borda esquerda; `updateSidebarNavGroup()` chamado pelo `guard()` e por cada nav-item click
+- [x] Mapeamento de páginas para grupos: `dashboard→Principal`, `extrato/orcamentos/recorrentes→Financeiro`, `nova-transacao/importar→Ações`, `perfil/categorias→Conta`
+
+---
+
+### 🌗 Tema "Sistema" (prefers-color-scheme)
+- [x] Opção `"Sistema"` no seletor de temas — primeiro da lista (`fa-desktop`)
+- [x] `resolveTheme('system')` traduz para `'dark'`/`'light'` via `matchMedia('prefers-color-scheme')`
+- [x] `startSystemThemeListener()` / `stopSystemThemeListener()` — escuta mudanças ao vivo do SO
+- [x] Tema fixo desativa o listener; `'system'` reativa
+- [x] `theme.js`: `applyTheme()`, `setTheme()`, `initTheme()` — tudo adaptado
+
+### 🌀 Sidebar Melhorada v2 (Overlay Hover-Expand + Footer Icon Buttons)
+- [x] **Overlay hover-expand (Notion-like)**: sidebar `position: fixed` com `z-index: 200` + `box-shadow: 4px 0 24px rgba(0,0,0,0.2)` sobrepõe o conteúdo, não empurra
+- [x] **Conteúdo acompanha**: `body.sidebar-collapsed .main-content` com `margin-left: 60px` (antes ficava 240px fixo)
+- [x] **Footer icon buttons**: quando recolhido, `.btn-full` vira 40×40px com ícone centralizado e borda ajustada; `.theme-label` vira 40×40px; `.theme-select` some
+- [x] **Hover-expand restaura tudo**: footer padding, botões largura cheia, label e select reaparecem
+- [x] Mobile: `body.sidebar-collapsed .main-content { margin-left: 0 }` para não afetar mobile
+- [x] Estado sincronizado com backend (`PUT /api/profile`, campo `sidebarCollapsed`)
 
 ---
 
@@ -120,9 +200,10 @@ cssclasses:
 - [x] `sendToUser()` no notificationService
 - [x] Hook em `gerarLancamentos()` notifica ao gerar
 
-### 🧪 Testes E2E com Playwright
-- [x] 7 testes: register, login, dashboard, create transaction, perfil, recorrentes, health
-- [x] Script `tests/e2e_test.py` + `npm run test:e2e`
+### 🧪 Testes E2E com Playwright ✅
+- [x] 14 testes: auth (6), dashboard (5), sidebar (3)
+- [x] Spec files em `front-end/e2e/` (auth.spec.js, dashboard.spec.js, sidebar.spec.js)
+- [x] `playwright.config.js` + `with_server.py` — funcionando
 
 ### 🎨 Página de Login com Personalidade
 - [x] Blocos geométricos decorativos com `clip-path` nos cantos
@@ -190,7 +271,7 @@ cssclasses:
 
 ## 🎨 Melhorias de Design
 
-### 1. 🖋️ Tipografia Distintiva
+### 1. 🖋️ Tipografia Distintiva ✅
 - [x] Substituir fonte do sistema por par tipográfico (DM Serif Display p/ títulos + Outfit p/ corpo)
 - [x] Adicionar `<link>` das fontes no `index.html`
 - [x] Definir `font-family` nas variáveis CSS
@@ -199,9 +280,9 @@ cssclasses:
 - [x] Gradiente diagonal no ícone com fundo circular
 - [x] `font-variant-numeric: tabular-nums` + tracking mais solto nos números
 - [x] Hover com elevation: `box-shadow` + `translateY(-2px)` + transição suave
-- [ ] Sinal de + ou - animado quando o valor muda (CSS `@keyframes`)
+- [x] Sinal de + ou - animado quando o valor muda (CSS `@keyframes`)
 
-### 3. 📋 Tabela com Linhas-Card
+### 3. 📋 Tabela com Linhas-Card ✅
 - [x] Cada linha com `border-radius` sutil + `box-shadow` leve
 - [x] Hover com destaque na borda esquerda (verde p/ entrada, vermelho p/ saída)
 - [x] `transition` suave em todos os estados
@@ -214,9 +295,9 @@ cssclasses:
 ### 5. 🌀 Transições entre Páginas
 - [x] `@keyframes pageFadeIn` com `translateY(12px)` no conteúdo ao navegar
 - [x] `animation-delay` escalonado nos elementos internos (staggered reveal)
-- [ ] Transição suave de saída antes de trocar a rota (fade-out)
+- [x] Transição suave de saída antes de trocar a rota (fade-out)
 
-### 6. 🎯 Badges de Tipo com mais Presença
+### 6. 🎯 Badges de Tipo com mais Presença ✅
 - [x] Fundo gradiente sutil nos badges "Entrada"/"Saída"
 - [x] `::before` com bolinha colorida indicando o tipo
 - [x] Letter-spacing maior, uppercase obrigatório
@@ -228,14 +309,13 @@ cssclasses:
 - [x] `emptyStateSVG(type)` e `renderEmptyState()` em `dom.js`
 
 ### 8. ✨ Micro-Interações e Motion Design
-- [ ] **Hover lift nos cards** — `translateY(-2px)` + `box-shadow` aumentado ao passar o mouse (já existe nos stats, replicar nos demais cards)
-- [ ] **Pulse no FAB** — botão `+` de nova transação com `@keyframes pulse` suave (opacity/scale)
-- [ ] **Modal com scale** — fade + `scale(0.95)→(1)` ao abrir/fechar modais
-- [ ] **Contadores animados** — números dos cards de estatística incrementam visualmente ao carregar
-- [ ] **Row highlight na tabela** — hover com brilho sutil e borda esquerda colorida (já existe parcialmente)
-- [ ] **Transição entre páginas** — slide ou crossfade ao navegar entre rotas
-- [ ] **Gradiente animado no header** — `background-position` animado sutilmente
-- [ ] **Sinal de + ou - animado quando o valor muda** (CSS `@keyframes`)
+- [x] **Hover lift nos cards** — `translateY(-2px)` + `box-shadow` aumentado ao passar o mouse (já existe nos stats, replicar nos demais cards)
+- [x] **Pulse no FAB** — botão `+` de nova transação com `@keyframes pulse` suave (opacity/scale)
+- [x] **Modal com scale** — fade + `scale(0.95)→(1)` ao abrir/fechar modais
+- [x] **Contadores animados** — números dos cards de estatística incrementam visualmente ao carregar
+- [x] **Row highlight na tabela** — hover com brilho sutil e borda esquerda colorida (já existe parcialmente)
+- [x] **Gradiente animado no header** — `background-position` animado sutilmente
+- [x] **Sinal de + ou - animado quando o valor muda** (CSS `@keyframes`)
 
 ---
 
@@ -246,13 +326,13 @@ cssclasses:
 - [x] Importar só: `LineController, LineElement, PointElement, BarController, BarElement, CategoryScale, LinearScale, DoughnutController, PieController, ArcElement, Tooltip, Legend, Filler`
 - [x] Shared `chartSetup.js` com `Chart.register()`
 
-### 2. ⚡ `vite-plugin-pwa` (substituir SW manual)
-- [ ] Instalar `vite-plugin-pwa -D`
-- [ ] Configurar no `vite.config.js` com `registerType: 'autoUpdate'`
-- [ ] Gerar Service Worker com Workbox em vez do `sw.js` manual em `public/`
-- [ ] Habilitar `devOptions.enabled` para testar em dev
-- [ ] Manter notificações push (custom SW)
-- [ ] Auto-inject do manifest + caching de assets estáticos
+### 2. ⚡ `vite-plugin-pwa` (substituir SW manual) ✅
+- [x] Instalar `vite-plugin-pwa -D`
+- [x] Configurar no `vite.config.js` com `registerType: 'autoUpdate'`
+- [x] Gerar Service Worker com Workbox em vez do `sw.js` manual em `public/`
+- [x] Habilitar `devOptions.enabled` para testar em dev
+- [x] Manter notificações push (custom SW)
+- [x] Auto-inject do manifest + caching de assets estáticos
 
 ### 3. 🚀 Migrar Express 4 → Express 5
 - [ ] Atualizar `express` no `backend/package.json` para `^5.2.0`
@@ -262,10 +342,10 @@ cssclasses:
 - [ ] MIME types: `application/javascript` → `text/javascript`
 - [ ] `res.status()` só aceita inteiros 100-999
 
-### 4. 🔍 Análise de Bundle
-- [ ] Adicionar `vite-plugin-visualizer` para debug visual do bundle
-- [ ] Rodar `npx vite-bundle-analyzer` no build
-- [ ] Identificar dependências pesadas não utilizadas
+### 4. 🔍 Análise de Bundle ✅
+- [x] `rollup-plugin-visualizer` instalado e configurado no `vite.config.js`
+- [x] Gera `stats.html` no build (análise visual do bundle)
+- [x] Identificar dependências pesadas não utilizadas
 
 ### 5. 🦴 Skeleton Screens ✅
 - [x] Classe CSS `.skeleton` com shimmer animado (`@keyframes shimmer`)
@@ -277,10 +357,10 @@ cssclasses:
 
 ## 🔥 Prioridade Alta
 
-### 1. 🧪 Testes Automatizados
+### 1. 🧪 Testes Automatizados ✅
 - [x] Testes unitários (31: autoCategorize, parseCSV, parseOFX, calcularProximaData)
 - [x] Testes de integração (23: health, auth, financeiro, recorrentes, orçamentos, profile, errors)
-- [x] Testes E2E Playwright (7: register, login, dashboard, create, perfil, recorrentes, health)
+- [x] Testes E2E Playwright (14: auth 6, dashboard 5, sidebar 3) — funcionando
 - [x] CI/CD no GitHub Actions (test → build → deploy)
 - [x] Integration tests skip graciosamente sem DATABASE_URL
 
@@ -313,14 +393,14 @@ cssclasses:
 
 ## 📋 Prioridade Média
 
-### 5. 🔔 Notificações Push
+### 5. 🔔 Notificações Push ✅
 - [x] Endpoint `POST /api/push/subscribe` para salvar subscription
 - [x] Envio de notificação push ao gerar lançamentos recorrentes
 - [x] Alerta de orçamento (80% e 100%)
 - [x] Botão "Ativar notificações" no perfil
 - [x] Tratar permissão negada / revogada
 
-### 6. 📤 Melhorias na Exportação
+### 6. 📤 Melhorias na Exportação ✅
 - [x] Envio por email do relatório (.xlsx anexado)
 - [x] Exportar para Excel (.xlsx)
 - [x] Tema claro no PDF (lê --primary do tema atual)
@@ -328,7 +408,7 @@ cssclasses:
 ### 7. 🌙 Tema — Salvar no Backend ✅
 - [x] Endpoint `PUT /api/profile` salva theme
 - [x] Sincronizar tema entre dispositivos
-- [ ] Temas customizáveis pelo usuário (criar próprio)
+- [x] Temas customizáveis pelo usuário (criar próprio, 20 variáveis CSS, editor visual, export/import)
 
 ---
 
@@ -391,33 +471,35 @@ cssclasses:
 
 ### 🔄 Melhorias na Experiência
 
-- [ ] **Modo escuro automático** — seguir `prefers-color-scheme` do SO, com toggle pra sobrescrever
-- [ ] **Gráfico de despesas por método de pagamento** — "Quanto gastei no crédito vs débito esse mês?"
-- [ ] **Nota fiscal / comprovante** — anexar imagem por transação (upload pra blob storage)
-- [ ] **Dashboard customizável** — usuário escolhe quais cards/widgets aparecem (arrastar e soltar)
-- [ ] **Categorias personalizadas** — usuário criar/deletar/renomear categorias próprias (hoje são fixas)
-- [ ] **Página de Resumo Anual** — tabelão com 12 meses lado a lado, total por categoria no ano
+- [x] **Modo escuro automático** — opção "Sistema" no seletor de temas que segue `prefers-color-scheme` do SO, com listener ao vivo. Implementado em `theme.js` (resolveTheme, startSystemThemeListener, stopSystemThemeListener). Tema fixo desativa o listener.
+- [x] **Sidebar melhorada v2** — recolhível com overlay hover-expand (Notion-like: z-index + shadow sobrepõe conteúdo), footer com botões 40×40px, `.main-content` ajusta margin para 60px quando recolhido, grupos de navegação (Principal, Financeiro, Ações, Conta), stagger animation, spring transition, mini mode persistente, sync com backend. `dashboard.css`, `DashboardPage.js`, `ExtratoPage.js`, `ProfilePage.js`.
+- [x] **Gráfico de despesas por método de pagamento** — "Quanto gastei no crédito vs débito esse mês?"
+- [x] **Nota fiscal / comprovante** — anexar imagem por transação (upload pra Cloudinary, indicador 📎, popover)
+- [x] **Dashboard customizável** — widget grid (SortableJS), 4 tamanhos, hide/show, presets CRUD, export/import JSON
+- [x] **Tags nos lançamentos** — campo de tags com autocomplete, badges coloridas na tabela, filtro por tag, export XLSX com coluna Tags (30/05/2026)
+- [x] **Categorias personalizadas** — usuário criar/deletar/renomear categorias próprias com cor + keywords (ProfilePage)
+- [x] **Página de Resumo Anual** — tabelão com 12 meses lado a lado, total por categoria no ano (no Extrato)
 
 ### 📊 Dados & Relatórios
 
-- [ ] **Gastos recorrentes vs pontuais** — gráfico separando assinaturas fixas de gastos variáveis
-- [ ] **Regra de negócio "Se sobrou X, investir Y%"** — sugestão automática de investimento baseada no saldo do mês
-- [ ] **Exportar CSV/PDF por categoria** — "Exportar só gastos de Alimentação" sem precisar filtrar manual
-- [ ] **Extrato bancário comparado** — importar 2 meses e mostrar diff lado a lado
+- [x] **Gastos recorrentes vs pontuais** — gráfico separando assinaturas fixas de gastos variáveis
+- [x] **Regra de negócio "Se sobrou X, investir Y%"** — sugestão automática de investimento baseada na receita do mês
+- [x] **Exportar CSV/PDF por categoria** — "Exportar só gastos de Alimentação" sem precisar filtrar manual
+- [x] **Extrato bancário comparado** — página dedicada `#/comparativo` com tabela mensal lado a lado
 
 ### ⚡ Qualidade de Vida
 
-- [ ] **Scanning de boleto por código de barras** — ler linha digitável e preencher valor + data automaticamente (câmera do celular)
-- [ ] **Dark mode na impressão do PDF** — opção "Imprimir com fundo escuro" pra quem usa tema noturno
-- [ ] **Multi-moeda** — suporte a USD/EUR com cotação aproximada, útil pra gastos internacionais
-- [ ] **Desfazer (Undo)** — "Excluiu sem querer?" botão de desfazer por 5 segundos após deletar
-- [ ] **Atalho customizable** — usuário redefinir os atalhos de teclado (Ctrl+H, etc.)
+- [x] **Scanning de boleto por código de barras** — ler linha digitável e preencher valor + data automaticamente (câmera do celular + input manual)
+- [x] **Dark mode na impressão do PDF** — opção "Fundo escuro" no modal de export pra quem usa tema noturno
+- [x] **Multi-moeda** — suporte a USD/EUR com cotação aproximada, útil pra gastos internacionais
+- [x] **Desfazer (Undo)** — "Excluiu sem querer?" toast de 5s para desfazer após deletar (individual + bulk)
+- [x] **Atalho customizable** — usuário redefinir os atalhos de teclado (Ctrl+H, etc.)
 
 ### 🌐 Social & Gamificação
 
-- [ ] **Metas personalizadas por categoria** — "Quero gastar no máximo R$500 em Ifood esse mês" com progresso
-- [ ] **Desafio de economia** — "Fique 30 dias sem gastar com delivery" com streak counter
-- [ ] **Compartilhar resumo público** — link temporário com resumo anônimo (sem valores, só métricas)
+- [x] **Metas personalizadas por categoria** — "Quero gastar no máximo R$500 em Ifood esse mês" com progresso
+- [x] **Desafio de economia** — "Fique 30 dias sem gastar com delivery" com streak counter
+- [x] **Compartilhar resumo público** — link temporário com resumo anônimo (sem valores, só métricas)
 
 ---
 

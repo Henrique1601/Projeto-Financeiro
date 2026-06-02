@@ -1,6 +1,6 @@
 import { precacheAndRoute } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
-import { NetworkFirst, CacheFirst } from 'workbox-strategies';
+import { NetworkFirst, CacheFirst, StaleWhileRevalidate } from 'workbox-strategies';
 
 precacheAndRoute(self.__WB_MANIFEST);
 
@@ -15,8 +15,13 @@ registerRoute(
 );
 
 registerRoute(
-  ({ url }) => url.origin === self.location.origin,
+  ({ url }) => url.origin === self.location.origin && !url.pathname.startsWith('/api/'),
   new CacheFirst({ cacheName: 'static-cache' })
+);
+
+registerRoute(
+  ({ url }) => url.origin.includes('cdnjs.cloudflare.com') || url.origin.includes('fonts.googleapis.com') || url.origin.includes('fonts.gstatic.com'),
+  new StaleWhileRevalidate({ cacheName: 'cdn-cache' })
 );
 
 self.addEventListener('push', (e) => {

@@ -1,0 +1,17 @@
+{
+  "name": "gestor-financeiro-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n backend,frontend -c blue,green \"cd backend && npm run dev\" \"cd front-end && npm run dev\"",
+    "build": "cd front-end && npm run build",
+    "test": "cd backend && npm test && cd ../front-end && npm test",
+    "test:backend": "cd backend && npm test",
+    "test:frontend": "cd front-end && npm test",
+    "test:e2e": "cd front-end && npm run test:e2e",
+    "install:all": "cd backend && npm install && cd ../front-end && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}

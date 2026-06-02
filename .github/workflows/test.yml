@@ -41,8 +41,35 @@ jobs:
       - run: npm test
       - run: npm run build
 
-  deploy:
+  test-e2e:
     needs: [test-backend, test-frontend]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: front-end
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: front-end/package-lock.json
+      - run: npm ci
+      - run: npx playwright install chromium
+      - name: Start backend
+        run: |
+          cd ../backend
+          DATABASE_URL="${{ secrets.DATABASE_URL }}" JWT_SECRET="${{ secrets.JWT_SECRET }}" node api/index.js &
+          sleep 3
+      - name: Run E2E tests
+        run: npx playwright test
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
+  deploy:
+    needs: [test-backend, test-frontend, test-e2e]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
