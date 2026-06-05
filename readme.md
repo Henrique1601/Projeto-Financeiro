@@ -376,7 +376,7 @@ VAPID_SUBJECT=mailto:seuemail@example.com
 
 | Projeto | URL | ID Vercel |
 |---------|-----|-----------|
-| **Frontend** | https://gestor-financeiro-proj.vercel.app | `prj_03Ubrvp96UsDmupRfqESi07KgKX6` |
+| **Frontend** | https://projeto-financeiro-frontend.vercel.app | `prj_03Ubrvp96UsDmupRfqESi07KgKX6` |
 | **Backend** | https://gestor-financeiro-api-proj.vercel.app | `prj_HVlKrN2J7tVfvGF0o71ZHpLrWHso` |
 
 ### Variáveis de Ambiente (15 vars no Vercel)
